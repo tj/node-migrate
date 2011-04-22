@@ -4,7 +4,7 @@
  */
 
 var migrate = require('../')
-  , should = require('../support/should')
+  , should = require('should')
   , fs = require('fs');
 
 // remove migration file
