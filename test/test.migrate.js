@@ -116,5 +116,7 @@ function assertPets() {
 
 assertPets.withDogs = function(){
   db.pets.should.have.length(5);
+  db.pets[0].name.should.equal('tobi');
+  db.pets[0].email.should.equal('tobi@learnboost.com');
   db.pets[4].name.should.equal('suki');
 };
