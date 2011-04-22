@@ -133,6 +133,14 @@ function log(key, msg) {
   console.log('  \033[90m%s :\033[0m \033[36m%s\033[0m', key, msg);
 }
 
+/**
+ * Slugify the given `str`.
+ */
+
+function slugify(str) {
+  return str.replace(/\s+/g, '-');
+}
+
 // load config
 
 var config = loadConfig();
@@ -163,7 +171,7 @@ var commands = {
 
   create: function(){
     var curr = ++config.prev
-      , title = Array.prototype.slice.call(arguments).join(' ');
+      , title = slugify(Array.prototype.slice.call(arguments).join(' '));
     // TODO: slug()
     // append '-' when title is present
     title = title ? curr + '-' + title : curr; 
