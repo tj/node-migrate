@@ -131,7 +131,13 @@ var config = loadConfig();
 
 var commands = {
   up: function(){
-    
+    // no migrations
+    if (-1 == config.prev) abort('add migrations before running $ migrate up');
+  },
+  
+  down: function(){
+    // no migrations
+    if (-1 == config.prev) abort('add migrations before running $ migrate down');
   },
   
   create: function(){
