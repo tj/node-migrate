@@ -4,7 +4,8 @@
  * Module dependencies.
  */
 
-var fs = require('fs');
+var migrate = require('../')
+  , fs = require('fs');
 
 /**
  * Arguments.
@@ -16,10 +17,7 @@ var args = process.argv.slice(2);
  * Option defaults.
  */
 
-var options = {
-    path: process.cwd() + '/migrations'
-  , args: []
-};
+var options = { args: [] };
 
 /**
  * Usage information.
@@ -31,7 +29,7 @@ var usage = [
   , ''
   , '  Options:'
   , ''
-  , '     -p, --path <path>   set the operation path'
+  , '     -c, --chdir <path>   change the working directory'
   , ''
   , '  Commands:'
   , ''
@@ -65,7 +63,7 @@ function required() {
 // abort with a message
 
 function abort(msg) {
-  console.error(msg);
+  console.error('  %s', msg);
   process.exit(1);
 }
 
@@ -81,9 +79,9 @@ while (args.length) {
       console.log(usage);
       process.exit();
       break;
-    case '-p':
-    case '--path':
-      options.path = required();
+    case '-c':
+    case '--chdir':
+      process.chdir(required());
       break;
     default:
       if (options.command) {
@@ -100,7 +98,7 @@ while (args.length) {
 
 function loadConfig() {
   try {
-    return JSON.parse(fs.readFileSync(options.path + '/migrate.json', 'utf8'));
+    return JSON.parse(fs.readFileSync('migrations/migrate.json', 'utf8'));
   } catch (err) {
     return { prev: -1 };
   }
@@ -112,7 +110,19 @@ function loadConfig() {
 
 function saveConfig(obj) {
   var json = JSON.stringify(obj);
-  fs.writeFileSync(options.path + '/migrate.json', json);
+  fs.writeFileSync('migrations/migrate.json', json);
+}
+
+/**
+ * Load migrations.
+ */
+
+function migrations() {
+  return fs.readdirSync('migrations').filter(function(file){
+    return file.match(/^\d+/);
+  }).sort().map(function(file){
+    return 'migrations/' + file;
+  });
 }
 
 /**
@@ -130,36 +140,69 @@ var config = loadConfig();
 // commands
 
 var commands = {
+
+  /**
+   * up
+   */
+
   up: function(){
-    // no migrations
-    if (-1 == config.prev) abort('add migrations before running $ migrate up');
+    performMigration('up');
   },
-  
+
+  /**
+   * down
+   */
+
   down: function(){
-    // no migrations
-    if (-1 == config.prev) abort('add migrations before running $ migrate down');
+    performMigration('down');
   },
-  
+
+  /**
+   * create [title]
+   */
+
   create: function(){
     var curr = ++config.prev
       , title = Array.prototype.slice.call(arguments).join(' ');
-
+    // TODO: slug()
     // append '-' when title is present
     title = title ? curr + '-' + title : curr; 
 
-    var path = options.path + '/' + title + '.js';
+    var path = 'migrations/' + title + '.js';
     log('create', path);
     fs.writeFileSync(path, template);
     saveConfig(config);
   }
 };
 
+// perform migration
+
+function performMigration(direction) {
+  // no migrations
+  if (-1 == config.prev) abort('add migrations before running $ migrate ' + direction);
+  migrate('migrations/.migrate');
+  migrations().forEach(function(path){
+    var mod = require(process.cwd() + '/' + path);
+    migrate(path, mod.up, mod.down);
+  });
+
+  var set = migrate();
+
+  set.on('migration', function(migration, direction){
+    log(direction, migration.title);
+  });
+
+  set.on('save', function(){
+    log('migration', 'complete');
+    process.exit();
+  });
+
+  set[direction]();
+}
+
 // invoke command
 
 var command = options.command || 'up';
 if (!(command in commands)) abort('unknown command "' + command + '"');
 command = commands[command];
-console.log();
 command.apply(this, options.args);
-console.log();
-
