@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 
 /**
+ * Module dependencies.
+ */
+
+var fs = require('fs');
+
+/**
  * Arguments.
  */
 
@@ -29,7 +35,23 @@ var usage = [
   , ''
   , '  Commands:'
   , ''
-  , '     create   create a new migration file'
+  , '     create [title]    create a new migration file with optional [title]'
+  , ''
+].join('\n');
+
+/**
+ * Migration template.
+ */
+
+var template = [
+    ''
+  , 'exports.up = function(next){'
+  , '  next();'
+  , '};'
+  , ''
+  , 'exports.down = function(next){'
+  , '  next();'
+  , '};'
   , ''
 ].join('\n');
 
@@ -37,7 +59,13 @@ var usage = [
 
 function required() {
   if (args.length) return args.shift();
-  console.error(arg + ' requires an argument');
+  abort(arg + ' requires an argument');
+}
+
+// abort with a message
+
+function abort(msg) {
+  console.error(msg);
   process.exit(1);
 }
 
@@ -66,8 +94,66 @@ while (args.length) {
   }
 }
 
-// default command to migrate up
+/**
+ * Load configuration.
+ */
 
-options.command = options.command || 'up';
+function loadConfig() {
+  try {
+    return JSON.parse(fs.readFileSync(options.path + '/migrate.json', 'utf8'));
+  } catch (err) {
+    return { prev: -1 };
+  }
+}
 
-console.log(options);
+/**
+ * Save configuration.
+ */
+
+function saveConfig(obj) {
+  var json = JSON.stringify(obj);
+  fs.writeFileSync(options.path + '/migrate.json', json);
+}
+
+/**
+ * Log a keyed message.
+ */
+
+function log(key, msg) {
+  console.log('  \033[90m%s :\033[0m \033[36m%s\033[0m', key, msg);
+}
+
+// load config
+
+var config = loadConfig();
+
+// commands
+
+var commands = {
+  up: function(){
+    
+  },
+  
+  create: function(){
+    var curr = ++config.prev
+      , title = Array.prototype.slice.call(arguments).join(' ');
+
+    // append '-' when title is present
+    title = title ? curr + '-' + title : curr; 
+
+    var path = options.path + '/' + title + '.js';
+    log('create', path);
+    fs.writeFileSync(path, template);
+    saveConfig(config);
+  }
+};
+
+// invoke command
+
+var command = options.command || 'up';
+if (!(command in commands)) abort('unknown command "' + command + '"');
+command = commands[command];
+console.log();
+command.apply(this, options.args);
+console.log();
+
