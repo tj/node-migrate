@@ -1,8 +1,10 @@
 
+var db = require('./db');
+
 exports.up = function(next){
-  next();
+  db.set('pets:coolest', 'tobi', next);
 };
 
 exports.down = function(next){
-  next();
+  db.del('pets:coolest', next);
 };

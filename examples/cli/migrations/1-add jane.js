@@ -1,8 +1,10 @@
 
+var db = require('./db');
+
 exports.up = function(next){
-  next();
+  db.rpush('pets', 'jane', next);
 };
 
 exports.down = function(next){
-  next();
+  db.rpop('pets', next);
 };
