@@ -97,7 +97,33 @@ function testNewMigrations() {
       assertPets.withDogs();
       set.down(function(){
         assertNoPets();
+        testMigrationEvents();
       });
+    });
+  });
+}
+
+// test events
+
+function testMigrationEvents() {
+  migrate('adjust emails', function(next){
+    db.pets.forEach(function(pet){
+      if (pet.email)
+        pet.email = pet.email.replace('learnboost.com', 'lb.com');
+    });
+    next();
+  }, function(next){
+    db.pets.forEach(function(pet){
+      if (pet.email)
+        pet.email = pet.email.replace('lb.com', 'learnboost.com');
+    });
+    next();
+  });
+
+  set.up(function(){
+    db.pets[0].email.should.equal('tobi@lb.com');
+    set.down(function(){
+      assertNoPets();
     });
   });
 }
