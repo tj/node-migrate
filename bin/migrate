@@ -1,0 +1,73 @@
+#!/usr/bin/env node
+
+/**
+ * Arguments.
+ */
+
+var args = process.argv.slice(2);
+
+/**
+ * Option defaults.
+ */
+
+var options = {
+    path: process.cwd() + '/migrations'
+  , args: []
+};
+
+/**
+ * Usage information.
+ */
+
+var usage = [
+    ''
+  , '  Usage: migrate [options] [command]'
+  , ''
+  , '  Options:'
+  , ''
+  , '     -p, --path <path>   set the operation path'
+  , ''
+  , '  Commands:'
+  , ''
+  , '     create   create a new migration file'
+  , ''
+].join('\n');
+
+// require an argument
+
+function required() {
+  if (args.length) return args.shift();
+  console.error(arg + ' requires an argument');
+  process.exit(1);
+}
+
+// parse arguments
+
+var arg;
+while (args.length) {
+  arg = args.shift();
+  switch (arg) {
+    case '-h':
+    case '--help':
+    case 'help':
+      console.log(usage);
+      process.exit();
+      break;
+    case '-p':
+    case '--path':
+      options.path = required();
+      break;
+    default:
+      if (options.command) {
+        options.args.push(arg);
+      } else {
+        options.command = arg;
+      }
+  }
+}
+
+// default command to migrate up
+
+options.command = options.command || 'up';
+
+console.log(options);
