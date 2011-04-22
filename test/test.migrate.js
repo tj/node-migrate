@@ -120,9 +120,26 @@ function testMigrationEvents() {
     next();
   });
 
+  var migrations = []
+    , expectedMigrations = [
+      'add guy ferrets'
+    , 'add girl ferrets'
+    , 'add emails'
+    , 'add dogs'
+    , 'adjust emails'];
+
+  set.on('migration', function(migration, direction){
+    migrations.push(migration.title);
+    direction.should.be.a('string');
+  });
+
   set.up(function(){
     db.pets[0].email.should.equal('tobi@lb.com');
+    migrations.should.eql(expectedMigrations);
+
+    migrations = [];
     set.down(function(){
+      migrations.should.eql(expectedMigrations.reverse());
       assertNoPets();
     });
   });
