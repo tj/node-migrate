@@ -121,6 +121,7 @@ function testMigrationEvents() {
   });
 
   var migrations = []
+    , completed = 0
     , expectedMigrations = [
       'add guy ferrets'
     , 'add girl ferrets'
@@ -133,13 +134,19 @@ function testMigrationEvents() {
     direction.should.be.a('string');
   });
 
+  set.on('complete', function(){
+    ++completed;
+  });
+
   set.up(function(){
     db.pets[0].email.should.equal('tobi@lb.com');
     migrations.should.eql(expectedMigrations);
+    completed.should.equal(1);
 
     migrations = [];
     set.down(function(){
       migrations.should.eql(expectedMigrations.reverse());
+      completed.should.equal(2);
       assertNoPets();
     });
   });
