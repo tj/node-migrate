@@ -170,3 +170,9 @@ assertPets.withDogs = function(){
   db.pets[0].email.should.equal('tobi@learnboost.com');
   db.pets[4].name.should.equal('suki');
 };
+
+// status
+
+process.on('exit', function(){
+  console.log('\n   ok\n');
+});
