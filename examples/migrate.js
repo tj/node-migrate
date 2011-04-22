@@ -38,8 +38,18 @@ migrate('coolest pet', function(next){
   db.del('pets:coolest', next);
 });
 
-migrate().up(function(err){
+var set = migrate();
+
+console.log();
+set.on('save', function(){
+  console.log();
+});
+
+set.on('migration', function(migration, direction){
+  console.log('  \033[90m%s\033[0m \033[36m%s\033[0m', direction, migration.title);
+});
+
+set.up(function(err){
   if (err) throw err;
-  console.log('done');
   process.exit();
 });
