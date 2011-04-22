@@ -1,0 +1,216 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var migrate = require('../')
+  , fs = require('fs');
+
+/**
+ * Arguments.
+ */
+
+var args = process.argv.slice(2);
+
+/**
+ * Option defaults.
+ */
+
+var options = { args: [] };
+
+/**
+ * Usage information.
+ */
+
+var usage = [
+    ''
+  , '  Usage: migrate [options] [command]'
+  , ''
+  , '  Options:'
+  , ''
+  , '     -c, --chdir <path>   change the working directory'
+  , ''
+  , '  Commands:'
+  , ''
+  , '     create [title]    create a new migration file with optional [title]'
+  , ''
+].join('\n');
+
+/**
+ * Migration template.
+ */
+
+var template = [
+    ''
+  , 'exports.up = function(next){'
+  , '  next();'
+  , '};'
+  , ''
+  , 'exports.down = function(next){'
+  , '  next();'
+  , '};'
+  , ''
+].join('\n');
+
+// require an argument
+
+function required() {
+  if (args.length) return args.shift();
+  abort(arg + ' requires an argument');
+}
+
+// abort with a message
+
+function abort(msg) {
+  console.error('  %s', msg);
+  process.exit(1);
+}
+
+// parse arguments
+
+var arg;
+while (args.length) {
+  arg = args.shift();
+  switch (arg) {
+    case '-h':
+    case '--help':
+    case 'help':
+      console.log(usage);
+      process.exit();
+      break;
+    case '-c':
+    case '--chdir':
+      process.chdir(required());
+      break;
+    default:
+      if (options.command) {
+        options.args.push(arg);
+      } else {
+        options.command = arg;
+      }
+  }
+}
+
+/**
+ * Load configuration.
+ */
+
+function loadConfig() {
+  try {
+    return JSON.parse(fs.readFileSync('migrations/migrate.json', 'utf8'));
+  } catch (err) {
+    return { prev: -1 };
+  }
+}
+
+/**
+ * Save configuration.
+ */
+
+function saveConfig(obj) {
+  var json = JSON.stringify(obj);
+  fs.writeFileSync('migrations/migrate.json', json);
+}
+
+/**
+ * Load migrations.
+ */
+
+function migrations() {
+  return fs.readdirSync('migrations').filter(function(file){
+    return file.match(/^\d+/);
+  }).sort().map(function(file){
+    return 'migrations/' + file;
+  });
+}
+
+/**
+ * Log a keyed message.
+ */
+
+function log(key, msg) {
+  console.log('  \033[90m%s :\033[0m \033[36m%s\033[0m', key, msg);
+}
+
+/**
+ * Slugify the given `str`.
+ */
+
+function slugify(str) {
+  return str.replace(/\s+/g, '-');
+}
+
+// load config
+
+var config = loadConfig();
+
+// commands
+
+var commands = {
+
+  /**
+   * up
+   */
+
+  up: function(){
+    performMigration('up');
+  },
+
+  /**
+   * down
+   */
+
+  down: function(){
+    performMigration('down');
+  },
+
+  /**
+   * create [title]
+   */
+
+  create: function(){
+    var curr = ++config.prev
+      , title = slugify(Array.prototype.slice.call(arguments).join(' '));
+    // TODO: slug()
+    // append '-' when title is present
+    title = title ? curr + '-' + title : curr; 
+
+    var path = 'migrations/' + title + '.js';
+    log('create', path);
+    fs.writeFileSync(path, template);
+    saveConfig(config);
+  }
+};
+
+// perform migration
+
+function performMigration(direction) {
+  // no migrations
+  if (-1 == config.prev) abort('add migrations before running $ migrate ' + direction);
+  migrate('migrations/.migrate');
+  migrations().forEach(function(path){
+    var mod = require(process.cwd() + '/' + path);
+    migrate(path, mod.up, mod.down);
+  });
+
+  var set = migrate();
+
+  set.on('migration', function(migration, direction){
+    log(direction, migration.title);
+  });
+
+  set.on('save', function(){
+    log('migration', 'complete');
+    process.exit();
+  });
+
+  set[direction]();
+}
+
+// invoke command
+
+var command = options.command || 'up';
+if (!(command in commands)) abort('unknown command "' + command + '"');
+command = commands[command];
+command.apply(this, options.args);
