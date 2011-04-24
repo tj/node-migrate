@@ -2,9 +2,10 @@
     "name": "migrate"
   , "version": "0.0.1"
   , "description": "Abstract migration framework for node"
-  , "keywords": ["migrations"]
+  , "keywords": ["migrate", "migrations"]
   , "author": "TJ Holowaychuk <tj@vision-media.ca>"
-  , "dependencies": { "progress": ">= 0.0.3" }
+  , "repository": "git://github.com/visionmedia/node-migrate"
+  , "bin": { "migrate": "./bin/migrate" }
   , "main": "index"
   , "engines": { "node": "0.4.x" }
 }
