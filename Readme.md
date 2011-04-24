@@ -3,6 +3,75 @@
 
   Abstract migration framework for node
 
+## Creating Migrations
+
+To create a migration, execute `migrate create` with an optional title. `node-migrate` will create a node module within `./migrations/` which contains the following two exports:
+
+    exports.up = function(next){
+      next();
+    };
+
+    exports.down = function(next){
+      next();
+    };
+
+All you have to do is populate these, invoking `next()` when complete, and you are ready to migrate!
+
+For example:
+
+    $ migrate create add-pets
+    $ migrate create add-owners
+
+The first call creates `./migrations/0-add-pets.js`, which we can populate:
+
+      var db = require('./db');
+
+      exports.up = function(next){
+        db.rpush('pets', 'tobi');
+        db.rpush('pets', 'loki');
+        db.rpush('pets', 'jane', next);
+      };
+
+      exports.down = function(next){
+        db.rpop('pets');
+        db.rpop('pets', next);
+      };
+
+The second creates `./migrations/1-add-owners.js`, which we can populate:
+
+      var db = require('./db');
+
+      exports.up = function(next){
+        db.rpush('owners', 'taylor');
+        db.rpush('owners', 'tj', next);
+      };
+
+      exports.down = function(next){
+        db.rpop('owners');
+        db.rpop('owners', next);
+      };
+
+## Running Migrations
+
+When first running the migrations, all will be executed in sequence.
+
+    $ migrate
+    up : migrations/0-add-pets.js
+    up : migrations/1-add-jane.js
+    up : migrations/2-add-owners.js
+    up : migrations/3-coolest-pet.js
+    migration : complete
+
+Subsequent attempts will simply output "complete", as they have already been executed in this machine. `node-migrate` knows this because it stores the current state in `./migrations/.migrate` which is typically a file that SCMs like GIT should ignore.
+
+    $ migrate
+    migration : complete
+
+If we were to create another migration using `migrate create`, and then execute migrations again, we would execute only those not previously executed:
+
+    $ migrate
+    up : migrates/4-coolest-owner.js
+
 ## License 
 
 (The MIT License)
