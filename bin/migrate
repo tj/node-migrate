@@ -172,7 +172,7 @@ var commands = {
   create: function(){
     var curr = ++config.prev
       , title = slugify(Array.prototype.slice.call(arguments).join(' '));
-    // TODO: slug()
+
     // append '-' when title is present
     title = title ? curr + '-' + title : curr; 
 
