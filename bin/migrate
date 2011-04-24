@@ -33,7 +33,9 @@ var usage = [
   , ''
   , '  Commands:'
   , ''
-  , '     create [title]    create a new migration file with optional [title]'
+  , '     down             migrate down'
+  , '     up               migrate up (the default command)'
+  , '     create [title]   create a new migration file with optional [title]'
   , ''
 ].join('\n');
 
