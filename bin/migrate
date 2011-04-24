@@ -143,6 +143,14 @@ function slugify(str) {
   return str.replace(/\s+/g, '-');
 }
 
+// create ./migrations
+
+try {
+  fs.mkdirSync('migrations', 0774);
+} catch (err) {
+  // ignore
+}
+
 // load config
 
 var config = loadConfig();
