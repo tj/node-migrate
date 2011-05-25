@@ -3,6 +3,10 @@
 
   Abstract migration framework for node
 
+## Installation
+
+    $ npm install migrate
+
 ## Creating Migrations
 
 To create a migration, execute `migrate create` with an optional title. `node-migrate` will create a node module within `./migrations/` which contains the following two exports:
