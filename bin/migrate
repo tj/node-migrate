@@ -5,6 +5,7 @@
  */
 
 var migrate = require('../')
+  , join = require('path').join
   , fs = require('fs');
 
 /**
@@ -18,6 +19,12 @@ var args = process.argv.slice(2);
  */
 
 var options = { args: [] };
+
+/**
+ * Current working directory.
+ */
+
+var cwd;
 
 /**
  * Usage information.
@@ -83,7 +90,7 @@ while (args.length) {
       break;
     case '-c':
     case '--chdir':
-      process.chdir(required());
+      process.chdir(cwd = required());
       break;
     default:
       if (options.command) {
@@ -187,7 +194,7 @@ var commands = {
     title = title ? curr + '-' + title : curr; 
 
     var path = 'migrations/' + title + '.js';
-    log('create', path);
+    log('create', join(cwd, path));
     fs.writeFileSync(path, template);
     saveConfig(config);
   }
