@@ -170,7 +170,7 @@ var commands = {
       return a - b;
     });
 
-    var curr = pad(migrations.pop() + 1)
+    var curr = pad((migrations.pop() || 0) + 1)
       , title = slugify([].slice.call(arguments).join(' '));
     title = title ? curr + '-' + title : curr; 
     create(title);
