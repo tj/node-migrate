@@ -102,27 +102,6 @@ while (args.length) {
 }
 
 /**
- * Load configuration.
- */
-
-function loadConfig() {
-  try {
-    return JSON.parse(fs.readFileSync('migrations/migrate.json', 'utf8'));
-  } catch (err) {
-    return { prev: -1 };
-  }
-}
-
-/**
- * Save configuration.
- */
-
-function saveConfig(obj) {
-  var json = JSON.stringify(obj);
-  fs.writeFileSync('migrations/migrate.json', json);
-}
-
-/**
  * Load migrations.
  */
 
@@ -158,10 +137,6 @@ try {
   // ignore
 }
 
-// load config
-
-var config = loadConfig();
-
 // commands
 
 var commands = {
@@ -187,24 +162,38 @@ var commands = {
    */
 
   create: function(){
-    var curr = ++config.prev
-      , title = slugify(Array.prototype.slice.call(arguments).join(' '));
+    var migrations = fs.readdirSync('migrations').filter(function(file){
+      return file.match(/^\d+/);
+    }).map(function(file){
+      return parseInt(file.match(/^(\d+)/)[1]);
+    }).sort();
 
-    // append '-' when title is present
+    var curr = migrations.pop() + 1
+      , title = slugify([].slice.call(arguments).join(' '));
     title = title ? curr + '-' + title : curr; 
-
-    var path = 'migrations/' + title + '.js';
-    log('create', join(cwd, path));
-    fs.writeFileSync(path, template);
-    saveConfig(config);
+    create(title);
   }
 };
 
-// perform migration
+/**
+ * Create a migration with the given `name`.
+ *
+ * @param {String} name
+ */
+
+function create(name) {
+  var path = 'migrations/' + name + '.js';
+  log('create', join(cwd, path));
+  fs.writeFileSync(path, template);
+}
+
+/**
+ * Perform a migration in the given `direction`.
+ *
+ * @param {Number} direction
+ */
 
 function performMigration(direction) {
-  // no migrations
-  if (-1 == config.prev) abort('add migrations before running $ migrate ' + direction);
   migrate('migrations/.migrate');
   migrations().forEach(function(path){
     var mod = require(process.cwd() + '/' + path);
