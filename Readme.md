@@ -26,7 +26,7 @@ For example:
     $ migrate create add-pets
     $ migrate create add-owners
 
-The first call creates `./migrations/0-add-pets.js`, which we can populate:
+The first call creates `./migrations/000-add-pets.js`, which we can populate:
 
       var db = require('./db');
 
@@ -41,7 +41,7 @@ The first call creates `./migrations/0-add-pets.js`, which we can populate:
         db.rpop('pets', next);
       };
 
-The second creates `./migrations/1-add-owners.js`, which we can populate:
+The second creates `./migrations/001-add-owners.js`, which we can populate:
 
       var db = require('./db');
 
@@ -60,10 +60,10 @@ The second creates `./migrations/1-add-owners.js`, which we can populate:
 When first running the migrations, all will be executed in sequence.
 
     $ migrate
-    up : migrations/0-add-pets.js
-    up : migrations/1-add-jane.js
-    up : migrations/2-add-owners.js
-    up : migrations/3-coolest-pet.js
+    up : migrations/000-add-pets.js
+    up : migrations/001-add-jane.js
+    up : migrations/002-add-owners.js
+    up : migrations/003-coolest-pet.js
     migration : complete
 
 Subsequent attempts will simply output "complete", as they have already been executed in this machine. `node-migrate` knows this because it stores the current state in `./migrations/.migrate` which is typically a file that SCMs like GIT should ignore.
@@ -74,7 +74,7 @@ Subsequent attempts will simply output "complete", as they have already been exe
 If we were to create another migration using `migrate create`, and then execute migrations again, we would execute only those not previously executed:
 
     $ migrate
-    up : migrates/4-coolest-owner.js
+    up : migrates/004-coolest-owner.js
 
 ## License 
 
