@@ -165,15 +165,28 @@ var commands = {
     var migrations = fs.readdirSync('migrations').filter(function(file){
       return file.match(/^\d+/);
     }).map(function(file){
-      return parseInt(file.match(/^(\d+)/)[1]);
-    }).sort();
+      return parseInt(file.match(/^(\d+)/)[1], 10);
+    }).sort(function(a, b){
+      return a - b;
+    });
 
-    var curr = migrations.pop() + 1
+    var curr = pad(migrations.pop() + 1)
       , title = slugify([].slice.call(arguments).join(' '));
     title = title ? curr + '-' + title : curr; 
     create(title);
   }
 };
+
+/**
+ * Pad the given number.
+ *
+ * @param {Number} n
+ * @return {String}
+ */
+
+function pad(n) {
+  return Array(4 - n.toString().length).join('0') + n;
+}
 
 /**
  * Create a migration with the given `name`.
