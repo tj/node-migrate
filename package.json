@@ -6,6 +6,9 @@
   , "author": "TJ Holowaychuk <tj@vision-media.ca>"
   , "repository": "git://github.com/visionmedia/node-migrate"
   , "bin": { "migrate": "./bin/migrate" }
+  , "devDependencies": {
+    "should": ">= 0.0.1"
+  }
   , "main": "index"
   , "engines": { "node": "0.4.x" }
 }
