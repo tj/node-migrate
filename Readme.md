@@ -7,6 +7,23 @@
 
     $ npm install migrate
 
+## Usage
+
+```
+Usage: migrate [options] [command]
+
+Options:
+
+   -c, --chdir <path>   change the working directory
+
+Commands:
+
+   down             migrate down
+   up               migrate up (the default command)
+   create [title]   create a new migration file with optional [title]
+
+```
+
 ## Creating Migrations
 
 To create a migration, execute `migrate create` with an optional title. `node-migrate` will create a node module within `./migrations/` which contains the following two exports:
