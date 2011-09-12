@@ -107,7 +107,7 @@ while (args.length) {
 
 function migrations() {
   return fs.readdirSync('migrations').filter(function(file){
-    return file.match(/^\d+/);
+    return file.match(/^\d+.*\.js$/);
   }).sort().map(function(file){
     return 'migrations/' + file;
   });
