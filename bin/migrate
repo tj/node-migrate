@@ -40,8 +40,8 @@ var usage = [
   , ''
   , '  Commands:'
   , ''
-  , '     down             migrate down'
-  , '     up               migrate up (the default command)'
+  , '     down   [name]    migrate down till given migration'
+  , '     up     [name]    migrate up till given migration (the default command)'
   , '     create [title]   create a new migration file with optional [title]'
   , ''
 ].join('\n');
@@ -142,19 +142,19 @@ try {
 var commands = {
 
   /**
-   * up
+   * up [name]
    */
 
-  up: function(){
-    performMigration('up');
+  up: function(migrationName){
+    performMigration('up', migrationName);
   },
 
   /**
-   * down
+   * down [name]
    */
 
-  down: function(){
-    performMigration('down');
+  down: function(migrationName){
+    performMigration('down', migrationName);
   },
 
   /**
@@ -206,7 +206,7 @@ function create(name) {
  * @param {Number} direction
  */
 
-function performMigration(direction) {
+function performMigration(direction, migrationName) {
   migrate('migrations/.migrate');
   migrations().forEach(function(path){
     var mod = require(process.cwd() + '/' + path);
@@ -224,7 +224,8 @@ function performMigration(direction) {
     process.exit();
   });
 
-  set[direction]();
+  var migrationPath = (typeof migrationName === 'undefined') ? migrationName : ('migrations/' + migrationName);
+  set[direction](null, migrationPath);
 }
 
 // invoke command
