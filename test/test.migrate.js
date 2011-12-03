@@ -148,20 +148,59 @@ function testMigrationEvents() {
       migrations.should.eql(expectedMigrations.reverse());
       completed.should.equal(2);
       assertNoPets();
+      testNamedMigrations();
     });
   });
+}
+
+// test migrations when migration name is given
+
+function testNamedMigrations() {
+  assertNoPets();
+  set.up(function() {
+    assertFirstMigration();
+    set.up(function() {
+      assertSecondMigration();
+      set.down(function() {
+        assertFirstMigration();
+        set.up(function() {
+          assertSecondMigration();
+          set.down(function() {
+            set.pos.should.equal(1);
+          }, 'add girl ferrets');
+        },'add girl ferrets');
+      }, 'add girl ferrets');
+    },'add girl ferrets');
+  }, 'add guy ferrets');
 }
 
 // helpers
 
 function assertNoPets() {
   db.pets.should.be.empty;
+  set.pos.should.equal(0);
 }
 
 function assertPets() {
   db.pets.should.have.length(3);
   db.pets[0].name.should.equal('tobi');
   db.pets[0].email.should.equal('tobi@learnboost.com');
+  set.pos.should.equal(3);
+}
+
+function assertFirstMigration() {
+  db.pets.should.have.length(2);
+  db.pets[0].name.should.equal('tobi');
+  db.pets[1].name.should.equal('loki');
+  set.pos.should.equal(1);
+}
+
+function assertSecondMigration() {
+  db.pets.should.have.length(3);
+  db.pets[0].name.should.equal('tobi');
+  db.pets[1].name.should.equal('loki');
+  db.pets[2].name.should.equal('jane');
+  set.pos.should.equal(2);
 }
 
 assertPets.withDogs = function(){
