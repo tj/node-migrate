@@ -1,4 +1,9 @@
 
+0.1.0 / 2011-12-03 
+==================
+
+  * Added support for incremental migrations. [Kishore Nallan]
+
 0.0.5 / 2011-11-07 
 ==================
 
