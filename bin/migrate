@@ -224,7 +224,10 @@ function performMigration(direction, migrationName) {
     process.exit();
   });
 
-  var migrationPath = (typeof migrationName === 'undefined') ? migrationName : ('migrations/' + migrationName);
+  var migrationPath = migrationName
+    ? migrationName
+    : join('migrations', migrationName);
+ 
   set[direction](null, migrationPath);
 }
 
