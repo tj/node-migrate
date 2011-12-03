@@ -225,8 +225,8 @@ function performMigration(direction, migrationName) {
   });
 
   var migrationPath = migrationName
-    ? migrationName
-    : join('migrations', migrationName);
+    ? join('migrations/', migrationName)
+    : migrationName;
  
   set[direction](null, migrationPath);
 }
