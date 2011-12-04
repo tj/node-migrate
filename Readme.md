@@ -102,11 +102,11 @@ You can also run migrations incrementally by specifying a migration.
       migration : complete
 
 This will run up-migrations upto (and including) `002-coolest-pet.js`. Similarly you can run down-migrations upto (and including) a specific migration, instead of migrating all the way down.
-    
-    $ migrate down 001-add-jane.js
-    down : migrations/002-add-owners.js
-    down : migrations/001-add-jane.js
-    migration : complete
+
+      $ migrate down 001-add-jane.js
+      down : migrations/002-add-owners.js
+      down : migrations/001-add-jane.js
+      migration : complete
 
 ## License 
 
