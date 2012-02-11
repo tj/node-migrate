@@ -1,5 +1,11 @@
 #!/usr/bin/env node
 
+/*
+ * Allowed extensions for migration files
+ */
+
+var migrationExtensions = ['js'];
+
 /**
  * Module dependencies.
  */
@@ -7,6 +13,24 @@
 var migrate = require('../')
   , join = require('path').join
   , fs = require('fs');
+
+/*
+ * Optional module dependencies.
+ */
+
+function requireOptional(moduleName, callback) {
+  try {
+    var module = require(moduleName);
+    callback(module);
+    return module;
+  } catch (err) {
+	// ignore
+  }
+}
+
+requireOptional('coffee-script', function () {
+   migrationExtensions.push('coffee');
+});
 
 /**
  * Arguments.
@@ -107,7 +131,8 @@ while (args.length) {
 
 function migrations() {
   return fs.readdirSync('migrations').filter(function(file){
-    return file.match(/^\d+.*\.js$/);
+    var migrationFilePattern = '^\\d+.*\\.(' + migrationExtensions.join('|') + ')$';
+    return file.match(new RegExp(migrationFilePattern));
   }).sort().map(function(file){
     return 'migrations/' + file;
   });
