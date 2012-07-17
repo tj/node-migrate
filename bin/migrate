@@ -24,7 +24,13 @@ var options = { args: [] };
  * Current working directory.
  */
 
-var cwd;
+var cwd = process.cwd()+'/migrations';
+
+/**
+ * Current working environment.
+ */
+
+var env = '';
 
 /**
  * Usage information.
@@ -88,9 +94,10 @@ while (args.length) {
       console.log(usage);
       process.exit();
       break;
-    case '-c':
-    case '--chdir':
-      process.chdir(cwd = required());
+    case '-e':
+    case '--env':
+      env = required();
+      cwd = cwd+'/'+env;
       break;
     default:
       if (options.command) {
@@ -106,10 +113,10 @@ while (args.length) {
  */
 
 function migrations() {
-  return fs.readdirSync('migrations').filter(function(file){
+  return fs.readdirSync(cwd).filter(function(file){
     return file.match(/^\d+.*\.js$/);
   }).sort().map(function(file){
-    return 'migrations/' + file;
+    return file;
   });
 }
 
@@ -162,7 +169,12 @@ var commands = {
    */
 
   create: function(){
-    var migrations = fs.readdirSync('migrations').filter(function(file){
+
+    try {
+      fs.mkdirSync(cwd, 0774);
+    } catch (err) { /* ignore */  }
+
+    var migrations = fs.readdirSync(cwd).filter(function(file){
       return file.match(/^\d+/);
     }).map(function(file){
       return parseInt(file.match(/^(\d+)/)[1], 10);
@@ -172,9 +184,24 @@ var commands = {
 
     var curr = pad((migrations.pop() || 0) + 1)
       , title = slugify([].slice.call(arguments).join(' '));
-    title = title ? curr + '-' + title : curr; 
+    title = title ? curr + '-' + title : curr;
     create(title);
+  },
+
+  copy: function(from, to){
+
+    try {
+      fs.mkdirSync(cwd+'/'+to, 0774);
+    } catch (err) { /* ignore */  }
+
+    return fs.readdirSync(cwd+'/'+from).filter(function(file){
+      return file.match(/^\d+.*\.js$/);
+    }).sort().map(function(file){
+      log('copying', 'migrations/'+from+'/'+file+' to migrations/'+to+'/'+file);
+      fs.createReadStream(cwd+'/'+from+'/'+file).pipe(fs.createWriteStream(cwd+'/'+to+'/'+file));
+    });
   }
+
 };
 
 /**
@@ -195,8 +222,9 @@ function pad(n) {
  */
 
 function create(name) {
-  var path = 'migrations/' + name + '.js';
-  log('create', join(cwd, path));
+
+  var path = cwd+'/' + name + '.js';
+  log('create', path.replace(process.cwd()+'/','') );
   fs.writeFileSync(path, template);
 }
 
@@ -207,16 +235,16 @@ function create(name) {
  */
 
 function performMigration(direction, migrationName) {
-  migrate('migrations/.migrate');
+  migrate(cwd + '/.migrate');
   migrations().forEach(function(path){
-    var mod = require(process.cwd() + '/' + path);
-    migrate(path, mod.up, mod.down);
+    var mod = require(cwd + '/' + path);
+    migrate(path, mod.up, mod.down, env);
   });
 
   var set = migrate();
 
   set.on('migration', function(migration, direction){
-    log(direction, migration.title);
+    log(direction, 'migrations/'+migration.env+'/'+migration.title);
   });
 
   set.on('save', function(){
@@ -227,7 +255,7 @@ function performMigration(direction, migrationName) {
   var migrationPath = migrationName
     ? join('migrations', migrationName)
     : migrationName;
- 
+
   set[direction](null, migrationPath);
 }
 
