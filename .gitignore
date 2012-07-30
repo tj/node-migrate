@@ -1,4 +1,6 @@
+.idea/
 .DS_Store
 node_modules
+migrations/
 *.sock
 .migrate
