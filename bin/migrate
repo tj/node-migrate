@@ -30,7 +30,7 @@ var cwd;
  * Usage information.
  */
 
-var env = '';
+var env = process.env.NODE_ENV;
 
 var usage = [
     ''
@@ -39,7 +39,6 @@ var usage = [
   , '  Options:'
   , ''
   , '     -c, --chdir <path>   change the working directory'
-  , '     -e, --env   <name>   change the environment'
   , ''
   , '  Commands:'
   , ''
@@ -95,10 +94,6 @@ while (args.length) {
     case '-c':
     case '--chdir':
       process.chdir(cwd = required());
-      break;
-    case '--env':
-    case '-e':
-      env = required();
       break;
     default:
       if (options.command) {

@@ -15,7 +15,6 @@ Usage: migrate [options] [command]
 Options:
 
    -c, --chdir <path>   change the working directory
-   -e, --env   <name>   change the environment
 
 Commands:
 
@@ -101,6 +100,17 @@ Subsequent attempts will simply output "complete", as they have already been exe
 
       $ migrate
       migration : complete
+
+Run migrations with node environment:
+
+      $ NODE_ENV=production migrate
+      up : migrations/000-add-pets.js
+      up : migrations/001-add-jane.js
+      up : migrations/002-add-owners.js
+      up : migrations/003-coolest-pet.js
+      migration : complete
+
+State saved in .migrate-production file
 
 If we were to create another migration using `migrate create`, and then execute migrations again, we would execute only those not previously executed:
 
