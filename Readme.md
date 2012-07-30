@@ -71,7 +71,7 @@ The second creates `./migrations/001-add-owners.js`, which we can populate:
         if(env == 'production'){
           res = db_prod;
         }
-        return (db_prod);
+        return (res);
       }
 
       exports.up = function(next, env){
