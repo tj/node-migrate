@@ -14,13 +14,14 @@ Usage: migrate [options] [command]
 
 Options:
 
-   -c, --chdir <path>   change the working directory
+   -e, --env <name>   change the environment
 
 Commands:
 
    down             migrate down
    up               migrate up (the default command)
    create [title]   create a new migration file with optional [title]
+   copy [to, from]  copy migrations from one environment context to another
 
 ```
 
@@ -107,6 +108,30 @@ This will run up-migrations upto (and including) `002-coolest-pet.js`. Similarly
       down : migrations/002-add-owners.js
       down : migrations/001-add-jane.js
       migration : complete
+
+## Running Migrations with Environment Context
+
+      $ migrate -e dev create
+        create : migrations/dev/001.js
+
+      $ migrate -e dev up
+        up : migrations/dev/001.js
+        migration : complete
+
+      $ migrate -e dev down
+        down : migrations/dev/001.js
+        migration : complete
+
+      $ migrate copy dev prod
+        copying : migrations/dev/001.js to migrations/prod/001.js
+
+      $ migrate -e prod up
+        up : migrations/prod/001.js
+        migration : complete
+
+      $ migrate -e prod down
+        down : migrations/prod/001.js
+        migration : complete
 
 ## License 
 
