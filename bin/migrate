@@ -30,6 +30,8 @@ var cwd;
  * Usage information.
  */
 
+var env = process.env.NODE_ENV;
+
 var usage = [
     ''
   , '  Usage: migrate [options] [command]'
@@ -44,6 +46,7 @@ var usage = [
   , '     up     [name]    migrate up till given migration (the default command)'
   , '     create [title]   create a new migration file with optional [title]'
   , ''
+
 ].join('\n');
 
 /**
@@ -52,11 +55,11 @@ var usage = [
 
 var template = [
     ''
-  , 'exports.up = function(next){'
+  , 'exports.up = function(next, env) {'
   , '  next();'
   , '};'
   , ''
-  , 'exports.down = function(next){'
+  , 'exports.down = function(next, env) {'
   , '  next();'
   , '};'
   , ''
@@ -207,10 +210,14 @@ function create(name) {
  */
 
 function performMigration(direction, migrationName) {
-  migrate('migrations/.migrate');
+  var fileName = '.migrate';
+  if(env) {
+	  fileName += '-' + env;
+  }
+  migrate('migrations/' + fileName);
   migrations().forEach(function(path){
     var mod = require(process.cwd() + '/' + path);
-    migrate(path, mod.up, mod.down);
+    migrate(path, mod.up, mod.down, env);
   });
 
   var set = migrate();

@@ -28,11 +28,11 @@ Commands:
 
 To create a migration, execute `migrate create` with an optional title. `node-migrate` will create a node module within `./migrations/` which contains the following two exports:
 
-    exports.up = function(next){
+    exports.up = function(next, env){
       next();
     };
 
-    exports.down = function(next){
+    exports.down = function(next, env){
       next();
     };
 
@@ -47,27 +47,40 @@ The first call creates `./migrations/000-add-pets.js`, which we can populate:
 
       var db = require('./db');
 
-      exports.up = function(next){
+      exports.up = function(next, env){
         db.rpush('pets', 'tobi');
         db.rpush('pets', 'loki');
         db.rpush('pets', 'jane', next);
       };
 
-      exports.down = function(next){
+      exports.down = function(next, env){
         db.rpop('pets');
         db.rpop('pets', next);
       };
 
 The second creates `./migrations/001-add-owners.js`, which we can populate:
 
-      var db = require('./db');
+      //with environment
 
-      exports.up = function(next){
+      var db = require('./db');
+      var db_prod = require('./db.production');
+
+      function getDb(env) {
+        var res = db;
+        if(env == 'production'){
+          res = db_prod;
+        }
+        return (res);
+      }
+
+      exports.up = function(next, env){
+        var db = getDb(env);
         db.rpush('owners', 'taylor');
         db.rpush('owners', 'tj', next);
       };
 
-      exports.down = function(next){
+      exports.down = function(next, env){
+        var db = getDb(env);
         db.rpop('owners');
         db.rpop('owners', next);
       };
@@ -83,10 +96,21 @@ When first running the migrations, all will be executed in sequence.
       up : migrations/003-coolest-pet.js
       migration : complete
 
-Subsequent attempts will simply output "complete", as they have already been executed in this machine. `node-migrate` knows this because it stores the current state in `./migrations/.migrate` which is typically a file that SCMs like GIT should ignore.
+Subsequent attempts will simply output "complete", as they have already been executed in this machine. `node-migrate` knows this because it stores the current state in `./migrations/.migrate[-env]` which is typically a file that SCMs like GIT should ignore.
 
       $ migrate
       migration : complete
+
+Run migrations with node environment:
+
+      $ NODE_ENV=production migrate
+      up : migrations/000-add-pets.js
+      up : migrations/001-add-jane.js
+      up : migrations/002-add-owners.js
+      up : migrations/003-coolest-pet.js
+      migration : complete
+
+State saved in .migrate-production file
 
 If we were to create another migration using `migrate create`, and then execute migrations again, we would execute only those not previously executed:
 
