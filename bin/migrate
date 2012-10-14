@@ -219,16 +219,17 @@ function performMigration(direction, migrationName) {
     log(direction, migration.title);
   });
 
-  set.on('save', function(){
-    log('migration', 'complete');
-    process.exit();
-  });
-
   var migrationPath = migrationName
     ? join('migrations', migrationName)
     : migrationName;
  
-  set[direction](null, migrationPath);
+  set[direction](function(err){
+    if (err)
+      log('migration', 'error - ' + err);
+    else
+      log('migration', 'complete');
+    process.exit();
+  }, migrationPath);
 }
 
 // invoke command
