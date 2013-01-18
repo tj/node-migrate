@@ -185,7 +185,7 @@ var commands = {
  */
 
 function pad(n) {
-  return Array(4 - n.toString().length).join('0') + n;
+  return Array(join((4 - n.toString().length), '0') + n);
 }
 
 /**
