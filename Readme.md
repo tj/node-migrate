@@ -1,4 +1,3 @@
-
 # migrate
 
   Abstract migration framework for node
@@ -54,6 +53,7 @@ The first call creates `./migrations/000-add-pets.js`, which we can populate:
       };
 
       exports.down = function(next){
+        db.rpop('pets');
         db.rpop('pets');
         db.rpop('pets', next);
       };
