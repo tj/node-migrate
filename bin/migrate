@@ -24,7 +24,7 @@ var options = { args: [] };
  * Current working directory.
  */
 
-var cwd;
+var cwd = '';
 
 /**
  * Usage information.
