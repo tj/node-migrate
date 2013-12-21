@@ -196,7 +196,7 @@ function pad(n) {
 
 function create(name) {
   var path = 'migrations/' + name + '.js';
-  log('create', join(cwd, path));
+  log('create', join(process.cwd(), path));
   fs.writeFileSync(path, template);
 }
 
