@@ -4,6 +4,8 @@
  * Module dependencies.
  */
 
+require('coffee-script');
+
 var migrate = require('../')
   , join = require('path').join
   , fs = require('fs');
@@ -107,7 +109,7 @@ while (args.length) {
 
 function migrations() {
   return fs.readdirSync('migrations').filter(function(file){
-    return file.match(/^\d+.*\.js$/);
+    return file.match(/^\d+.*\.js|coffee$/);
   }).sort().map(function(file){
     return 'migrations/' + file;
   });
