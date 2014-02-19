@@ -42,7 +42,7 @@ var usage = [
   , ''
   , '  Options:'
   , ''
-  , '     -c, --chdir <path>   change the working directory'
+  , '     -e, --env <name>   change the environment'
   , ''
   , '  Commands:'
   , ''
