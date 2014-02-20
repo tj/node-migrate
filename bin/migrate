@@ -233,7 +233,7 @@ function performMigration(direction, migrationName) {
     ? join('migrations', migrationName)
     : migrationName;
  
-  set[direction](null, migrationPath);
+  set[direction](migrationPath);
 }
 
 // invoke command
