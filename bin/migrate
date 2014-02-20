@@ -224,6 +224,11 @@ function performMigration(direction, migrationName) {
     process.exit();
   });
 
+  set.on('error', function(err){
+    log('error', err);
+    process.exit(1);
+  });
+
   var migrationPath = migrationName
     ? join('migrations', migrationName)
     : migrationName;
