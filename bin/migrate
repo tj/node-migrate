@@ -109,7 +109,7 @@ function migrations() {
   return fs.readdirSync('migrations').filter(function(file){
     return file.match(/^\d+.*\.js$/);
   }).sort().map(function(file){
-    return join('migrations' + file);
+    return join('migrations', file);
   });
 }
 
