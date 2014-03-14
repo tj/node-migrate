@@ -24,7 +24,7 @@ var options = { args: [] };
  * Current working directory.
  */
 
-var cwd;
+var cwd=process.cwd();
 
 /**
  * Usage information.
@@ -109,7 +109,7 @@ function migrations() {
   return fs.readdirSync('migrations').filter(function(file){
     return file.match(/^\d+.*\.js$/);
   }).sort().map(function(file){
-    return 'migrations/' + file;
+    return join('migrations', file);
   });
 }
 
@@ -195,7 +195,7 @@ function pad(n) {
  */
 
 function create(name) {
-  var path = 'migrations/' + name + '.js';
+  var path = join('migrations', name + '.js');
   log('create', join(process.cwd(), path));
   fs.writeFileSync(path, template);
 }
@@ -207,9 +207,9 @@ function create(name) {
  */
 
 function performMigration(direction, migrationName) {
-  migrate('migrations/.migrate');
+  migrate(join('migrations', '.migrate'));
   migrations().forEach(function(path){
-    var mod = require(process.cwd() + '/' + path);
+    var mod = require(join(process.cwd(),path));
     migrate(path, mod.up, mod.down);
   });
 
