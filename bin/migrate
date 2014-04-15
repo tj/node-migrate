@@ -116,7 +116,7 @@ while (args.length) {
 
 function migrations() {
   return fs.readdirSync('migrations').filter(function(file){
-    return file.match(/^\d+.*\.js|coffee$/);
+    return file.match(/^\d+.*\.(js|((lit)?coffee|coffee\.md))$/);
   }).sort().map(function(file){
     return 'migrations/' + file;
   });
