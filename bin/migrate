@@ -4,6 +4,8 @@
  * Module dependencies.
  */
 
+require('coffee-script/register');
+
 var migrate = require('../')
   , join = require('path').join
   , fs = require('fs');
@@ -37,6 +39,7 @@ var usage = [
   , '  Options:'
   , ''
   , '     -c, --chdir <path>   change the working directory'
+  , '     -l, --load <path>    change the load and save functions'
   , ''
   , '  Commands:'
   , ''
@@ -92,6 +95,12 @@ while (args.length) {
     case '--chdir':
       process.chdir(cwd = required());
       break;
+    case '-l':
+    case '--load':
+      var loader = require(required());
+      options.save = loader.save;
+      options.load = loader.load;
+      break;
     default:
       if (options.command) {
         options.args.push(arg);
@@ -107,7 +116,7 @@ while (args.length) {
 
 function migrations() {
   return fs.readdirSync('migrations').filter(function(file){
-    return file.match(/^\d+.*\.js$/);
+    return file.match(/^\d+.*\.(js|((lit)?coffee|coffee\.md))$/);
   }).sort().map(function(file){
     return 'migrations/' + file;
   });
@@ -207,7 +216,13 @@ function create(name) {
  */
 
 function performMigration(direction, migrationName) {
-  migrate('migrations/.migrate');
+  if (options.load && options.save) {
+    migrate({load: options.load, save: options.save});
+  }
+  else {
+    migrate('migrations/.migrate');
+  }
+
   migrations().forEach(function(path){
     var mod = require(process.cwd() + '/' + path);
     migrate(path, mod.up, mod.down);
