@@ -7,7 +7,7 @@
   , "repository": "git://github.com/visionmedia/node-migrate"
   , "bin": { "migrate": "./bin/migrate" }
   , "dependencies": {
-    "coffee-script": "~1.6.3"
+    "coffee-script": "~1.7.1"
   }
   , "devDependencies": {
     "should": ">= 0.0.1"

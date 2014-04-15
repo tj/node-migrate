@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 
-require('coffee-script');
+require('coffee-script/register');
 
 var migrate = require('../')
   , join = require('path').join
@@ -39,6 +39,7 @@ var usage = [
   , '  Options:'
   , ''
   , '     -c, --chdir <path>   change the working directory'
+  , '     -l, --load <path>    change the load and save functions'
   , ''
   , '  Commands:'
   , ''
@@ -93,6 +94,12 @@ while (args.length) {
     case '-c':
     case '--chdir':
       process.chdir(cwd = required());
+      break;
+    case '-l':
+    case '--load':
+      var loader = require(required());
+      options.save = loader.save;
+      options.load = loader.load;
       break;
     default:
       if (options.command) {
@@ -209,7 +216,13 @@ function create(name) {
  */
 
 function performMigration(direction, migrationName) {
-  migrate('migrations/.migrate');
+  if (options.load && options.save) {
+    migrate({load: options.load, save: options.save});
+  }
+  else {
+    migrate('migrations/.migrate');
+  }
+
   migrations().forEach(function(path){
     var mod = require(process.cwd() + '/' + path);
     migrate(path, mod.up, mod.down);
