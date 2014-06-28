@@ -8,6 +8,8 @@ var migrate = require('../')
   , join = require('path').join
   , fs = require('fs');
 
+require('coffee-script/register');
+
 /**
  * Arguments.
  */
@@ -107,7 +109,7 @@ while (args.length) {
 
 function migrations() {
   return fs.readdirSync('migrations').filter(function(file){
-    return file.match(/^\d+.*\.js$/);
+    return file.match(/^\d+.*\.(js|((lit)?coffee|coffee\.md))$/);
   }).sort().map(function(file){
     return 'migrations/' + file;
   });
