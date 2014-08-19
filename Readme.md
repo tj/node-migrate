@@ -15,6 +15,8 @@ Usage: migrate [options] [command]
 Options:
 
    -c, --chdir <path>   change the working directory
+   --state-file <path>  set path to state file (migrations/.migrate)
+
 
 Commands:
 

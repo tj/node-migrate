@@ -37,6 +37,7 @@ var usage = [
   , '  Options:'
   , ''
   , '     -c, --chdir <path>   change the working directory'
+  , '     --state-file <path>  set path to state file (migrations/.migrate)'
   , ''
   , '  Commands:'
   , ''
@@ -91,6 +92,9 @@ while (args.length) {
     case '-c':
     case '--chdir':
       process.chdir(cwd = required());
+      break;
+    case '--state-file':
+      options.stateFile = required();
       break;
     default:
       if (options.command) {
@@ -207,7 +211,7 @@ function create(name) {
  */
 
 function performMigration(direction, migrationName) {
-  migrate('migrations/.migrate');
+  migrate(options.stateFile || 'migrations/.migrate');
   migrations().forEach(function(path){
     var mod = require(process.cwd() + '/' + path);
     migrate(path, mod.up, mod.down);
