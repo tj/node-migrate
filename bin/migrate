@@ -109,7 +109,7 @@ function migrations() {
   return fs.readdirSync('migrations').filter(function(file){
     return file.match(/^\d+.*\.js$/);
   }).sort().map(function(file){
-    return 'migrations/' + file;
+    return join('migrations', file);
   });
 }
 
@@ -195,7 +195,7 @@ function pad(n) {
  */
 
 function create(name) {
-  var path = 'migrations/' + name + '.js';
+  var path = join('migrations', name + '.js');
   log('create', join(process.cwd(), path));
   fs.writeFileSync(path, template);
 }
