@@ -1,4 +1,3 @@
-
 # migrate
 
   Abstract migration framework for node
@@ -15,6 +14,7 @@ Usage: migrate [options] [command]
 Options:
 
    -c, --chdir <path>   change the working directory
+   --state-file <path>  set path to state file (migrations/.migrate)
 
 Commands:
 
@@ -54,6 +54,7 @@ The first call creates `./migrations/000-add-pets.js`, which we can populate:
       };
 
       exports.down = function(next){
+        db.rpop('pets');
         db.rpop('pets');
         db.rpop('pets', next);
       };
