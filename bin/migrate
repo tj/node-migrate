@@ -207,7 +207,7 @@ function create(name) {
  */
 
 function performMigration(direction, migrationName) {
-  migrate('migrations/.migrate');
+  migrate(join('migrations', '.migrate'));
   migrations().forEach(function(path){
     var mod = require(process.cwd() + '/' + path);
     migrate(path, mod.up, mod.down);
