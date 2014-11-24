@@ -109,6 +109,18 @@ This will run up-migrations upto (and including) `002-coolest-pet.js`. Similarly
       down : migrations/001-add-jane.js
       migration : complete
 
+If you want to add callback hooks, you can create a migrations/hooks.js, which responds to 2 events now. "before_load" event is invoked before loading the .migrate file, and "after_save" event is invoked after .migrate file is saved.
+
+      exports.before_load = function(path, next) {
+          console.log('before_load ' + path);
+          next();
+      }
+
+      exports.after_save = function(json, next) {
+          console.log('after save ' + json);
+          next();
+      }
+
 ## License 
 
 (The MIT License)
