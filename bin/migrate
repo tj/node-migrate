@@ -105,6 +105,20 @@ while (args.length) {
   }
 }
 
+/** 
+ * Load callback hooks
+ */
+
+function loadHooks() {
+  var path = join('migrations', 'hooks.js');
+  if(fs.existsSync(path)){
+    var mod = require(process.cwd() + '/' + path);
+    return mod;
+  }else{
+    return {};
+  }
+};
+
 /**
  * Load migrations.
  */
@@ -218,14 +232,17 @@ function performMigration(direction, migrationName) {
   });
 
   var set = migrate();
+  set.hooks = loadHooks();
 
   set.on('migration', function(migration, direction){
     log(direction, migration.title);
   });
 
-  set.on('save', function(){
+  set.on('save', function(json){
     log('migration', 'complete');
-    process.exit();
+    set.afterSave(json, function(){
+      process.exit();
+    });
   });
 
   var migrationPath = migrationName
