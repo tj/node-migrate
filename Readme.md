@@ -43,7 +43,7 @@ For example:
     $ migrate create add-pets
     $ migrate create add-owners
 
-The first call creates `./migrations/000-add-pets.js`, which we can populate:
+The first call creates `./migrations/{timestamp in milliseconds}-add-pets.js`, which we can populate:
 
       var db = require('./db');
 
@@ -59,7 +59,7 @@ The first call creates `./migrations/000-add-pets.js`, which we can populate:
         db.rpop('pets', next);
       };
 
-The second creates `./migrations/001-add-owners.js`, which we can populate:
+The second creates `./migrations/{timestamp in milliseconds}-add-owners.js`, which we can populate:
 
       var db = require('./db');
 
@@ -77,12 +77,12 @@ The second creates `./migrations/001-add-owners.js`, which we can populate:
 
 When first running the migrations, all will be executed in sequence.
 
-      $ migrate
-      up : migrations/000-add-pets.js
-      up : migrations/001-add-jane.js
-      up : migrations/002-add-owners.js
-      up : migrations/003-coolest-pet.js
-      migration : complete
+    $ migrate
+    up : migrations/1316027432511-add-pets.js
+    up : migrations/1316027432512-add-jane.js
+    up : migrations/1316027432575-add-owners.js
+    up : migrations/1316027433425-coolest-pet.js
+    migration : complete
 
 Subsequent attempts will simply output "complete", as they have already been executed in this machine. `node-migrate` knows this because it stores the current state in `./migrations/.migrate` which is typically a file that SCMs like GIT should ignore.
 
@@ -91,25 +91,10 @@ Subsequent attempts will simply output "complete", as they have already been exe
 
 If we were to create another migration using `migrate create`, and then execute migrations again, we would execute only those not previously executed:
 
-      $ migrate
-      up : migrates/004-coolest-owner.js
+    $ migrate
+    up : migrates/1316027433455-coolest-owner.js
 
-You can also run migrations incrementally by specifying a migration.
-
-      $ migrate up 002-coolest-pet.js
-      up : migrations/000-add-pets.js
-      up : migrations/001-add-jane.js
-      up : migrations/002-add-owners.js
-      migration : complete
-
-This will run up-migrations upto (and including) `002-coolest-pet.js`. Similarly you can run down-migrations upto (and including) a specific migration, instead of migrating all the way down.
-
-      $ migrate down 001-add-jane.js
-      down : migrations/002-add-owners.js
-      down : migrations/001-add-jane.js
-      migration : complete
-
-## License 
+## License
 
 (The MIT License)
 
