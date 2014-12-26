@@ -53,10 +53,6 @@ migrate('add emails', function(next){
   next();
 });
 
-// tests
-
-migrate.version.should.match(/^\d+\.\d+\.\d+$/);
-
 // test migrating up / down several times
 
 var set = migrate();
