@@ -18,7 +18,7 @@ var args = process.argv.slice(2);
  * Option defaults.
  */
 
-var options = { args: [] };
+var options = { args: [], use: [] };
 
 /**
  * Current working directory.
@@ -38,6 +38,7 @@ var usage = [
   , ''
   , '     -c, --chdir <path>   change the working directory'
   , '     --state-file <path>  set path to state file (migrations/.migrate)'
+  , '     --use <path>         use mixin module at <path>'
   , ''
   , '  Commands:'
   , ''
@@ -95,6 +96,9 @@ while (args.length) {
       break;
     case '--state-file':
       options.stateFile = required();
+      break;
+    case '--use':
+      options.use.push(required());
       break;
     default:
       if (options.command) {
@@ -193,6 +197,13 @@ function create(name) {
 
 function performMigration(direction, migrationName) {
   migrate(options.stateFile || join('migrations', '.migrate'));
+
+  options.use.forEach(function (mixinPath) {
+    var mixinPath = require('path').join(process.cwd(), mixinPath);
+    var mixin = require(mixinPath);
+    migrate = mixin(migrate) || migrate;
+  });
+
   migrations().forEach(function(path){
     var mod = require(process.cwd() + '/' + path);
     migrate(path, mod.up, mod.down);
