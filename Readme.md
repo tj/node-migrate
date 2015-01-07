@@ -111,6 +111,14 @@ This will run up-migrations upto (and including) `1316027433425-coolest-pet.js`.
     down : migrations/1316027432512-add-jane.js
     migration : complete
 
+## Migration Mixins
+
+The `node-migrate` CLI is extensible via the `--use path/to/mixin.js` flag and mixin modules. Mixins are functions that will be passed `require('migrate')` before `require('migrate').set.migrate()` is invoked. Use this to alter the behavior of the migration Set.
+
+Known mixins:
+
+* [migrate-mongodb-persistence](https://github.com/gobengo/node-migrate-mongodb-persistence): Store migration state in MongoDB instead of a file. POC of a resolution to [node-migrate issue #29](https://github.com/tj/node-migrate/issues/29).
+
 ## License
 
 (The MIT License)
