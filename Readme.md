@@ -15,6 +15,7 @@ Options:
 
    -c, --chdir <path>   change the working directory
    --state-file <path>  set path to state file (migrations/.migrate)
+   --use <path>         use mixin module at <path>
 
 Commands:
 
