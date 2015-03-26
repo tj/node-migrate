@@ -52,12 +52,13 @@ var usage = [
  */
 
 var template = [
-    ''
-  , 'exports.up = function(next){'
+    '\'use strict\''
+  , ''
+  , 'exports.up = function(next) {'
   , '  next();'
   , '};'
   , ''
-  , 'exports.down = function(next){'
+  , 'exports.down = function(next) {'
   , '  next();'
   , '};'
   , ''
