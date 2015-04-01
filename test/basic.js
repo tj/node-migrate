@@ -48,18 +48,7 @@ describe('migrate', function () {
   }
 
   beforeEach(function () {
-
-    migrate(STATE);
-
-    fs.readdirSync(BASE).filter(function (file) {
-      return file.match(/^\d+.*\.js$/);
-    }).sort().forEach(function (file) {
-      var mod = require(path.join(BASE, file));
-      migrate(file, mod.up, mod.down);
-    });
-
-    set = migrate();
-
+    set = migrate.load(STATE, BASE);
   });
 
   it('should handle basic migration', function (done) {
@@ -90,7 +79,7 @@ describe('migrate', function () {
 
   it('should add a new migration', function (done) {
 
-    migrate('add dogs', function (next) {
+    set.addMigration('add dogs', function (next) {
       db.pets.push({ name: 'simon' });
       db.pets.push({ name: 'suki' });
       next();
@@ -118,7 +107,7 @@ describe('migrate', function () {
 
   it('should emit events', function (done) {
 
-    migrate('4-adjust-emails.js', function (next) {
+    set.addMigration('4-adjust-emails.js', function (next) {
       db.pets.forEach(function (pet) {
         if (pet.email)
           pet.email = pet.email.replace('learnboost.com', 'lb.com');
