@@ -107,18 +107,6 @@ while (args.length) {
 }
 
 /**
- * Load migrations.
- */
-
-function migrations() {
-  return fs.readdirSync('migrations').filter(function(file){
-    return file.match(/^\d+.*\.js$/);
-  }).sort().map(function(file){
-    return join('migrations', file);
-  });
-}
-
-/**
  * Log a keyed message.
  */
 
@@ -193,13 +181,8 @@ function create(name) {
  */
 
 function performMigration(direction, migrationName) {
-  migrate(options.stateFile || join('migrations', '.migrate'));
-  migrations().forEach(function(path){
-    var mod = require(process.cwd() + '/' + path);
-    migrate(path, mod.up, mod.down);
-  });
-
-  var set = migrate();
+  var state = options.stateFile || join('migrations', '.migrate');
+  var set = migrate.load(state, 'migrations');
 
   set.on('migration', function(migration, direction){
     log(direction, migration.title);

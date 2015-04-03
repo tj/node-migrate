@@ -24,6 +24,19 @@ Commands:
 
 ```
 
+## Programmatic usage
+
+```javascript
+var migrate = require('migrate');
+var set = migrate.load('migration/.migrate', 'migration');
+
+set.up(function (err) {
+  if (err) throw err;
+
+  console.log('Migration completed');
+});
+```
+
 ## Creating Migrations
 
 To create a migration, execute `migrate create` with an optional title. `node-migrate` will create a node module within `./migrations/` which contains the following two exports:
@@ -109,6 +122,24 @@ This will run up-migrations upto (and including) `1316027433425-coolest-pet.js`.
     down : migrations/1316027432575-add-owners.js
     down : migrations/1316027432512-add-jane.js
     migration : complete
+
+## API
+
+### `migrate.load(stateFile, migrationsDirectory)`
+
+Returns a `Set` populated with migration scripts from the `migrationsDirectory`
+and state loaded from `stateFile`.
+
+### `Set.up([migration, ]cb)`
+
+Migrates up to the specified `migration` or, if none is specified, to the latest
+migration. Calls the callback `cb`, possibly with an error `err`, when done.
+
+### `Set.down([migration, ]cb)`
+
+Migrates down to the specified `migration` or, if none is specified, to the
+first migration. Calls the callback `cb`, possibly with an error `err`, when
+done.
 
 ## License
 
