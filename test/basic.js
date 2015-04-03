@@ -152,7 +152,7 @@ describe('migrate', function () {
 
     set.up(function (err) {
       assert.ifError(err);
-      assert.equal(saved, 1);
+      assert.equal(saved, 4);
       assert.equal(db.pets[0].email, 'tobi@lb.com');
       assert.deepEqual(migrations, expectedMigrations);
 
@@ -161,7 +161,7 @@ describe('migrate', function () {
 
       set.down(function (err) {
         assert.ifError(err);
-        assert.equal(saved, 2);
+        assert.equal(saved, 8);
         assert.deepEqual(migrations, expectedMigrations);
         assertNoPets();
         done();
