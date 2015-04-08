@@ -36,9 +36,9 @@ var usage = [
   , ''
   , '  Options:'
   , ''
-  , '     -c, --chdir <path>   change the working directory'
-  , '     --state-file <path>  set path to state file (migrations/.migrate)'
-  , ''
+  , '     -c, --chdir <path>      change the working directory'
+  , '     --state-file <path>     set path to state file (migrations/.migrate)'
+  , '     --template-file <path>  set path to template file to use for new migrations'
   , '  Commands:'
   , ''
   , '     down   [name]    migrate down till given migration'
@@ -96,6 +96,9 @@ while (args.length) {
       break;
     case '--state-file':
       options.stateFile = required();
+      break;
+    case '--template-file':
+      template = fs.readFileSync(required());
       break;
     default:
       if (options.command) {
