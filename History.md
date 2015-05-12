@@ -1,3 +1,12 @@
+0.2.1 / 2015-04-24
+==================
+
+  * Ability to use a custom template file
+  * Expose easy api for programmatic use
+  * State is now saved after each successful migration
+  * Proper tests with `mocha`
+  * Add `use strict` to the template
+
 0.2.0 / 2014-12-26
 ==================
 
