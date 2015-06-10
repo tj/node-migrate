@@ -195,7 +195,7 @@ function performMigration(direction, migrationName) {
     ? join('migrations', migrationName)
     : migrationName;
 
-  set[direction](migrationPath, function (err) {
+  set[direction](migrationName, function (err) {
     if (err) {
       log('error', err);
       process.exit(1);
