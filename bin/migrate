@@ -18,7 +18,7 @@ var args = process.argv.slice(2);
  * Option defaults.
  */
 
-var options = { args: [] };
+var options = { args: [], fuzzy: false };
 
 /**
  * Current working directory.
@@ -39,6 +39,7 @@ var usage = [
   , '     -c, --chdir <path>      change the working directory'
   , '     --state-file <path>     set path to state file (migrations/.migrate)'
   , '     --template-file <path>  set path to template file to use for new migrations'
+  , '     --fuzzy                 make fuzzy comparison for given migrations'
   , '  Commands:'
   , ''
   , '     down   [name]    migrate down till given migration'
@@ -99,6 +100,9 @@ while (args.length) {
       break;
     case '--template-file':
       template = fs.readFileSync(required());
+      break;
+    case '--fuzzy':
+      options.fuzzy = true;
       break;
     default:
       if (options.command) {
@@ -195,7 +199,7 @@ function performMigration(direction, migrationName) {
     ? join('migrations', migrationName)
     : migrationName;
 
-  set[direction](migrationName, function (err) {
+  set[direction](migrationName, options.fuzzy, function (err) {
     if (err) {
       log('error', err);
       process.exit(1);

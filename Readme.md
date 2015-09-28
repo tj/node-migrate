@@ -16,6 +16,7 @@ Options:
    -c, --chdir <path>      change the working directory
    --state-file <path>     set path to state file (migrations/.migrate)
    --template-file <path>  set path to template file to use for new migrations
+   --fuzzy                 make fuzzy comparison for given migrations
 
 Commands:
 
@@ -123,6 +124,25 @@ This will run up-migrations upto (and including) `1316027433425-coolest-pet.js`.
     down : migrations/1316027432575-add-owners.js
     down : migrations/1316027432512-add-jane.js
     migration : complete
+
+### Fuzzy matching
+
+By using the `--fuzzy` flag, you can apply all migrations up/down to a arbitary value that compares to the migration filenames, for example you can migrate all migrations up to a certain date.
+
+    $ migrate up --fuzzy 1316027433000
+    up : migrations/1316027432511-add-pets.js
+    up : migrations/1316027432512-add-jane.js
+    up : migrations/1316027432575-add-owners.js
+
+but it won't add `migrations/1316027433425-coolest-pet.js` to the set as it's value is higer than the given value in a comparison.
+
+Same goes for down migrations:
+
+    $ migrate down --fuzzy 1316027432520
+    down : migrations/1316027433425-coolest-pet.js
+    down : migrations/1316027432575-add-owners.js
+
+It won't apply down on `migrations/1316027432512-add-jane.js` as it's below the target value.
 
 ## API
 

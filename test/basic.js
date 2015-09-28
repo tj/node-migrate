@@ -187,6 +187,19 @@ describe('migrate', function () {
 
   });
 
+  it('should migrate to named migration fuzzy', function (done) {
+    assertNoPets();
+    set.up('3', true, function (err) {
+      assert.ifError(err);
+      assertPets();
+      set.down('2', true, function (err) {
+        assert.ifError(err);
+        assertFirstMigration();
+        done();
+      });
+    });
+  });
+
   afterEach(function (done) {
     db.nuke();
     fs.unlink(STATE, done);
