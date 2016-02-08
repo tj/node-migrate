@@ -27,6 +27,7 @@ var options = { args: [] };
  */
 
 var cwd;
+var directory = 'migrations';
 
 /**
  * Usage information.
@@ -40,6 +41,7 @@ var usage = [
   , ''
   , '     -c, --chdir <path>   change the working directory'
   , '     -l, --load <path>    change the load and save functions'
+  , '     -d, --directory <path>    change the migration directory'
   , ''
   , '  Commands:'
   , ''
@@ -101,6 +103,10 @@ while (args.length) {
       options.save = loader.save;
       options.load = loader.load;
       break;
+    case '-d':
+    case '--directory':
+      directory = required();
+      break;
     default:
       if (options.command) {
         options.args.push(arg);
@@ -115,10 +121,10 @@ while (args.length) {
  */
 
 function migrations() {
-  return fs.readdirSync('migrations').filter(function(file){
+  return fs.readdirSync(directory).filter(function(file){
     return file.match(/^\d+.*\.(js|((lit)?coffee|coffee\.md))$/);
   }).sort().map(function(file){
-    return 'migrations/' + file;
+    return file;
   });
 }
 
@@ -141,7 +147,7 @@ function slugify(str) {
 // create ./migrations
 
 try {
-  fs.mkdirSync('migrations', 0774);
+  fs.mkdirSync(directory, 0774);
 } catch (err) {
   // ignore
 }
@@ -171,7 +177,7 @@ var commands = {
    */
 
   create: function(){
-    var migrations = fs.readdirSync('migrations').filter(function(file){
+    var migrations = fs.readdirSync(directory).filter(function(file){
       return file.match(/^\d+/);
     }).map(function(file){
       return parseInt(file.match(/^(\d+)/)[1], 10);
@@ -181,7 +187,7 @@ var commands = {
 
     var curr = pad((migrations.pop() || 0) + 1)
       , title = slugify([].slice.call(arguments).join(' '));
-    title = title ? curr + '-' + title : curr; 
+    title = title ? curr + '-' + title : curr;
     create(title);
   }
 };
@@ -204,7 +210,7 @@ function pad(n) {
  */
 
 function create(name) {
-  var path = 'migrations/' + name + '.js';
+  var path = directory + '/' + name + '.js';
   log('create', join(process.cwd(), path));
   fs.writeFileSync(path, template);
 }
@@ -220,11 +226,11 @@ function performMigration(direction, migrationName) {
     migrate({load: options.load, save: options.save});
   }
   else {
-    migrate('migrations/.migrate');
+    migrate(directory + '/.migrate');
   }
 
   migrations().forEach(function(path){
-    var mod = require(process.cwd() + '/' + path);
+    var mod = require(directory + '/' + path);
     migrate(path, mod.up, mod.down);
   });
 
@@ -240,9 +246,8 @@ function performMigration(direction, migrationName) {
   });
 
   var migrationPath = migrationName
-    ? join('migrations', migrationName)
+    ? join(directory, migrationName)
     : migrationName;
- 
   set[direction](null, migrationPath);
 }
 
