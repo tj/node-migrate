@@ -6,10 +6,10 @@ var assert = require('assert');
 var migrate = require('../');
 var db = require('./fixtures/db');
 
-var BASE = path.join(__dirname, 'fixtures', 'generators');
+var BASE = path.join(__dirname, 'fixtures', 'promises');
 var STATE = path.join(BASE, '.migrate');
 
-describe('migrate (with generators)', function () {
+describe('migrate (...Async functions)', function () {
 
   var set;
 
@@ -17,7 +17,7 @@ describe('migrate (with generators)', function () {
     set = migrate.load(STATE, BASE);
   });
 
-  it('should handle generator migrations', function (done) {
+  it('should handle migrations that return promises', function (done) {
     set.up(function (err) {
       assert.ifError(err);
       assert.deepEqual(db.tesla, ['1-energy', '2-energies', '3000-energies']);
@@ -41,18 +41,24 @@ describe('migrate (with generators)', function () {
     });
   });
 
-  it('should add a new generator migration', function (done) {
-    var up = function* () {
-      db.tesla.push('2 psycho-kinetic energies');
-      db.tesla.push('3 psycho-kinetic energies');
+  it('should add a promise based migration', function (done) {
+    var up = function () {
+      return new Promise(function (resolve) {
+        db.tesla.push('2 psycho-kinetic energies');
+        db.tesla.push('3 psycho-kinetic energies');
+
+        resolve();
+      });
     };
 
-    var down = function* () {
+    var down = function () {
       db.tesla.pop();
       db.tesla.pop();
+
+      return Promise.resolve();
     };
 
-    set.addMigration('ghosts', up, down);
+    set.addAsyncMigration('ghosts', up, down);
 
     var expectedEnergies = ['1-energy', '2-energies', '3000-energies', '2 psycho-kinetic energies', '3 psycho-kinetic energies'];
 
@@ -79,16 +85,16 @@ describe('migrate (with generators)', function () {
     });
   });
 
-  it('should catch errors in migration "up" generators', function (done) {
-    var up = function* () {
-      throw new Error("i ain't afraid of no ghost");
+  it('should catch errors in promise based "up" functions', function (done) {
+    var up = function () {
+      return Promise.reject(new Error("i ain't afraid of no ghost"));
     };
 
-    var down = function* () {
-      // empty
+    var down = function (next) {
+      next();
     };
 
-    set.addMigration('ghostbusters', up, down);
+    set.addAsyncMigration('ghostbusters', up, down);
 
     set.up(function (err) {
       assert.ok(err);
@@ -98,18 +104,18 @@ describe('migrate (with generators)', function () {
     });
   });
 
-  it('should catch errors in migration "down" generators', function (done) {
-    var up = function* () {
+  it('should catch errors in promise based "down" functions', function (done) {
+    var up = function () {
       // empty
     };
 
-    var down = function* () {
-      yield new Promise(function (resolve, reject) {
+    var down = function () {
+      return new Promise(function (resolve, reject) {
         reject(new Error("cats & dogs, living together"));
       });
     };
 
-    set.addMigration('mass hysteria', up, down);
+    set.addAsyncMigration('mass hysteria', up, down);
 
     set.up(function (err) {
       assert.ifError(err);

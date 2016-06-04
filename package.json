@@ -12,7 +12,6 @@
     "migrate": "./bin/migrate"
   },
   "devDependencies": {
-    "co": "^4.6.0",
     "mocha": "^2.2.1"
   },
   "main": "index",
@@ -22,8 +21,5 @@
   "scripts": {
     "test": "mocha"
   },
-  "license": "MIT",
-  "dependencies": {
-    "is-generator": "^1.0.3"
-  }
+  "license": "MIT"
 }
