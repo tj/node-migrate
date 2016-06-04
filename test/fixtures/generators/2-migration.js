@@ -1,14 +1,20 @@
 
 var db = require('../db');
 
-exports.up = function* (next) {
-  db.tesla.push('2-energies');
-
-  yield next;
+exports.up = function* () {
+  yield function (callback) {
+    setTimeout(function () {
+      db.tesla.push('2-energies');
+      callback();
+    }, 10);
+  };
 };
 
-exports.down = function* (next) {
-  db.tesla.pop();
-
-  yield next;
+exports.down = function* () {
+  yield function (callback) {
+    setTimeout(function () {
+      db.tesla.pop();
+      callback();
+    }, 10);
+  };
 };

@@ -47,11 +47,9 @@ describe('migrate (with generators)', function () {
       db.tesla.push('3 psycho-kinetic energies');
     };
 
-    var down = function* (next) {
+    var down = function* () {
       db.tesla.pop();
       db.tesla.pop();
-
-      yield next;
     };
 
     set.addMigration('ghosts', up, down);
@@ -106,7 +104,7 @@ describe('migrate (with generators)', function () {
     };
 
     var down = function* () {
-      return new Promse(function (resolve, reject) {
+      yield new Promise(function (resolve, reject) {
         reject(new Error("cats & dogs, living together"));
       });
     };
