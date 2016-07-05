@@ -19,8 +19,8 @@ Options:
 
 Commands:
 
-   down             migrate down
-   up               migrate up (the default command)
+   down   [name]    migrate down till given migration
+   up     [name]    migrate up till given migration (the default command)
    create [title]   create a new migration file with optional [title]
 
 ```
