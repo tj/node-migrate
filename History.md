@@ -1,3 +1,10 @@
+0.2.3 / 2016-07-05
+==================
+
+  * Add date-format option for new migrations (#66)
+  * Update readme: Usage section (#65)
+  * Add missing license field to package.json (#64)
+
 0.2.2 / 2015-07-07
 ==================
 
