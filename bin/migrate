@@ -6,7 +6,8 @@
 
 var migrate = require('../')
   , join = require('path').join
-  , fs = require('fs');
+  , fs = require('fs')
+  , dateFormat = require('dateformat');
 
 /**
  * Arguments.
@@ -39,6 +40,7 @@ var usage = [
   , '     -c, --chdir <path>      change the working directory'
   , '     --state-file <path>     set path to state file (migrations/.migrate)'
   , '     --template-file <path>  set path to template file to use for new migrations'
+  , '     --date-format <format>  set a date format to use for new migration filenames'
   , '  Commands:'
   , ''
   , '     down   [name]    migrate down till given migration'
@@ -100,6 +102,9 @@ while (args.length) {
     case '--template-file':
       template = fs.readFileSync(required());
       break;
+    case '--date-format':
+      options.dateFormat = required();
+      break;
     default:
       if (options.command) {
         options.args.push(arg);
@@ -160,6 +165,9 @@ var commands = {
   create: function(){
     var curr = Date.now()
       , title = slugify([].slice.call(arguments).join(' '));
+    if (options.dateFormat) {
+      curr = dateFormat(curr, options.dateFormat);
+    }
     title = title ? curr + '-' + title : curr;
     create(title);
   }

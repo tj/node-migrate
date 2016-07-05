@@ -16,6 +16,7 @@ Options:
    -c, --chdir <path>      change the working directory
    --state-file <path>     set path to state file (migrations/.migrate)
    --template-file <path>  set path to template file to use for new migrations
+   --date-format <format>  set a date format to use for new migration filenames
 
 Commands:
 
