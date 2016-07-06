@@ -88,6 +88,50 @@ The second creates `./migrations/{timestamp in milliseconds}-add-owners.js`, whi
         db.rpop('owners', next);
       };
 
+### Promise Based Migrations
+
+If you don't want to use thunks in your migrations, you can also create migration functions that
+return Promise instances.
+
+To use this feature, make your migration modules export `upAsync` and `downAsync` functions. For example,
+
+      var db = require('./db');
+
+      exports.upAsync = function(){
+        return db.rpush('owners', 'taylor')
+          .then(function () {
+            return db.rpush('owners', 'tj');
+          });
+      };
+
+      exports.downAsync = function(){
+        return db.rpop('owners')
+          .then(function () {
+            return db.rpop('owners');
+          });
+      };
+
+### Generator Based Migrations
+
+node-migrate does not natively support using generator functions in your migrations, but since it
+supports promise based functions, you can use a library like [co](https://github.com/tj/co) to
+easily wrap generators in functions that return promises.
+
+For example:
+
+      var co = require('co');
+      var db = require('./db');
+
+      exports.upAsync = co.wrap(function * (){
+        yield db.rpush('owners', 'taylor');
+        yield db.rpush('owners', 'tj');
+      });
+
+      exports.downAsync = co.wrap(function * (){
+        yield db.rpop('owners');
+        yield db.rpop('owners');
+      });
+
 ## Running Migrations
 
 When first running the migrations, all will be executed in sequence.
