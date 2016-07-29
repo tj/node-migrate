@@ -1,8 +1,8 @@
 
-var fs = require('fs');
 var path = require('path');
 var assert = require('assert');
 
+var FileStore = require('../lib/adapters/filestore');
 var migrate = require('../');
 var db = require('./fixtures/db');
 
@@ -12,63 +12,76 @@ var STATE = path.join(BASE, '.migrate');
 describe('migrate', function () {
 
   var set;
+  var store;
 
-  function assertNoPets() {
-    assert.equal(db.pets.length, 0);
-    assert.equal(set.pos, 0);
+  function assertNumMigrations(num, cb) {
+    set.loadNet(function(err, migrations) {
+      assert.equal(migrations.length, num);
+      cb();
+    })
   }
 
-  function assertPets() {
+  function assertNoPets(cb) {
+    assert.equal(db.pets.length, 0);
+    assertNumMigrations(0, cb)
+  }
+
+  function assertPets(cb) {
     assert.equal(db.pets.length, 3);
     assert.equal(db.pets[0].name, 'tobi');
     assert.equal(db.pets[0].email, 'tobi@learnboost.com');
-    assert.equal(set.pos, 3);
+    assertNumMigrations(3, cb)
   }
 
-  function assertPetsWithDogs() {
+  function assertPetsWithDogs(cb) {
     assert.equal(db.pets.length, 5);
     assert.equal(db.pets[0].name, 'tobi');
     assert.equal(db.pets[0].email, 'tobi@learnboost.com');
     assert.equal(db.pets[4].name, 'suki');
+    cb()
   };
 
-  function assertFirstMigration() {
+  function assertFirstMigration(cb) {
     assert.equal(db.pets.length, 2);
     assert.equal(db.pets[0].name, 'tobi');
     assert.equal(db.pets[1].name, 'loki');
-    assert.equal(set.pos, 1);
+    assertNumMigrations(1, cb)
   }
 
-  function assertSecondMigration() {
+  function assertSecondMigration(cb) {
     assert.equal(db.pets.length, 3);
     assert.equal(db.pets[0].name, 'tobi');
     assert.equal(db.pets[1].name, 'loki');
     assert.equal(db.pets[2].name, 'jane');
-    assert.equal(set.pos, 2);
+    assertNumMigrations(2, cb)
   }
 
   beforeEach(function () {
-    set = migrate.load(STATE, BASE);
+    store = new FileStore(STATE);
+    set = migrate.load(store, BASE);
   });
 
   it('should handle basic migration', function (done) {
 
     set.up(function (err) {
       assert.ifError(err);
-      assertPets();
-      set.up(function (err) {
-        assert.ifError(err);
-        assertPets();
-        set.down(function (err) {
+      assertPets(function () {
+        set.up(function (err) {
           assert.ifError(err);
-          assertNoPets();
-          set.down(function (err) {
-            assert.ifError(err);
-            assertNoPets();
-            set.up(function (err) {
+          assertPets(function() {
+            set.down(function (err) {
               assert.ifError(err);
-              assertPets();
-              done();
+              assertNoPets(function() {
+                set.down(function (err) {
+                  assert.ifError(err);
+                  assertNoPets(function() {
+                    set.up(function (err) {
+                      assert.ifError(err);
+                      assertPets(done);
+                    });
+                  });
+                });
+              });
             });
           });
         });
@@ -91,15 +104,17 @@ describe('migrate', function () {
 
     set.up(function (err) {
       assert.ifError(err);
-      assertPetsWithDogs();
-      set.up(function (err) {
-        assert.ifError(err);
-        assertPetsWithDogs();
-        set.down(function (err) {
+      assertPetsWithDogs(function() {
+        set.up(function (err) {
           assert.ifError(err);
-          assertNoPets();
-          done();
+          assertPetsWithDogs(function() {
+            set.down(function (err) {
+              assert.ifError(err);
+              assertNoPets(done);
+            });
+          });
         });
+
       });
     });
 
@@ -152,8 +167,7 @@ describe('migrate', function () {
         assert.ifError(err);
         assert.equal(saved, 8);
         assert.deepEqual(migrations, expectedMigrations);
-        assertNoPets();
-        done();
+        assertNoPets(done);
       });
 
     });
@@ -161,35 +175,38 @@ describe('migrate', function () {
   });
 
   it('should migrate to named migration', function (done) {
-
-    assertNoPets();
     set.up('1-add-guy-ferrets.js', function (err) {
       assert.ifError(err);
-      assertFirstMigration();
-      set.up('2-add-girl-ferrets.js', function (err) {
-        assert.ifError(err);
-        assertSecondMigration();
-        set.down('2-add-girl-ferrets.js', function (err) {
+      assertFirstMigration(function() {
+        set.up('2-add-girl-ferrets.js', function (err) {
           assert.ifError(err);
-          assertFirstMigration();
-          set.up('2-add-girl-ferrets.js', function (err) {
-            assert.ifError(err);
-            assertSecondMigration();
+          assertSecondMigration(function() {
             set.down('2-add-girl-ferrets.js', function (err) {
               assert.ifError(err);
-              assert.equal(set.pos, 1);
-              done();
+              assertFirstMigration(function() {
+                set.up('2-add-girl-ferrets.js', function (err) {
+                  assert.ifError(err);
+                  assertSecondMigration(function() {
+                    set.down('2-add-girl-ferrets.js', function (err) {
+                      assert.ifError(err);
+                      assertNumMigrations(1, done)
+                    });
+                  });
+
+                });
+              });
+
             });
           });
         });
       });
-    });
 
+    });
   });
 
   afterEach(function (done) {
     db.nuke();
-    fs.unlink(STATE, done);
+    store.reset(done)
   });
 
 });

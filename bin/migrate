@@ -41,6 +41,9 @@ var usage = [
   , '     --state-file <path>     set path to state file (migrations/.migrate)'
   , '     --template-file <path>  set path to template file to use for new migrations'
   , '     --date-format <format>  set a date format to use for new migration filenames'
+  , '     --db-adapter <string>  select the db adapter to use: filestore (default) or mongo'
+  , '     --db-url <path>  url for the db adapter to use'
+  , '     --db-table <string>  table to use (migrations)'
   , '  Commands:'
   , ''
   , '     down   [name]    migrate down till given migration'
@@ -99,6 +102,12 @@ while (args.length) {
     case '--state-file':
       options.stateFile = required();
       break;
+    case '--db-adapter':
+      options.dbAdapter = required();
+    case '--db-url':
+      options.dbUrl = required();
+    case '--db-table':
+      options.dbTable = required();
     case '--template-file':
       template = fs.readFileSync(required());
       break;
@@ -192,16 +201,24 @@ function create(name) {
  */
 
 function performMigration(direction, migrationName) {
-  var state = options.stateFile || join('migrations', '.migrate');
-  var set = migrate.load(state, 'migrations');
+  var dbAdapterType = options.dbAdapter || 'filestore';
+  var dbAdapter = require('../lib/adapters/' + dbAdapterType);
+
+  var store;
+  if (dbAdapterType === 'filestore') {
+    var state = options.stateFile || join('migrations', '.migrate');
+    store = new dbAdapter(state);
+  } else {
+    var dbUrl = options.dbUrl;
+    var dbTable = options.dbTable || 'migrations';
+    store = new dbAdapter(dbUrl, dbTable);
+  }
+
+  var set = migrate.load(store, 'migrations');
 
   set.on('migration', function(migration, direction){
     log(direction, migration.title);
   });
-
-  var migrationPath = migrationName
-    ? join('migrations', migrationName)
-    : migrationName;
 
   set[direction](migrationName, function (err) {
     if (err) {

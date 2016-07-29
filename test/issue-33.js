@@ -6,6 +6,7 @@ var assert = require('assert');
 var migrate = require('../');
 var db = require('./fixtures/db');
 
+var FileStore = require('../lib/adapters/filestore');
 var BASE = path.join(__dirname, 'fixtures', 'issue-33');
 var STATE = path.join(BASE, '.migrate');
 
@@ -15,9 +16,11 @@ var A2 = A1.concat(['3-down', '2-down', '1-down']);
 describe('issue #33', function () {
 
   var set;
+  var store;
 
   beforeEach(function () {
-    set = migrate.load(STATE, BASE);
+    store = new FileStore(STATE);
+    set = migrate.load(store, BASE);
   });
 
   it('should run migrations in the correct order', function (done) {
@@ -48,7 +51,7 @@ describe('issue #33', function () {
 
   afterEach(function (done) {
     db.nuke();
-    fs.unlink(STATE, done);
+    store.reset(done);
   });
 
 });
