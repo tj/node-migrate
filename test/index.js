@@ -2,7 +2,7 @@ var path = require('path');
 
 var getStoreUnderTest = function(base) {
   var STATE = path.join(base, '.migrate');
-  return {storeType: 'file', args: [{stateFile: STATE}]}
+  return {Store: require('migrate-filestore'), args: [{stateFile: STATE}]}
 };
 
 var BASIC_BASE = path.join(__dirname, 'common', 'fixtures', 'basic');

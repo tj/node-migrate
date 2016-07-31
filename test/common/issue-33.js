@@ -13,8 +13,7 @@ module.exports = function(BASE, storeUnderTest) {
     var store;
 
     beforeEach(function () {
-      var Store = require('node-migrate-' + storeUnderTest.storeType + 'store');
-      store = new (Function.prototype.bind.apply(Store, [null].concat(storeUnderTest.args)));
+      store = new (Function.prototype.bind.apply(storeUnderTest.Store, [null].concat(storeUnderTest.args)));
       set = migrate.load(store, BASE);
     });
 

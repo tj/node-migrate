@@ -67,8 +67,7 @@ var migrationCliHandlers = [
 
 ['file', 'mongo'].forEach(function(storeType) {
   try {
-    var Store = require('node-migrate-' + storeType + 'store');
-    // validStoreTypes.push(storeType);
+    var Store = require('migrate-' + storeType + 'store');
     if (Store.cliHandler)
       migrationCliHandlers.push(Store.cliHandler)
   } catch(e) {

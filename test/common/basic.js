@@ -51,8 +51,7 @@ module.exports = function (BASE, storeUnderTest) {
     }
 
     beforeEach(function () {
-      var Store = require('node-migrate-' + storeUnderTest.storeType + 'store');
-      store = new (Function.prototype.bind.apply(Store, [null].concat(storeUnderTest.args)));
+      store = new (Function.prototype.bind.apply(storeUnderTest.Store, [null].concat(storeUnderTest.args)));
       set = migrate.load(store, BASE);
     });
 
@@ -61,7 +60,7 @@ module.exports = function (BASE, storeUnderTest) {
       store.reset(done)
     });
 
-    it('should handle basic migration using ' + storeUnderTest.storeType, function (done) {
+    it('should handle basic migration using', function (done) {
       set.up(function (err) {
         assert.ifError(err);
         assertPets(function () {
@@ -89,7 +88,7 @@ module.exports = function (BASE, storeUnderTest) {
 
     });
 
-    it('should add a new migration using ' + storeUnderTest.storeType, function (done) {
+    it('should add a new migration using', function (done) {
       set.addMigration('add dogs', function (next) {
         db.pets.push({name: 'simon'});
         db.pets.push({name: 'suki'});
@@ -118,7 +117,7 @@ module.exports = function (BASE, storeUnderTest) {
 
     });
 
-    it('should emit events using ' + storeUnderTest.storeType, function (done) {
+    it('should emit events using', function (done) {
       set.addMigration('4-adjust-emails.js', function (next) {
         db.pets.forEach(function (pet) {
           if (pet.email)
@@ -171,7 +170,7 @@ module.exports = function (BASE, storeUnderTest) {
 
     });
 
-    it('should migrate to named migration using ' + storeUnderTest.storeType, function (done) {
+    it('should migrate to named migration using', function (done) {
       set.up('1-add-guy-ferrets.js', function (err) {
         assert.ifError(err);
         assertFirstMigration(function () {
