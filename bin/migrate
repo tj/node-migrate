@@ -31,26 +31,71 @@ var cwd;
  * Usage information.
  */
 
-var usage = [
+var migrationCliHandlers = [
+  {
+    usageOptions: [
+      '     -c, --chdir <path>      change the working directory'
+      , '     --template-file <path>  set path to template file to use for new migrations'
+      , '     --date-format <format>  set a date format to use for new migration filenames'
+      , '     --store <string>  select the db adapter to use: file (default) or mongo'
+    ],
+    parseArg    : function (arg) {
+      switch (arg) {
+        case '-h':
+        case '--help':
+        case 'help':
+          console.log(usage);
+          process.exit();
+          return true;
+        case '-c':
+        case '--chdir':
+          process.chdir(cwd = required());
+          return true;
+        case '--store':
+          options.store = required();
+          return true;
+        case '--template-file':
+          template = fs.readFileSync(required());
+          return true;
+        case '--date-format':
+          options.dateFormat = required();
+          return true;
+      }
+    }
+  }
+];
+
+['file', 'mongo'].forEach(function(storeType) {
+  try {
+    var Store = require('node-migrate-' + storeType + 'store');
+    // validStoreTypes.push(storeType);
+    if (Store.cliHandler)
+      migrationCliHandlers.push(Store.cliHandler)
+  } catch(e) {
+    //ignore missing types
+  }
+});
+
+var usageArr = [
     ''
   , '  Usage: migrate [options] [command]'
   , ''
   , '  Options:'
-  , ''
-  , '     -c, --chdir <path>      change the working directory'
-  , '     --state-file <path>     set path to state file (migrations/.migrate)'
-  , '     --template-file <path>  set path to template file to use for new migrations'
-  , '     --date-format <format>  set a date format to use for new migration filenames'
-  , '     --db-adapter <string>  select the db adapter to use: filestore (default) or mongo'
-  , '     --db-url <path>  url for the db adapter to use'
-  , '     --db-table <string>  table to use (migrations)'
+  , ''];
+
+migrationCliHandlers.forEach(function (handler) {
+  usageArr = usageArr.concat(handler.usageOptions)
+});
+
+usageArr = usageArr.concat([
   , '  Commands:'
   , ''
   , '     down   [name]    migrate down till given migration'
   , '     up     [name]    migrate up till given migration (the default command)'
   , '     create [title]   create a new migration file with optional [title]'
   , ''
-].join('\n');
+]);
+var usage = usageArr.join('\n');
 
 /**
  * Migration template.
@@ -84,42 +129,22 @@ function abort(msg) {
 }
 
 // parse arguments
-
 var arg;
 while (args.length) {
   arg = args.shift();
-  switch (arg) {
-    case '-h':
-    case '--help':
-    case 'help':
-      console.log(usage);
-      process.exit();
-      break;
-    case '-c':
-    case '--chdir':
-      process.chdir(cwd = required());
-      break;
-    case '--state-file':
-      options.stateFile = required();
-      break;
-    case '--db-adapter':
-      options.dbAdapter = required();
-    case '--db-url':
-      options.dbUrl = required();
-    case '--db-table':
-      options.dbTable = required();
-    case '--template-file':
-      template = fs.readFileSync(required());
-      break;
-    case '--date-format':
-      options.dateFormat = required();
-      break;
-    default:
-      if (options.command) {
-        options.args.push(arg);
-      } else {
-        options.command = arg;
-      }
+  var optionKey;
+  for (var i = 0; i<migrationCliHandlers.length; i++) {
+    optionKey = migrationCliHandlers[i].parseArg(arg)
+    if (optionKey)
+      options[optionKey] = required();
+  }
+  if (!optionKey) {
+    // default case
+    if (options.command) {
+      options.args.push(arg);
+    } else {
+      options.command = arg;
+    }
   }
 }
 
@@ -201,18 +226,10 @@ function create(name) {
  */
 
 function performMigration(direction, migrationName) {
-  var dbAdapterType = options.dbAdapter || 'filestore';
-  var dbAdapter = require('../lib/adapters/' + dbAdapterType);
+  var storeType = options.store || 'file';
+  var Store = require('node-migrate-'  + storeType + 'store');
 
-  var store;
-  if (dbAdapterType === 'filestore') {
-    var state = options.stateFile || join('migrations', '.migrate');
-    store = new dbAdapter(state);
-  } else {
-    var dbUrl = options.dbUrl;
-    var dbTable = options.dbTable || 'migrations';
-    store = new dbAdapter(dbUrl, dbTable);
-  }
+  var store = new (Function.prototype.bind.apply(Store, [null].concat(options)));
 
   var set = migrate.load(store, 'migrations');
 
