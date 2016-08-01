@@ -26,6 +26,22 @@ var options = { args: [] };
 var cwd;
 
 /**
+ * Migration template.
+ */
+var template = [
+  '\'use strict\''
+  , ''
+  , 'exports.up = function(next) {'
+  , '  next();'
+  , '};'
+  , ''
+  , 'exports.down = function(next) {'
+  , '  next();'
+  , '};'
+  , ''
+].join('\n');
+
+/**
  * Usage information.
  */
 
@@ -50,14 +66,12 @@ var migrationCliHandlers = [
           process.chdir(cwd = required());
           return true;
         case '--store':
-          options.store = required();
-          return true;
+          return 'store';
         case '--template-file':
           template = fs.readFileSync(required());
           return true;
         case '--date-format':
-          options.dateFormat = required();
-          return true;
+          return 'dateFormat'
       }
     }
   }
@@ -94,23 +108,6 @@ usageArr = usageArr.concat([
 ]);
 var usage = usageArr.join('\n');
 
-/**
- * Migration template.
- */
-
-var template = [
-  '\'use strict\''
-  , ''
-  , 'exports.up = function(next) {'
-  , '  next();'
-  , '};'
-  , ''
-  , 'exports.down = function(next) {'
-  , '  next();'
-  , '};'
-  , ''
-].join('\n');
-
 // require an argument
 
 function required() {
@@ -132,8 +129,10 @@ while (args.length) {
   var optionKey;
   for (var i = 0; i<migrationCliHandlers.length; i++) {
     optionKey = migrationCliHandlers[i].parseArg(arg)
-    if (optionKey)
+    if (typeof optionKey === 'string')
       options[optionKey] = required();
+    if (optionKey)
+      break;
   }
   if (!optionKey) {
     // default case
