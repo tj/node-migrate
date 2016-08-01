@@ -226,7 +226,7 @@ function create(name) {
 
 function performMigration(direction, migrationName) {
   var storeType = options.store || 'file';
-  var Store = require('node-migrate-'  + storeType + 'store');
+  var Store = require('migrate-'  + storeType + 'store');
 
   var store = new (Function.prototype.bind.apply(Store, [null].concat(options)));
 
