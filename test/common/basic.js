@@ -9,9 +9,10 @@ module.exports = function (BASE, storeUnderTest) {
     var store;
 
     function assertNumMigrations(num, cb) {
-      set.loadNet(function (err, migrations) {
+      set.loadNet(function (err, migrations, done) {
+        assert.ifError(err);
         assert.equal(migrations.length, num);
-        cb();
+        done(cb)
       })
     }
 
@@ -58,6 +59,35 @@ module.exports = function (BASE, storeUnderTest) {
     afterEach(function (done) {
       db.nuke();
       store.reset(done)
+    });
+
+    it('should handle exceptions ok', function (done) {
+
+      set.up(function (err) {
+        assert.ifError(err);
+        assertPets(function () {
+          set.addMigration('add dogs', function (next) {
+            console.log('up error');
+            next('error');
+          });
+
+          set.up(function (err) {
+            assert(err !== null);
+            assertPets(function () {
+              set.migrations.pop();
+              set.addMigration('add dogs', function (next) {
+                console.log('up error');
+                throw new Error('error');
+              });
+              set.up(function (err) {
+                assert(err !== null);
+                assertPets(done);
+              });
+            });
+          });
+        });
+
+      });
     });
 
     it('should handle basic migration using', function (done) {
