@@ -1,9 +1,9 @@
 
-function nuke() {
-  exports.pets = [];
-  exports.issue33 = [];
+function nuke () {
+  exports.pets = []
+  exports.issue33 = []
 }
 
-exports.nuke = nuke;
+exports.nuke = nuke
 
-nuke();
+nuke()
