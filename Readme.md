@@ -1,5 +1,7 @@
 # migrate
 
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+
   Abstract migration framework for node
 
 ## Installation
