@@ -12,8 +12,7 @@
 
 var MigrationSet = require('./lib/set')
 var FileStore = require('./lib/file-store')
-var path = require('path')
-var fs = require('fs')
+var loadMigrationsIntoSet = require('./lib/load-migrations')
 
 /**
  * Expose the migrate function.
@@ -38,6 +37,7 @@ function migrate (title, up, down) {
 }
 
 exports.load = function (stateFile, migrationsDirectory) {
+  // Create store
   var store
   if (typeof stateFile === 'string') {
     store = new FileStore(stateFile)
@@ -46,13 +46,10 @@ exports.load = function (stateFile, migrationsDirectory) {
   }
 
   var set = new MigrationSet(store)
-  var dir = path.resolve(migrationsDirectory)
 
-  fs.readdirSync(dir).filter(function (file) {
+  // Load directory into set
+  loadMigrationsIntoSet(set, migrationsDirectory, function (file) {
     return file.match(/^\d+.*\.js$/)
-  }).sort().forEach(function (file) {
-    var mod = require(path.join(dir, file))
-    set.addMigration(file, mod.up, mod.down)
   })
 
   return set
