@@ -1,5 +1,5 @@
 
-var db = require('../db')
+var db = require('../../util/db')
 
 exports.up = function (next) {
   db.pets.push({ name: 'jane' })
