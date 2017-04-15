@@ -5,6 +5,7 @@ var program = require('commander')
 var path = require('path')
 var migrate = require('../')
 var log = require('../lib/log')
+var registerCompiler = require('../lib/register-compiler')
 var pkg = require('../package.json')
 
 program
@@ -13,10 +14,16 @@ program
   .option('-c, --chdir [dir]', 'Change the working directory', process.cwd())
   .option('-f, --state-file [path]', 'Set path to state file', path.join('migrations', '.migrate'))
   .option('-s, --store <store>', 'Set the migrations store', path.join(__dirname, '..', 'lib', 'file-store'))
+  .option('--compiler <ext:module>', 'Use the given module to compile files')
   .parse(process.argv)
 
 // Change the working dir
 process.chdir(program.chdir)
+
+// Load compiler
+if (program.compiler) {
+  registerCompiler(program.compiler)
+}
 
 // Setup store
 var Store = require(program.store)
@@ -38,16 +45,3 @@ set.down(program.args[0], function (err) {
   log('migration', 'complete')
   process.exit(0)
 })
-
-// var registerCompiler = function (c) {
-//   var compiler = c.split(':')
-//   var ext = compiler[0]
-//   var mod = compiler[1]
-//
-//   extension = ext
-//
-//   if (mod[0] === '.') mod = join(process.cwd(), mod)
-//   require(mod)({
-//     extensions: ['.' + ext]
-//   })
-// }
