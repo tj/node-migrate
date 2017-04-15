@@ -11,6 +11,7 @@
  */
 
 var MigrationSet = require('./lib/set')
+var FileStore = require('./lib/file-store')
 var path = require('path')
 var fs = require('fs')
 
@@ -26,7 +27,7 @@ function migrate (title, up, down) {
     migrate.set.addMigration(title, up, down)
   // specify migration file
   } else if (typeof title === 'string') {
-    migrate.set = new MigrationSet(title)
+    migrate.set = exports.load(title)
   // no migration path
   } else if (!migrate.set) {
     throw new Error('must invoke migrate(path) before running migrations')
@@ -37,7 +38,14 @@ function migrate (title, up, down) {
 }
 
 exports.load = function (stateFile, migrationsDirectory) {
-  var set = new MigrationSet(stateFile)
+  var store
+  if (typeof stateFile === 'string') {
+    store = new FileStore(stateFile)
+  } else {
+    store = stateFile
+  }
+
+  var set = new MigrationSet(store)
   var dir = path.resolve(migrationsDirectory)
 
   fs.readdirSync(dir).filter(function (file) {
