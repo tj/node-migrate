@@ -2,13 +2,10 @@
 'use strict'
 
 var program = require('commander')
-var path = require('path')
 var pkg = require('../package.json')
 
 program
   .version(pkg.version)
-  .option('-c, --chdir [dir]', 'Change the working directory', process.cwd())
-  .option('-s, --state-file [path]', 'Set path to state file', path.join('migrations', '.migrate'))
   .command('init')
   .command('create [name]', 'Create a new migration')
   .command('up [name]', 'Migrate up to a give migration', {isDefault: true})
