@@ -25,7 +25,6 @@ const init = run.bind(null, INIT, TMP_DIR)
 function reset () {
   rimraf.sync(path.join(FIX_DIR, 'migrations', '.migrate'))
   rimraf.sync(TMP_DIR)
-  mkdirp.sync(TMP_DIR)
   db.nuke()
 }
 
@@ -34,6 +33,8 @@ describe('$ migrate', function () {
   afterEach(reset)
 
   describe('init', function () {
+    beforeEach(mkdirp.bind(mkdirp, TMP_DIR))
+
     it('should create a migrations directory', function (done) {
       init([], function (err, out) {
         assert(!err)
@@ -47,6 +48,8 @@ describe('$ migrate', function () {
   }) // end init
 
   describe('create', function () {
+    beforeEach(mkdirp.bind(mkdirp, TMP_DIR))
+
     it('should create a fixture file', function (done) {
       create(['test'], function (err, out) {
         assert(!err)
