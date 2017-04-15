@@ -1,0 +1,22 @@
+#!/usr/bin/env node
+'use strict'
+
+var program = require('commander')
+var mkdirp = require('mkdirp')
+var path = require('path')
+var log = require('../lib/log')
+var pkg = require('../package.json')
+
+program
+  .version(pkg.version)
+  .option('-c, --chdir [dir]', 'Change the working directory', process.cwd())
+  .parse(process.argv)
+
+// Change the working dir
+process.chdir(program.chdir)
+
+// Create migrations dir path
+var p = path.join(process.cwd(), 'migrations')
+
+log('init', p)
+mkdirp.sync(p)

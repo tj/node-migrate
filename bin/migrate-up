@@ -1,0 +1,34 @@
+#!/usr/bin/env node
+'use strict'
+
+var program = require('commander')
+var path = require('path')
+var migrate = require('../')
+var log = require('../lib/log')
+var pkg = require('../package.json')
+
+program
+  .version(pkg.version)
+  .usage('[options] <name>')
+  .option('-c, --chdir [dir]', 'Change the working directory', process.cwd())
+  .option('-s, --state-file [path]', 'Set path to state file', path.join('migrations', '.migrate'))
+  .parse(process.argv)
+
+// Change the working dir
+process.chdir(program.chdir)
+
+var set = migrate.load(program.stateFile, 'migrations')
+
+set.on('migration', function (migration, direction) {
+  log('up', migration.title)
+})
+
+set.up(program.args[0], function (err) {
+  if (err) {
+    log('error', err)
+    process.exit(1)
+  }
+
+  log('migration', 'complete')
+  process.exit(0)
+})

@@ -5,7 +5,7 @@ var path = require('path')
 var assert = require('assert')
 
 var migrate = require('../')
-var db = require('./fixtures/db')
+var db = require('./util/db')
 
 var BASE = path.join(__dirname, 'fixtures', 'issue-33')
 var STATE = path.join(BASE, '.migrate')
