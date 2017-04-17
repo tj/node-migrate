@@ -16,16 +16,26 @@ program
   .option('-d, --date-format [format]', 'Set a date format to use', 'x')
   .option('-t, --template-file [filePath]', 'Set path to template file to use for new migrations', path.join(__dirname, '..', 'lib', 'template.js'))
   .option('-e, --extention [extention]', 'Use the given extention to create the file', '.js')
-  .arguments('[name]')
+  .arguments('<name>')
   .action(create)
   .parse(process.argv)
 
+var _name
 function create (name) {
+  // Name provided?
+  _name = name
+
   // Change the working dir
   process.chdir(program.chdir)
 
   // Load template file
-  var template = fs.readFileSync(program.templateFile)
+  var template
+  try {
+    template = fs.readFileSync(program.templateFile)
+  } catch (e) {
+    log.error('error loading template ' + program.templateFile, e.message)
+    process.exit(1)
+  }
 
   // Create date string
   var now = moment().format(program.dateFormat)
@@ -36,4 +46,9 @@ function create (name) {
   log('create', p)
   mkdirp.sync(path.dirname(p))
   fs.writeFileSync(p, template)
+}
+
+if (!_name) {
+  log.error('error', 'Migration name required')
+  log('usage', 'migrate create <name>')
 }
