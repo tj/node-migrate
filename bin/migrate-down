@@ -4,10 +4,9 @@
 
 var program = require('commander')
 var path = require('path')
+var migrate = require('../')
 var log = require('../lib/log')
-var MigrationSet = require('../lib/set')
 var registerCompiler = require('../lib/register-compiler')
-var loadMigrationsIntoSet = require('../lib/load-migrations')
 var pkg = require('../package.json')
 
 program
@@ -33,12 +32,9 @@ if (program.compiler) {
 var Store = require(program.store)
 var store = new Store(program.stateFile)
 
-// Create migrations set
-var set = new MigrationSet(store)
-
-// Load directory into set
+// Load in migrations
 var matcher = new RegExp(program.extention + '$')
-loadMigrationsIntoSet(set, program.migrationsDir, function (file) {
+var set = migrate.load(store, program.migrationsDir, function (file) {
   return !!file.match(matcher)
 })
 
