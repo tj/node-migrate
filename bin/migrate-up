@@ -4,7 +4,6 @@
 
 var program = require('commander')
 var path = require('path')
-var spawnSync = require('child_process').spawnSync
 var migrate = require('../')
 var log = require('../lib/log')
 var registerCompiler = require('../lib/register-compiler')
@@ -47,37 +46,34 @@ var set = migrate.load(store, program.migrationsDir, function (file) {
   return !!file.match(matcher)
 })
 
-// Run down
-if (program.clean) {
-  // Pass down args
-  var args = [
-    '--chdir', program.chdir,
-    '--state-file', program.stateFile,
-    '--store', program.store,
-    '--migrations-dir', program.migrationsDir,
-    '--extention', program.extention
-  ]
-
-  // Pass down compiler?
-  if (program.compiler) {
-    args.push('--compiler', program.compiler)
-  }
-
-  spawnSync(path.join(__dirname, 'migrate-down'), args, {
-    stdio: 'inherit'
-  })
-}
-
 set.on('migration', function (migration, direction) {
-  log('up', migration.title)
+  log(direction, migration.title)
 })
 
-set.up(program.args[0], function (err) {
+// Run
+;(program.clean ? cleanUp : up)(function (err) {
   if (err) {
     log('error', err)
     process.exit(1)
   }
-
   log('migration', 'complete')
   process.exit(0)
 })
+
+function cleanUp (fn) {
+  set.down(null, function (err) {
+    if (err) {
+      return fn(err)
+    }
+    up(fn)
+  })
+}
+
+function up (fn) {
+  set.up(program.args[0], function (err) {
+    if (err) {
+      return fn(err)
+    }
+    fn()
+  })
+}

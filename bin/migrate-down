@@ -39,7 +39,7 @@ var set = migrate.load(store, program.migrationsDir, function (file) {
 })
 
 set.on('migration', function (migration, direction) {
-  log('down', migration.title)
+  log(direction, migration.title)
 })
 
 set.down(program.args[0], function (err) {
