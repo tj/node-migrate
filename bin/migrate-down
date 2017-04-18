@@ -3,17 +3,20 @@
 
 var program = require('commander')
 var path = require('path')
-var migrate = require('../')
 var log = require('../lib/log')
+var MigrationSet = require('../lib/set')
 var registerCompiler = require('../lib/register-compiler')
+var loadMigrationsIntoSet = require('../lib/load-migrations')
 var pkg = require('../package.json')
 
 program
   .version(pkg.version)
   .usage('[options] <name>')
-  .option('-c, --chdir [dir]', 'Change the working directory', process.cwd())
-  .option('-f, --state-file [path]', 'Set path to state file', path.join('migrations', '.migrate'))
+  .option('-c, --chdir <dir>', 'Change the working directory', process.cwd())
+  .option('-f, --state-file <path>', 'Set path to state file', path.join('migrations', '.migrate'))
   .option('-s, --store <store>', 'Set the migrations store', path.join(__dirname, '..', 'lib', 'file-store'))
+  .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
+  .option('--extention <ext>', 'Change the migrations directory name', '.js')
   .option('--compiler <ext:module>', 'Use the given module to compile files')
   .parse(process.argv)
 
@@ -29,8 +32,14 @@ if (program.compiler) {
 var Store = require(program.store)
 var store = new Store(program.stateFile)
 
-// Load migrations
-var set = migrate.load(store, 'migrations')
+// Create migrations set
+var set = new MigrationSet(store)
+
+// Load directory into set
+var matcher = new RegExp(program.extention + '$')
+loadMigrationsIntoSet(set, program.migrationsDir, function (file) {
+  return file.match(matcher)
+})
 
 set.on('migration', function (migration, direction) {
   log('down', migration.title)

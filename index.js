@@ -36,6 +36,11 @@ function migrate (title, up, down) {
   }
 }
 
+/**
+ * Expose MigrationSet
+ */
+exports.MigrationSet = MigrationSet
+
 exports.load = function (stateFile, migrationsDirectory) {
   // Create store
   var store
