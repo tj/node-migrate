@@ -38,7 +38,7 @@ var set = new MigrationSet(store)
 // Load directory into set
 var matcher = new RegExp(program.extention + '$')
 loadMigrationsIntoSet(set, program.migrationsDir, function (file) {
-  return file.match(matcher)
+  return !!file.match(matcher)
 })
 
 set.on('migration', function (migration, direction) {

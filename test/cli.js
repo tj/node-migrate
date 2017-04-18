@@ -149,6 +149,21 @@ describe('$ migrate', function () {
         })
       })
     })
+
+    it('should run down when passed --clean', function (done) {
+      up([], function (err, out, code) {
+        assert(!err)
+        assert.equal(code, 0)
+        up(['--clean'], function (err, out) {
+          assert(!err)
+          db.load()
+          assert(out.indexOf('down') !== -1)
+          assert(out.indexOf('up') !== -1)
+          assert.equal(db.numbers.length, 2)
+          done()
+        })
+      })
+    })
   }) // end up
 
   describe('down', function () {

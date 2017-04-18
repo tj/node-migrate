@@ -3,6 +3,7 @@
 
 var program = require('commander')
 var path = require('path')
+var spawnSync = require('child_process').spawnSync
 var log = require('../lib/log')
 var MigrationSet = require('../lib/set')
 var registerCompiler = require('../lib/register-compiler')
@@ -15,10 +16,18 @@ program
   .option('-c, --chdir <dir>', 'Change the working directory', process.cwd())
   .option('-f, --state-file <path>', 'Set path to state file', path.join('migrations', '.migrate'))
   .option('-s, --store <store>', 'Set the migrations store', path.join(__dirname, '..', 'lib', 'file-store'))
+  .option('--clean', 'Tears down the migration state before running up')
+  .option('--force', 'Force through the command, ignoring warnings')
   .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
   .option('--extention <ext>', 'Change the migrations directory name', '.js')
   .option('--compiler <ext:module>', 'Use the given module to compile files')
   .parse(process.argv)
+
+// Check clean flag, exit if NODE_ENV === 'production' and force not specified
+if (program.clean && process.env.NODE_ENV === 'production' && !program.force) {
+  log.error('error', 'Cowardly refusing to clean while node environment set to production, use --force to continue.')
+  process.exit(1)
+}
 
 // Change the working dir
 process.chdir(program.chdir)
@@ -38,8 +47,29 @@ var set = new MigrationSet(store)
 // Load directory into set
 var matcher = new RegExp(program.extention + '$')
 loadMigrationsIntoSet(set, program.migrationsDir, function (file) {
-  return file.match(matcher)
+  return !!file.match(matcher)
 })
+
+// Run down
+if (program.clean) {
+  // Pass down args
+  var args = [
+    '--chdir', program.chdir,
+    '--state-file', program.stateFile,
+    '--store', program.store,
+    '--migrations-dir', program.migrationsDir,
+    '--extention', program.extention
+  ]
+
+  // Pass down compiler?
+  if (program.compiler) {
+    args.push('--compiler', program.compiler)
+  }
+
+  spawnSync(path.join(__dirname, 'migrate-down'), args, {
+    stdio: 'inherit'
+  })
+}
 
 set.on('migration', function (migration, direction) {
   log('up', migration.title)
