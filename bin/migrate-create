@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// vim: set ft=javascript:
 'use strict'
 
 var program = require('commander')
