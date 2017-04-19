@@ -1,6 +1,8 @@
 
 var db = require('../../util/db')
 
+exports.description = 'Adds two pets'
+
 exports.up = function (next) {
   db.pets.push({ name: 'tobi' })
   db.pets.push({ name: 'loki' })

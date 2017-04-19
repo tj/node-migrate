@@ -15,12 +15,14 @@ const UP = path.join(__dirname, '..', 'bin', 'migrate-up')
 const DOWN = path.join(__dirname, '..', 'bin', 'migrate-down')
 const CREATE = path.join(__dirname, '..', 'bin', 'migrate-create')
 const INIT = path.join(__dirname, '..', 'bin', 'migrate-init')
+const LIST = path.join(__dirname, '..', 'bin', 'migrate-list')
 
 // Run helper
 const up = run.bind(null, UP, FIX_DIR)
 const down = run.bind(null, DOWN, FIX_DIR)
 const create = run.bind(null, CREATE, TMP_DIR)
 const init = run.bind(null, INIT, TMP_DIR)
+const list = run.bind(null, LIST, FIX_DIR)
 
 function reset () {
   rimraf.sync(path.join(FIX_DIR, 'migrations', '.migrate'))
@@ -211,4 +213,16 @@ describe('$ migrate', function () {
       })
     })
   }) // end down
+
+  describe('list', function () {
+    it('should list available migrations', function (done) {
+      list([], function (err, out, code) {
+        assert(!err)
+        assert.equal(code, 0)
+        assert(out.indexOf('1-one.js') !== -1)
+        assert(out.indexOf('2-two.js') !== -1)
+        done()
+      })
+    })
+  }) // end init
 })

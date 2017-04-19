@@ -1,0 +1,49 @@
+#!/usr/bin/env node
+// vim: set ft=javascript:
+'use strict'
+
+var program = require('commander')
+var path = require('path')
+var migrate = require('../')
+var log = require('../lib/log')
+var registerCompiler = require('../lib/register-compiler')
+var pkg = require('../package.json')
+
+program
+  .version(pkg.version)
+  .usage('[options] <name>')
+  .option('-c, --chdir <dir>', 'Change the working directory', process.cwd())
+  .option('-f, --state-file <path>', 'Set path to state file', path.join('migrations', '.migrate'))
+  .option('-s, --store <store>', 'Set the migrations store', path.join(__dirname, '..', 'lib', 'file-store'))
+  .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
+  .option('--extention <ext>', 'Change the migrations directory name', '.js')
+  .option('--compiler <ext:module>', 'Use the given module to compile files')
+  .parse(process.argv)
+
+// Check clean flag, exit if NODE_ENV === 'production' and force not specified
+if (program.clean && process.env.NODE_ENV === 'production' && !program.force) {
+  log.error('error', 'Cowardly refusing to clean while node environment set to production, use --force to continue.')
+  process.exit(1)
+}
+
+// Change the working dir
+process.chdir(program.chdir)
+
+// Load compiler
+if (program.compiler) {
+  registerCompiler(program.compiler)
+}
+
+// Setup store
+var Store = require(program.store)
+var store = new Store(program.stateFile)
+
+// Load in migrations
+var matcher = new RegExp(program.extention + '$')
+var set = migrate.load(store, program.migrationsDir, function (file) {
+  return !!file.match(matcher)
+})
+
+set.migrations.forEach(function (migration) {
+  log(migration.title, migration.description || '<No Description>')
+})

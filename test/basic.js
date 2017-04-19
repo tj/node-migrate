@@ -1,6 +1,6 @@
 /* global describe, it, beforeEach, afterEach */
 
-var fs = require('fs')
+var rimraf = require('rimraf')
 var path = require('path')
 var assert = require('assert')
 
@@ -176,8 +176,12 @@ describe('migration set', function () {
     })
   })
 
+  it('should load migration descriptions', function () {
+    assert.equal(set.migrations[0].description, 'Adds two pets')
+  })
+
   afterEach(function (done) {
     db.nuke()
-    fs.unlink(STATE, done)
+    rimraf(STATE, done)
   })
 })
