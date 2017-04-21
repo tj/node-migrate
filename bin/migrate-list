@@ -4,6 +4,7 @@
 
 var program = require('commander')
 var path = require('path')
+var moment = require('moment')
 var migrate = require('../')
 var log = require('../lib/log')
 var registerCompiler = require('../lib/register-compiler')
@@ -40,10 +41,19 @@ var store = new Store(program.stateFile)
 
 // Load in migrations
 var matcher = new RegExp(program.extention + '$')
-var set = migrate.load(store, program.migrationsDir, function (file) {
-  return !!file.match(matcher)
-})
+migrate.load({
+  stateStore: store,
+  migrationsDirectory: program.migrationsDir,
+  filterFunction: function (file) {
+    return !!file.match(matcher)
+  }
+}, function (err, set) {
+  if (err) {
+    log.error('error', err)
+    process.exit(1)
+  }
 
-set.migrations.forEach(function (migration) {
-  log(migration.title, migration.description || '<No Description>')
+  set.migrations.forEach(function (migration) {
+    log(migration.title + (migration.timestamp ? ' [' + moment(migration.timestamp).format('YYYY-MM-DD') + ']' : ' [not run]'), migration.description || '<No Description>')
+  })
 })

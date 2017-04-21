@@ -41,23 +41,31 @@ function migrate (title, up, down) {
  */
 exports.MigrationSet = MigrationSet
 
-exports.load = function (stateStore, migrationsDirectory, filterFunction) {
+exports.load = function (options, fn) {
+  var opts = options || {}
+
   // Create default store
-  var store = (typeof stateStore === 'string') ? new FileStore(stateStore) : stateStore
+  var store = (typeof opts.stateStore === 'string') ? new FileStore(opts.stateStore) : opts.stateStore
 
   // Default migrations directory
-  var dir = migrationsDirectory || 'migrations'
+  var dir = opts.migrationsDirectory || 'migrations'
 
   // Default filter function
-  var filter = filterFunction || function (file) {
+  var filter = opts.filterFunction || function (file) {
     return file.match(/^\d+.*\.js$/)
   }
 
   // Create migration set
   var set = new MigrationSet(store)
 
-  // Load directory into set
-  loadMigrationsIntoSet(set, dir, filter)
+  // Load state information
+  set.load(function (err) {
+    if (err) return fn(err)
 
-  return set
+    // Load directory into set
+    loadMigrationsIntoSet(set, dir, filter)
+
+    // set loaded
+    fn(null, set)
+  })
 }

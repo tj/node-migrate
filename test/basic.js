@@ -15,14 +15,12 @@ describe('migration set', function () {
 
   function assertNoPets () {
     assert.equal(db.pets.length, 0)
-    assert.equal(set.pos, 0)
   }
 
   function assertPets () {
     assert.equal(db.pets.length, 3)
     assert.equal(db.pets[0].name, 'tobi')
     assert.equal(db.pets[0].email, 'tobi@learnboost.com')
-    assert.equal(set.pos, 3)
   }
 
   function assertPetsWithDogs () {
@@ -36,7 +34,6 @@ describe('migration set', function () {
     assert.equal(db.pets.length, 2)
     assert.equal(db.pets[0].name, 'tobi')
     assert.equal(db.pets[1].name, 'loki')
-    assert.equal(set.pos, 1)
   }
 
   function assertSecondMigration () {
@@ -44,11 +41,16 @@ describe('migration set', function () {
     assert.equal(db.pets[0].name, 'tobi')
     assert.equal(db.pets[1].name, 'loki')
     assert.equal(db.pets[2].name, 'jane')
-    assert.equal(set.pos, 2)
   }
 
-  beforeEach(function () {
-    set = migrate.load(STATE, BASE)
+  beforeEach(function (done) {
+    migrate.load({
+      stateStore: STATE,
+      migrationsDirectory: BASE
+    }, function (err, s) {
+      set = s
+      done(err)
+    })
   })
 
   it('should handle basic migration', function (done) {
@@ -165,9 +167,10 @@ describe('migration set', function () {
           set.up('2-add-girl-ferrets.js', function (err) {
             assert.ifError(err)
             assertSecondMigration()
+            assert.equal(set.lastRun, '2-add-girl-ferrets.js')
             set.down('2-add-girl-ferrets.js', function (err) {
               assert.ifError(err)
-              assert.equal(set.pos, 1)
+              assert.equal(set.lastRun, '1-add-guy-ferrets.js')
               done()
             })
           })

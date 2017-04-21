@@ -42,34 +42,47 @@ var store = new Store(program.stateFile)
 
 // Load in migrations
 var matcher = new RegExp(program.extention + '$')
-var set = migrate.load(store, program.migrationsDir, function (file) {
-  return !!file.match(matcher)
-})
-
-set.on('migration', function (migration, direction) {
-  log(direction, migration.title)
-})
-
-// Run
-;(program.clean ? cleanUp : up)(function (err) {
+migrate.load({
+  stateStore: store,
+  migrationsDirectory: program.migrationsDir,
+  filterFunction: function (file) {
+    return !!file.match(matcher)
+  }
+}, function (err, set) {
   if (err) {
-    log('error', err)
+    log.error('error', err)
     process.exit(1)
   }
-  log('migration', 'complete')
-  process.exit(0)
+
+  set.on('warning', function (msg) {
+    log('warning', msg)
+  })
+
+  set.on('migration', function (migration, direction) {
+    log(direction, migration.title)
+  })
+
+  // Run
+  ;(program.clean ? cleanUp : up)(set, function (err) {
+    if (err) {
+      log('error', err)
+      process.exit(1)
+    }
+    log('migration', 'complete')
+    process.exit(0)
+  })
 })
 
-function cleanUp (fn) {
+function cleanUp (set, fn) {
   set.down(null, function (err) {
     if (err) {
       return fn(err)
     }
-    up(fn)
+    up(set, fn)
   })
 }
 
-function up (fn) {
+function up (set, fn) {
   set.up(program.args[0], function (err) {
     if (err) {
       return fn(err)

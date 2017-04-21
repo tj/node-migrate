@@ -25,7 +25,7 @@
     "node": ">= 0.4.x"
   },
   "scripts": {
-    "test": "standard --fix && standard --fix ./bin/* && mocha"
+    "test": "standard && standard ./bin/* && mocha"
   },
   "license": "MIT",
   "dependencies": {
