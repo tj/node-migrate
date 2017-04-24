@@ -5,6 +5,7 @@
 var program = require('commander')
 var path = require('path')
 var migrate = require('../')
+var runMigrations = require('../lib/migrate')
 var log = require('../lib/log')
 var registerCompiler = require('../lib/register-compiler')
 var pkg = require('../package.json')
@@ -74,7 +75,7 @@ migrate.load({
 })
 
 function cleanUp (set, fn) {
-  set.down(null, function (err) {
+  runMigrations(set, 'down', null, function (err) {
     if (err) {
       return fn(err)
     }
@@ -83,7 +84,7 @@ function cleanUp (set, fn) {
 }
 
 function up (set, fn) {
-  set.up(program.args[0], function (err) {
+  runMigrations(set, 'up', program.args[0], function (err) {
     if (err) {
       return fn(err)
     }
