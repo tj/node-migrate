@@ -25,7 +25,7 @@ const init = run.bind(null, INIT, TMP_DIR)
 const list = run.bind(null, LIST, FIX_DIR)
 
 function reset () {
-  rimraf.sync(path.join(FIX_DIR, 'migrations', '.migrate'))
+  rimraf.sync(path.join(FIX_DIR, '.migrate'))
   rimraf.sync(TMP_DIR)
   db.nuke()
 }

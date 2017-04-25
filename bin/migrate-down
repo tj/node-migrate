@@ -14,7 +14,7 @@ program
   .version(pkg.version)
   .usage('[options] <name>')
   .option('-c, --chdir <dir>', 'Change the working directory', process.cwd())
-  .option('-f, --state-file <path>', 'Set path to state file', path.join('migrations', '.migrate'))
+  .option('-f, --state-file <path>', 'Set path to state file', '.migrate')
   .option('-s, --store <store>', 'Set the migrations store', path.join(__dirname, '..', 'lib', 'file-store'))
   .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
   .option('--extention <ext>', 'Change the migrations directory name', '.js')
