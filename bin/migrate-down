@@ -4,6 +4,7 @@
 
 var program = require('commander')
 var path = require('path')
+var minimatch = require('minimatch')
 var migrate = require('../')
 var runMigrations = require('../lib/migrate')
 var log = require('../lib/log')
@@ -17,7 +18,7 @@ program
   .option('-f, --state-file <path>', 'Set path to state file', '.migrate')
   .option('-s, --store <store>', 'Set the migrations store', path.join(__dirname, '..', 'lib', 'file-store'))
   .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
-  .option('--extention <ext>', 'Change the migrations directory name', '.js')
+  .option('--matches <glob>', 'A glob pattern to filter migration files', '*')
   .option('--compiler <ext:module>', 'Use the given module to compile files')
   .parse(process.argv)
 
@@ -34,13 +35,10 @@ var Store = require(program.store)
 var store = new Store(program.stateFile)
 
 // Load in migrations
-var matcher = new RegExp(program.extention + '$')
 migrate.load({
   stateStore: store,
   migrationsDirectory: program.migrationsDir,
-  filterFunction: function (file) {
-    return !!file.match(matcher)
-  }
+  filterFunction: minimatch.filter(program.matches)
 }, function (err, set) {
   if (err) {
     log.error('error', err)
