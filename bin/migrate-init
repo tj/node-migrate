@@ -10,14 +10,29 @@ var pkg = require('../package.json')
 
 program
   .version(pkg.version)
+  .option('-f, --state-file <path>', 'Set path to state file', '.migrate')
+  .option('-s, --store <store>', 'Set the migrations store', path.join(__dirname, '..', 'lib', 'file-store'))
+  .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
   .option('-c, --chdir [dir]', 'Change the working directory', process.cwd())
   .parse(process.argv)
 
 // Change the working dir
 process.chdir(program.chdir)
 
-// Create migrations dir path
-var p = path.join(process.cwd(), 'migrations')
+// Setup store
+var Store = require(program.store)
+var store = new Store(program.stateFile)
 
-log('init', p)
+// Create migrations dir path
+var p = path.join(process.cwd(), program.migrationsDir)
+
+log('migrations dir', p)
 mkdirp.sync(p)
+
+// Call store init
+if (typeof store.init === 'function') {
+  store.init(function (err) {
+    if (err) return log.error(err)
+    log('init')
+  })
+}

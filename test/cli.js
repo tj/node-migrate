@@ -41,7 +41,6 @@ describe('$ migrate', function () {
       init([], function (err, out, code) {
         assert(!err)
         assert.equal(code, 0)
-        assert(out.indexOf('init') !== -1)
         assert.doesNotThrow(() => {
           fs.accessSync(path.join(TMP_DIR, 'migrations'))
         })

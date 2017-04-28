@@ -19,6 +19,7 @@ program
   .option('-s, --store <store>', 'Set the migrations store', path.join(__dirname, '..', 'lib', 'file-store'))
   .option('--clean', 'Tears down the migration state before running up')
   .option('--force', 'Force through the command, ignoring warnings')
+  .option('--init', 'Runs init for the store')
   .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
   .option('--matches <glob>', 'A glob pattern to filter migration files', '*')
   .option('--compiler <ext:module>', 'Use the given module to compile files')
@@ -27,6 +28,12 @@ program
 // Check clean flag, exit if NODE_ENV === 'production' and force not specified
 if (program.clean && process.env.NODE_ENV === 'production' && !program.force) {
   log.error('error', 'Cowardly refusing to clean while node environment set to production, use --force to continue.')
+  process.exit(1)
+}
+
+// Check init flag, exit if NODE_ENV === 'production' and force not specified
+if (program.init && process.env.NODE_ENV === 'production' && !program.force) {
+  log.error('error', 'Cowardly refusing to init while node environment set to production, use --force to continue.')
   process.exit(1)
 }
 
@@ -42,35 +49,47 @@ if (program.compiler) {
 var Store = require(program.store)
 var store = new Store(program.stateFile)
 
+// Call store init
+if (program.init && typeof store.init === 'function') {
+  store.init(function (err) {
+    if (err) return log.error(err)
+    loadAndGo()
+  })
+} else {
+  loadAndGo()
+}
+
 // Load in migrations
-migrate.load({
-  stateStore: store,
-  migrationsDirectory: program.migrationsDir,
-  filterFunction: minimatch.filter(program.matches)
-}, function (err, set) {
-  if (err) {
-    log.error('error', err)
-    process.exit(1)
-  }
-
-  set.on('warning', function (msg) {
-    log('warning', msg)
-  })
-
-  set.on('migration', function (migration, direction) {
-    log(direction, migration.title)
-  })
-
-  // Run
-  ;(program.clean ? cleanUp : up)(set, function (err) {
+function loadAndGo () {
+  migrate.load({
+    stateStore: store,
+    migrationsDirectory: program.migrationsDir,
+    filterFunction: minimatch.filter(program.matches)
+  }, function (err, set) {
     if (err) {
-      log('error', err)
+      log.error('error', err)
       process.exit(1)
     }
-    log('migration', 'complete')
-    process.exit(0)
+
+    set.on('warning', function (msg) {
+      log('warning', msg)
+    })
+
+    set.on('migration', function (migration, direction) {
+      log(direction, migration.title)
+    })
+
+    // Run
+    ;(program.clean ? cleanUp : up)(set, function (err) {
+      if (err) {
+        log('error', err)
+        process.exit(1)
+      }
+      log('migration', 'complete')
+      process.exit(0)
+    })
   })
-})
+}
 
 function cleanUp (set, fn) {
   runMigrations(set, 'down', null, function (err) {
