@@ -3,20 +3,20 @@
 'use strict'
 
 var program = require('commander')
-var slug = require('slug')
-var moment = require('moment')
-var mkdirp = require('mkdirp')
 var path = require('path')
-var fs = require('fs')
 var log = require('../lib/log')
+var registerCompiler = require('../lib/register-compiler')
 var pkg = require('../package.json')
 
 program
   .version(pkg.version)
   .option('-c, --chdir [dir]', 'Change the working directory', process.cwd())
+  .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
+  .option('--compiler <ext:module>', 'Use the given module to compile files')
   .option('-d, --date-format [format]', 'Set a date format to use', 'x')
   .option('-t, --template-file [filePath]', 'Set path to template file to use for new migrations', path.join(__dirname, '..', 'lib', 'template.js'))
   .option('-e, --extention [extention]', 'Use the given extention to create the file', '.js')
+  .option('-g, --generator <name>', 'A template generator function', path.join(__dirname, '..', 'lib', 'template-generator'))
   .arguments('<name>')
   .action(create)
   .parse(process.argv)
@@ -29,24 +29,26 @@ function create (name) {
   // Change the working dir
   process.chdir(program.chdir)
 
-  // Load template file
-  var template
-  try {
-    template = fs.readFileSync(program.templateFile)
-  } catch (e) {
-    log.error('error loading template ' + program.templateFile, e.message)
-    process.exit(1)
+  // Load compiler
+  if (program.compiler) {
+    registerCompiler(program.compiler)
   }
 
-  // Create date string
-  var now = moment().format(program.dateFormat)
-
-  // Create file path
-  var p = path.join(process.cwd(), 'migrations', slug(now + (name ? '-' + name : '')) + program.extention)
-
-  log('create', p)
-  mkdirp.sync(path.dirname(p))
-  fs.writeFileSync(p, template)
+  // Load the template generator
+  var gen = require(program.generator)
+  gen({
+    name: name,
+    dateFormat: program.dateFormat,
+    templateFile: program.templateFile,
+    migrationsDirectory: program.migrationsDir,
+    extention: program.extention
+  }, function (err, p) {
+    if (err) {
+      log.error('Template generation error', err.message)
+      process.exit(1)
+    }
+    log('create', p)
+  })
 }
 
 if (!_name) {

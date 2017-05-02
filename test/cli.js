@@ -56,7 +56,6 @@ describe('$ migrate', function () {
       create(['test'], function (err, out, code) {
         assert(!err)
         assert.equal(code, 0)
-        assert(out.indexOf('create') !== -1)
         var file = out.split(':')[1].trim()
         var content = fs.readFileSync(file, {
           encoding: 'utf8'
