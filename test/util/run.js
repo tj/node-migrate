@@ -12,6 +12,9 @@ module.exports = function run (cmd, dir, args, done) {
   })
   p.on('error', done)
   p.on('close', function (code) {
+    if (code !== 0) {
+      console.error(out)
+    }
     done(null, out, code)
   })
 }
