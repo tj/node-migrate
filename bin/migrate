@@ -5,111 +5,105 @@
  */
 
 var migrate = require('../')
-  , join = require('path').join
-  , fs = require('fs')
-  , dateFormat = require('dateformat');
+var chalk = require('chalk')
+var join = require('path').join
+var fs = require('fs')
+var dateFormat = require('dateformat')
 
 /**
  * Arguments.
  */
 
-var args = process.argv.slice(2);
+var args = process.argv.slice(2)
 
 /**
  * Option defaults.
  */
 
-var options = { args: [] };
-
-/**
- * Current working directory.
- */
-
-var cwd;
+var options = { args: [] }
 
 /**
  * Usage information.
  */
 
 var usage = [
-    ''
-  , '  Usage: migrate [options] [command]'
-  , ''
-  , '  Options:'
-  , ''
-  , '     -c, --chdir <path>      change the working directory'
-  , '     --state-file <path>     set path to state file (migrations/.migrate)'
-  , '     --template-file <path>  set path to template file to use for new migrations'
-  , '     --date-format <format>  set a date format to use for new migration filenames'
-  , '  Commands:'
-  , ''
-  , '     down   [name]    migrate down till given migration'
-  , '     up     [name]    migrate up till given migration (the default command)'
-  , '     create [title]   create a new migration file with optional [title]'
-  , ''
-].join('\n');
+  '',
+  '  Usage: migrate [options] [command]',
+  '',
+  '  Options:',
+  '',
+  '     -c, --chdir <path>      change the working directory',
+  '     --state-file <path>     set path to state file (migrations/.migrate)',
+  '     --template-file <path>  set path to template file to use for new migrations',
+  '     --date-format <format>  set a date format to use for new migration filenames',
+  '  Commands:',
+  '',
+  '     down   [name]    migrate down till given migration',
+  '     up     [name]    migrate up till given migration (the default command)',
+  '     create [title]   create a new migration file with optional [title]',
+  ''
+].join('\n')
 
 /**
  * Migration template.
  */
 
 var template = [
-    '\'use strict\''
-  , ''
-  , 'exports.up = function(next) {'
-  , '  next();'
-  , '};'
-  , ''
-  , 'exports.down = function(next) {'
-  , '  next();'
-  , '};'
-  , ''
-].join('\n');
+  '\'use strict\'',
+  '',
+  'exports.up = function(next) {',
+  '  next();',
+  '};',
+  '',
+  'exports.down = function(next) {',
+  '  next();',
+  '};',
+  ''
+].join('\n')
 
 // require an argument
 
-function required() {
-  if (args.length) return args.shift();
-  abort(arg + ' requires an argument');
+function required () {
+  if (args.length) return args.shift()
+  abort(arg + ' requires an argument')
 }
 
 // abort with a message
 
-function abort(msg) {
-  console.error('  %s', msg);
-  process.exit(1);
+function abort (msg) {
+  console.error('  %s', msg)
+  process.exit(1)
 }
 
 // parse arguments
 
-var arg;
+var arg
 while (args.length) {
-  arg = args.shift();
+  arg = args.shift()
   switch (arg) {
     case '-h':
     case '--help':
     case 'help':
-      console.log(usage);
-      process.exit();
-      break;
+      console.log(usage)
+      process.exit()
     case '-c':
     case '--chdir':
-      process.chdir(cwd = required());
-      break;
+      process.chdir(required())
+      break
     case '--state-file':
-      options.stateFile = required();
-      break;
+      options.stateFile = required()
+      break
     case '--template-file':
-      template = fs.readFileSync(required());
-      break;
+      template = fs.readFileSync(required())
+      break
     case '--date-format':
-      options.dateFormat = required();
-      break;
+      options.dateFormat = required()
+      break
     default:
       if (options.command) {
-        options.args.push(arg);
+        options.args.push(arg)
       } else {
-        options.command = arg;
+        options.command = arg
       }
   }
 }
@@ -118,22 +112,22 @@ while (args.length) {
  * Log a keyed message.
  */
 
-function log(key, msg) {
-  console.log('  \033[90m%s :\033[0m \033[36m%s\033[0m', key, msg);
+function log (key, msg) {
+  console.log('  ' + chalk.grey(key) + ' : ' + chalk.teal(msg))
 }
 
 /**
  * Slugify the given `str`.
  */
 
-function slugify(str) {
-  return str.replace(/\s+/g, '-');
+function slugify (str) {
+  return str.replace(/\s+/g, '-')
 }
 
 // create ./migrations
 
 try {
-  fs.mkdirSync('migrations', 0774);
+  fs.mkdirSync('migrations', 774)
 } catch (err) {
   // ignore
 }
@@ -146,32 +140,32 @@ var commands = {
    * up [name]
    */
 
-  up: function(migrationName){
-    performMigration('up', migrationName);
+  up: function (migrationName) {
+    performMigration('up', migrationName)
   },
 
   /**
    * down [name]
    */
 
-  down: function(migrationName){
-    performMigration('down', migrationName);
+  down: function (migrationName) {
+    performMigration('down', migrationName)
   },
 
   /**
    * create [title]
    */
 
-  create: function(){
+  create: function () {
     var curr = Date.now()
-      , title = slugify([].slice.call(arguments).join(' '));
+    var title = slugify([].slice.call(arguments).join(' '))
     if (options.dateFormat) {
-      curr = dateFormat(curr, options.dateFormat);
+      curr = dateFormat(curr, options.dateFormat)
     }
-    title = title ? curr + '-' + title : curr;
-    create(title);
+    title = title ? curr + '-' + title : curr
+    create(title)
   }
-};
+}
 
 /**
  * Create a migration with the given `name`.
@@ -179,10 +173,10 @@ var commands = {
  * @param {String} name
  */
 
-function create(name) {
-  var path = join('migrations', name + '.js');
-  log('create', join(process.cwd(), path));
-  fs.writeFileSync(path, template);
+function create (name) {
+  var path = join('migrations', name + '.js')
+  log('create', join(process.cwd(), path))
+  fs.writeFileSync(path, template)
 }
 
 /**
@@ -191,32 +185,28 @@ function create(name) {
  * @param {Number} direction
  */
 
-function performMigration(direction, migrationName) {
-  var state = options.stateFile || join('migrations', '.migrate');
-  var set = migrate.load(state, 'migrations');
+function performMigration (direction, migrationName) {
+  var state = options.stateFile || join('migrations', '.migrate')
+  var set = migrate.load(state, 'migrations')
 
-  set.on('migration', function(migration, direction){
-    log(direction, migration.title);
-  });
-
-  var migrationPath = migrationName
-    ? join('migrations', migrationName)
-    : migrationName;
+  set.on('migration', function (migration, direction) {
+    log(direction, migration.title)
+  })
 
   set[direction](migrationName, function (err) {
     if (err) {
-      log('error', err);
-      process.exit(1);
+      log('error', err)
+      process.exit(1)
     }
 
-    log('migration', 'complete');
-    process.exit(0);
-  });
+    log('migration', 'complete')
+    process.exit(0)
+  })
 }
 
 // invoke command
 
-var command = options.command || 'up';
-if (!(command in commands)) abort('unknown command "' + command + '"');
-command = commands[command];
-command.apply(this, options.args);
+var command = options.command || 'up'
+if (!(command in commands)) abort('unknown command "' + command + '"')
+command = commands[command]
+command.apply(this, options.args)
