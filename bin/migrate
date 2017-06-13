@@ -24,6 +24,12 @@ var args = process.argv.slice(2)
 var options = { args: [] }
 
 /**
+ * Default extension
+ */
+
+var extension = 'js'
+
+/**
  * Usage information.
  */
 
@@ -33,10 +39,11 @@ var usage = [
   '',
   '  Options:',
   '',
-  '     -c, --chdir <path>      change the working directory',
-  '     --state-file <path>     set path to state file (migrations/.migrate)',
-  '     --template-file <path>  set path to template file to use for new migrations',
-  '     --date-format <format>  set a date format to use for new migration filenames',
+  '     -c, --chdir <path>         change the working directory',
+  '     --state-file <path>        set path to state file (migrations/.migrate)',
+  '     --template-file <path>     set path to template file to use for new migrations',
+  '     --date-format <format>     set a date format to use for new migration filenames',
+  '     --compiler <ext>:<module>  use the given module to create or compile files',
   '  Commands:',
   '',
   '     down   [name]    migrate down till given migration',
@@ -76,6 +83,19 @@ function abort (msg) {
   process.exit(1)
 }
 
+var registerCompiler = function (c) {
+  var compiler = c.split(':')
+  var ext = compiler[0]
+  var mod = compiler[1]
+
+  extension = ext
+
+  if (mod[0] === '.') mod = join(process.cwd(), mod)
+  require(mod)({
+    extensions: ['.' + ext]
+  })
+}
+
 // parse arguments
 
 var arg
@@ -99,6 +119,9 @@ while (args.length) {
       break
     case '--date-format':
       options.dateFormat = required()
+      break
+    case '--compiler':
+      registerCompiler(required())
       break
     default:
       if (options.command) {
@@ -175,7 +198,7 @@ var commands = {
  */
 
 function create (name) {
-  var path = join('migrations', name + '.js')
+  var path = join('migrations', name + '.' + extension)
   log('create', join(process.cwd(), path))
   fs.writeFileSync(path, template)
 }
