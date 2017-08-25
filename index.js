@@ -36,21 +36,36 @@ function migrate (title, up, down) {
   }
 }
 
-exports.load = function (stateFile, migrationsDirectory) {
-  // Create store
-  var store
-  if (typeof stateFile === 'string') {
-    store = new FileStore(stateFile)
-  } else {
-    store = stateFile
+/**
+ * Expose MigrationSet
+ */
+exports.MigrationSet = MigrationSet
+
+exports.load = function (options, fn) {
+  var opts = options || {}
+
+  // Create default store
+  var store = (typeof opts.stateStore === 'string') ? new FileStore(opts.stateStore) : opts.stateStore
+
+  // Default migrations directory
+  var dir = opts.migrationsDirectory || 'migrations'
+
+  // Default filter function
+  var filter = opts.filterFunction || function (file) {
+    return file.match(/^\d+.*\.js$/)
   }
 
+  // Create migration set
   var set = new MigrationSet(store)
 
-  // Load directory into set
-  loadMigrationsIntoSet(set, migrationsDirectory, function (file) {
-    return file.match(/^\d+.*\.js$/)
-  })
+  // Load state information
+  set.load(function (err) {
+    if (err) return fn(err)
 
-  return set
+    // Load directory into set
+    loadMigrationsIntoSet(set, dir, filter)
+
+    // set loaded
+    fn(null, set)
+  })
 }

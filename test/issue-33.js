@@ -16,8 +16,14 @@ var A2 = A1.concat(['3-down', '2-down', '1-down'])
 describe('issue #33', function () {
   var set
 
-  beforeEach(function () {
-    set = migrate.load(STATE, BASE)
+  beforeEach(function (done) {
+    migrate.load({
+      stateStore: STATE,
+      migrationsDirectory: BASE
+    }, function (err, s) {
+      set = s
+      done(err)
+    })
   })
 
   it('should run migrations in the correct order', function (done) {
