@@ -35,7 +35,7 @@ function create (name) {
   }
 
   // Load the template generator
-  var gen = require(program.generator)
+  var gen = require(path.resolve(process.cwd(), program.generator))
   gen({
     name: name,
     dateFormat: program.dateFormat,
