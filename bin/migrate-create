@@ -13,7 +13,7 @@ program
   .option('-c, --chdir [dir]', 'Change the working directory', process.cwd())
   .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
   .option('--compiler <ext:module>', 'Use the given module to compile files')
-  .option('-d, --date-format [format]', 'Set a date format to use', 'x')
+  .option('-d, --date-format [format]', 'Set a date format to use')
   .option('-t, --template-file [filePath]', 'Set path to template file to use for new migrations', path.join(__dirname, '..', 'lib', 'template.js'))
   .option('-e, --extention [extention]', 'Use the given extention to create the file', '.js')
   .option('-g, --generator <name>', 'A template generator function', path.join(__dirname, '..', 'lib', 'template-generator'))
