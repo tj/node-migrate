@@ -15,15 +15,17 @@ const UP = path.join(__dirname, '..', 'bin', 'migrate-up')
 const DOWN = path.join(__dirname, '..', 'bin', 'migrate-down')
 const CREATE = path.join(__dirname, '..', 'bin', 'migrate-create')
 const INIT = path.join(__dirname, '..', 'bin', 'migrate-init')
+const LIST = path.join(__dirname, '..', 'bin', 'migrate-list')
 
 // Run helper
 const up = run.bind(null, UP, FIX_DIR)
 const down = run.bind(null, DOWN, FIX_DIR)
 const create = run.bind(null, CREATE, TMP_DIR)
 const init = run.bind(null, INIT, TMP_DIR)
+const list = run.bind(null, LIST, FIX_DIR)
 
 function reset () {
-  rimraf.sync(path.join(FIX_DIR, 'migrations', '.migrate'))
+  rimraf.sync(path.join(FIX_DIR, '.migrate'))
   rimraf.sync(TMP_DIR)
   db.nuke()
 }
@@ -39,7 +41,6 @@ describe('$ migrate', function () {
       init([], function (err, out, code) {
         assert(!err)
         assert.equal(code, 0)
-        assert(out.indexOf('init') !== -1)
         assert.doesNotThrow(() => {
           fs.accessSync(path.join(TMP_DIR, 'migrations'))
         })
@@ -55,7 +56,6 @@ describe('$ migrate', function () {
       create(['test'], function (err, out, code) {
         assert(!err)
         assert.equal(code, 0)
-        assert(out.indexOf('create') !== -1)
         var file = out.split(':')[1].trim()
         var content = fs.readFileSync(file, {
           encoding: 'utf8'
@@ -149,6 +149,21 @@ describe('$ migrate', function () {
         })
       })
     })
+
+    it('should run down when passed --clean', function (done) {
+      up([], function (err, out, code) {
+        assert(!err)
+        assert.equal(code, 0)
+        up(['--clean'], function (err, out) {
+          assert(!err)
+          db.load()
+          assert(out.indexOf('down') !== -1)
+          assert(out.indexOf('up') !== -1)
+          assert.equal(db.numbers.length, 2)
+          done()
+        })
+      })
+    })
   }) // end up
 
   describe('down', function () {
@@ -196,4 +211,16 @@ describe('$ migrate', function () {
       })
     })
   }) // end down
+
+  describe('list', function () {
+    it('should list available migrations', function (done) {
+      list([], function (err, out, code) {
+        assert(!err)
+        assert.equal(code, 0)
+        assert(out.indexOf('1-one.js') !== -1)
+        assert(out.indexOf('2-two.js') !== -1)
+        done()
+      })
+    })
+  }) // end init
 })
