@@ -4,7 +4,7 @@ const fs = require('fs')
 const assert = require('assert')
 const rimraf = require('rimraf')
 const mkdirp = require('mkdirp')
-const moment = require('moment')
+const formatDate = require('dateformat')
 const db = require('./util/db')
 const run = require('./util/run')
 
@@ -69,8 +69,8 @@ describe('$ migrate', function () {
 
     it('should respect the --date-format', function (done) {
       var name = 'test'
-      var fmt = 'YYYY-MM-DD'
-      var now = moment().format(fmt)
+      var fmt = 'yyyy-mm-dd'
+      var now = formatDate(new Date(), fmt)
 
       create([name, '-d', fmt], function (err, out, code) {
         assert(!err)
@@ -84,9 +84,9 @@ describe('$ migrate', function () {
 
     it('should respect the --extention', function (done) {
       var name = 'test'
-      var fmt = 'YYYY-MM-DD'
+      var fmt = 'yyyy-mm-dd'
       var ext = '.mjs'
-      var now = moment().format(fmt)
+      var now = formatDate(new Date(), fmt)
 
       create([name, '-d', fmt, '-e', ext], function (err, out, code) {
         assert(!err)
