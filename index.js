@@ -47,25 +47,16 @@ exports.load = function (options, fn) {
   // Create default store
   var store = (typeof opts.stateStore === 'string') ? new FileStore(opts.stateStore) : opts.stateStore
 
-  // Default migrations directory
-  var dir = opts.migrationsDirectory || 'migrations'
-
-  // Default filter function
-  var filter = opts.filterFunction || function (file) {
-    return file.match(/^\d+.*\.js$/)
-  }
-
   // Create migration set
   var set = new MigrationSet(store)
 
-  // Load state information
-  set.load(function (err) {
-    if (err) return fn(err)
-
-    // Load directory into set
-    loadMigrationsIntoSet(set, dir, filter)
-
-    // set loaded
-    fn(null, set)
+  loadMigrationsIntoSet({
+    set: set,
+    store: store,
+    migrationsDirectory: opts.migrationsDirectory,
+    filterFunction: opts.filterFunction,
+    sortFunction: opts.sortFunction
+  }, function (err) {
+    fn(err, set)
   })
 }
