@@ -4,3 +4,4 @@ node_modules
 .migrate
 
 migrations/
+.idea/
