@@ -23,6 +23,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "dateformat": "^1.0.12"
+    "dateformat": "^1.0.12",
+    "promised-mongo": "*"
   }
 }

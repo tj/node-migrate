@@ -41,6 +41,7 @@ var usage = [
   , '     --state-file <path>     set path to state file (migrations/.migrate)'
   , '     --template-file <path>  set path to template file to use for new migrations'
   , '     --date-format <format>  set a date format to use for new migration filenames'
+  , '     --state-db <format>     name of env variable containing the mongo connection string for state storage (MONGO_CONNECTION_STRING)'
   , '  Commands:'
   , ''
   , '     down   [name]    migrate down till given migration'
@@ -105,6 +106,9 @@ while (args.length) {
     case '--date-format':
       options.dateFormat = required();
       break;
+    case '--state-db':
+      options.stateDb = required();
+      break;
     default:
       if (options.command) {
         options.args.push(arg);
@@ -119,7 +123,7 @@ while (args.length) {
  */
 
 function log(key, msg) {
-  console.log('  \033[90m%s :\033[0m \033[36m%s\033[0m', key, msg);
+  console.log('  \x1B[90m%s :\x1B[0m \x1B[36m%s\x1B[0m', key, msg);
 }
 
 /**
@@ -133,7 +137,7 @@ function slugify(str) {
 // create ./migrations
 
 try {
-  fs.mkdirSync('migrations', 0774);
+  fs.mkdirSync('migrations', 0o774);
 } catch (err) {
   // ignore
 }
@@ -192,8 +196,9 @@ function create(name) {
  */
 
 function performMigration(direction, migrationName) {
-  var state = options.stateFile || join('migrations', '.migrate');
-  var set = migrate.load(state, 'migrations');
+  var type = options.stateDb ? 'mongo' : 'file';
+  var state = options.stateDb || options.stateFile || join('migrations', '.migrate');
+  var set = migrate.load(state, 'migrations', type);
 
   set.on('migration', function(migration, direction){
     log(direction, migration.title);
