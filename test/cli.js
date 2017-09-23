@@ -216,7 +216,7 @@ describe('$ migrate', function () {
     it('should list available migrations', function (done) {
       list([], function (err, out, code) {
         assert(!err)
-        assert.equal(code, 0)
+        assert.equal(code, 0, out)
         assert(out.indexOf('1-one.js') !== -1)
         assert(out.indexOf('2-two.js') !== -1)
         done()
