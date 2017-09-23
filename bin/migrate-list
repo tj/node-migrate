@@ -4,7 +4,7 @@
 
 var program = require('commander')
 var path = require('path')
-var moment = require('moment')
+var dateFormat = require('dateformat')
 var minimatch = require('minimatch')
 var migrate = require('../')
 var log = require('../lib/log')
@@ -17,6 +17,7 @@ program
   .option('-c, --chdir <dir>', 'Change the working directory', process.cwd())
   .option('-f, --state-file <path>', 'Set path to state file', '.migrate')
   .option('-s, --store <store>', 'Set the migrations store', path.join(__dirname, '..', 'lib', 'file-store'))
+  .option('-d, --date-format [format]', 'Set a date format to use', 'yyyy-mm-dd')
   .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
   .option('--matches <glob>', 'A glob pattern to filter migration files', '*')
   .option('--compiler <ext:module>', 'Use the given module to compile files')
@@ -56,6 +57,6 @@ migrate.load({
   }
 
   set.migrations.forEach(function (migration) {
-    log(migration.title + (migration.timestamp ? ' [' + moment(migration.timestamp).format('YYYY-MM-DD') + ']' : ' [not run]'), migration.description || '<No Description>')
+    log(migration.title + (migration.timestamp ? ' [' + dateFormat(migration.timestamp, program.dateFormat) + ']' : ' [not run]'), migration.description || '<No Description>')
   })
 })
