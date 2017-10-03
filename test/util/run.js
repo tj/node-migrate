@@ -3,9 +3,9 @@
 const path = require('path')
 const spawn = require('child_process').spawn
 
-var run = module.exports = function run (cmd, dir, args, done) {
-  var p = spawn(cmd, ['-c', dir, ...args])
-  var out = ''
+const run = module.exports = function run (cmd, dir, args, done) {
+  const p = spawn(cmd, ['-c', dir, ...args])
+  let out = ''
   p.stdout.on('data', function (d) {
     out += d.toString('utf8')
   })

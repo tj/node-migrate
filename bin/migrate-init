@@ -2,11 +2,11 @@
 // vim: set ft=javascript:
 'use strict'
 
-var program = require('commander')
-var mkdirp = require('mkdirp')
-var path = require('path')
-var log = require('../lib/log')
-var pkg = require('../package.json')
+const program = require('commander')
+const mkdirp = require('mkdirp')
+const path = require('path')
+const log = require('../lib/log')
+const pkg = require('../package.json')
 
 program
   .version(pkg.version)
@@ -20,11 +20,11 @@ program
 process.chdir(program.chdir)
 
 // Setup store
-var Store = require(program.store)
-var store = new Store(program.stateFile)
+const Store = require(program.store)
+const store = new Store(program.stateFile)
 
 // Create migrations dir path
-var p = path.join(process.cwd(), program.migrationsDir)
+const p = path.join(process.cwd(), program.migrationsDir)
 
 log('migrations dir', p)
 mkdirp.sync(p)

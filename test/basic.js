@@ -2,18 +2,18 @@
 
 /* global describe, it, beforeEach, afterEach */
 
-var rimraf = require('rimraf')
-var path = require('path')
-var assert = require('assert')
+const rimraf = require('rimraf')
+const path = require('path')
+const assert = require('assert')
 
-var migrate = require('../')
-var db = require('./util/db')
+const migrate = require('../')
+const db = require('./util/db')
 
-var BASE = path.join(__dirname, 'fixtures', 'basic')
-var STATE = path.join(BASE, '.migrate')
+const BASE = path.join(__dirname, 'fixtures', 'basic')
+const STATE = path.join(BASE, '.migrate')
 
 describe('migration set', function () {
-  var set
+  let set
 
   function assertNoPets () {
     assert.equal(db.pets.length, 0)
@@ -118,9 +118,9 @@ describe('migration set', function () {
       next()
     })
 
-    var saved = 0
-    var migrations = []
-    var expectedMigrations = [
+    let saved = 0
+    let migrations = []
+    let expectedMigrations = [
       '1-add-guy-ferrets.js',
       '2-add-girl-ferrets.js',
       '3-add-emails.js',

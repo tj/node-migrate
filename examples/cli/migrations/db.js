@@ -5,7 +5,7 @@
 // $ npm install redis
 // $ redis-server
 
-var redis = require('redis')
-  , db = redis.createClient();
+const redis = require('redis')
+const db = redis.createClient()
 
-module.exports = db;
+module.exports = db

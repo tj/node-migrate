@@ -2,14 +2,14 @@
 // vim: set ft=javascript:
 'use strict'
 
-var program = require('commander')
-var path = require('path')
-var dateFormat = require('dateformat')
-var minimatch = require('minimatch')
-var migrate = require('../')
-var log = require('../lib/log')
-var registerCompiler = require('../lib/register-compiler')
-var pkg = require('../package.json')
+const program = require('commander')
+const path = require('path')
+const dateFormat = require('dateformat')
+const minimatch = require('minimatch')
+const migrate = require('../')
+const log = require('../lib/log')
+const registerCompiler = require('../lib/register-compiler')
+const pkg = require('../package.json')
 
 program
   .version(pkg.version)
@@ -38,8 +38,8 @@ if (program.compiler) {
 }
 
 // Setup store
-var Store = require(program.store)
-var store = new Store(program.stateFile)
+const Store = require(program.store)
+const store = new Store(program.stateFile)
 
 // Load in migrations
 migrate.load({

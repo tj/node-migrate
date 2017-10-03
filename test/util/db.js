@@ -1,10 +1,10 @@
 'use strict'
 
-var fs = require('fs')
-var path = require('path')
-var rimraf = require('rimraf')
+const fs = require('fs')
+const path = require('path')
+const rimraf = require('rimraf')
 
-var DB_PATH = path.join(__dirname, 'test.db')
+const DB_PATH = path.join(__dirname, 'test.db')
 
 function init () {
   exports.pets = []
@@ -18,12 +18,15 @@ function nuke () {
 }
 
 function load () {
+  let c
+
   try {
-    var c = fs.readFileSync(DB_PATH, 'utf8')
+    c = fs.readFileSync(DB_PATH, 'utf8')
   } catch (e) {
     return
   }
-  var j = JSON.parse(c)
+
+  const j = JSON.parse(c)
   Object.keys(j).forEach(function (k) {
     exports[k] = j[k]
   })

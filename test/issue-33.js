@@ -2,21 +2,21 @@
 
 /* global describe, it, beforeEach, afterEach */
 
-var fs = require('fs')
-var path = require('path')
-var assert = require('assert')
+const fs = require('fs')
+const path = require('path')
+const assert = require('assert')
 
-var migrate = require('../')
-var db = require('./util/db')
+const migrate = require('../')
+const db = require('./util/db')
 
-var BASE = path.join(__dirname, 'fixtures', 'issue-33')
-var STATE = path.join(BASE, '.migrate')
+const BASE = path.join(__dirname, 'fixtures', 'issue-33')
+const STATE = path.join(BASE, '.migrate')
 
-var A1 = ['1-up', '2-up', '3-up']
-var A2 = A1.concat(['3-down', '2-down', '1-down'])
+const A1 = ['1-up', '2-up', '3-up']
+const A2 = A1.concat(['3-down', '2-down', '1-down'])
 
 describe('issue #33', function () {
-  var set
+  let set
 
   beforeEach(function (done) {
     migrate.load({

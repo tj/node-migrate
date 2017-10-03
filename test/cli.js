@@ -59,8 +59,8 @@ describe('$ migrate', function () {
       create(['test'], function (err, out, code) {
         assert(!err)
         assert.equal(code, 0)
-        var file = out.split(':')[1].trim()
-        var content = fs.readFileSync(file, {
+        const file = out.split(':')[1].trim()
+        const content = fs.readFileSync(file, {
           encoding: 'utf8'
         })
         assert(content)
@@ -71,9 +71,9 @@ describe('$ migrate', function () {
     })
 
     it('should respect the --date-format', function (done) {
-      var name = 'test'
-      var fmt = 'yyyy-mm-dd'
-      var now = formatDate(new Date(), fmt)
+      const name = 'test'
+      const fmt = 'yyyy-mm-dd'
+      const now = formatDate(new Date(), fmt)
 
       create([name, '-d', fmt], function (err, out, code) {
         assert(!err)
@@ -86,10 +86,10 @@ describe('$ migrate', function () {
     })
 
     it('should respect the --extention', function (done) {
-      var name = 'test'
-      var fmt = 'yyyy-mm-dd'
-      var ext = '.mjs'
-      var now = formatDate(new Date(), fmt)
+      const name = 'test'
+      const fmt = 'yyyy-mm-dd'
+      const ext = '.mjs'
+      const now = formatDate(new Date(), fmt)
 
       create([name, '-d', fmt, '-e', ext], function (err, out, code) {
         assert(!err)

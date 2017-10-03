@@ -2,11 +2,11 @@
 // vim: set ft=javascript:
 'use strict'
 
-var program = require('commander')
-var path = require('path')
-var log = require('../lib/log')
-var registerCompiler = require('../lib/register-compiler')
-var pkg = require('../package.json')
+const program = require('commander')
+const path = require('path')
+const log = require('../lib/log')
+const registerCompiler = require('../lib/register-compiler')
+const pkg = require('../package.json')
 
 program
   .version(pkg.version)
@@ -21,7 +21,7 @@ program
   .action(create)
   .parse(process.argv)
 
-var _name
+let _name
 function create (name) {
   // Name provided?
   _name = name
@@ -35,7 +35,7 @@ function create (name) {
   }
 
   // Load the template generator
-  var gen = require(path.resolve(process.cwd(), program.generator))
+  const gen = require(path.resolve(process.cwd(), program.generator))
   gen({
     name: name,
     dateFormat: program.dateFormat,

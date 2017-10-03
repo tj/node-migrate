@@ -1,6 +1,6 @@
 'use strict'
 
-var db = require('../../util/db')
+const db = require('../../util/db')
 
 exports.description = 'Adds two pets'
 
