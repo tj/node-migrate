@@ -23,7 +23,8 @@
   },
   "main": "index",
   "engines": {
-    "node": ">= 0.4.x"
+    "node": ">= 8.0.0",
+    "npm": ">= 5.4.0"
   },
   "scripts": {
     "test": "standard && standard ./bin/* && mocha"
