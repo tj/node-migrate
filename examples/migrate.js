@@ -1,3 +1,4 @@
+'use strict'
 
 // bad example, but you get the point ;)
 

@@ -1,6 +1,6 @@
-// use `migrate create add-pets --template-file migrations/template.js`
-
 'use strict';
+
+// use `migrate create add-pets --template-file migrations/template.js`
 
 var db = require('./db');
 
