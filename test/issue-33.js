@@ -18,38 +18,28 @@ const A2 = A1.concat(['3-down', '2-down', '1-down'])
 describe('issue #33', function () {
   let set
 
-  beforeEach(function (done) {
-    migrate.load({
+  beforeEach(async function () {
+    return migrate.load({
       stateStore: STATE,
       migrationsDirectory: BASE
-    }, function (err, s) {
+    })
+    .then((s) => {
       set = s
-      done(err)
     })
   })
 
-  it('should run migrations in the correct order', function (done) {
-    set.up(function (err) {
-      assert.ifError(err)
-      assert.deepEqual(db.issue33, A1)
+  it('should run migrations in the correct order', async function () {
+    await set.up()
+    assert.deepEqual(db.issue33, A1)
 
-      set.up(function (err) {
-        assert.ifError(err)
-        assert.deepEqual(db.issue33, A1)
+    await set.up()
+    assert.deepEqual(db.issue33, A1)
 
-        set.down(function (err) {
-          assert.ifError(err)
-          assert.deepEqual(db.issue33, A2)
+    await set.down()
+    assert.deepEqual(db.issue33, A2)
 
-          set.down(function (err) {
-            assert.ifError(err)
-            assert.deepEqual(db.issue33, A2)
-
-            done()
-          })
-        })
-      })
-    })
+    await set.down()
+    assert.deepEqual(db.issue33, A2)
   })
 
   afterEach(function (done) {

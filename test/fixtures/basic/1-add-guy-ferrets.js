@@ -4,14 +4,14 @@ const db = require('../../util/db')
 
 exports.description = 'Adds two pets'
 
-exports.up = function (next) {
+exports.up = function () {
   db.pets.push({ name: 'tobi' })
   db.pets.push({ name: 'loki' })
-  next()
+  return Promise.resolve()
 }
 
-exports.down = function (next) {
+exports.down = function () {
   db.pets.pop()
   db.pets.pop()
-  next()
+  return Promise.resolve()
 }

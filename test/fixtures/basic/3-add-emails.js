@@ -2,16 +2,16 @@
 
 const db = require('../../util/db')
 
-exports.up = function (next) {
+exports.up = function () {
   db.pets.forEach(function (pet) {
     pet.email = pet.name + '@learnboost.com'
   })
-  next()
+  return Promise.resolve()
 }
 
-exports.down = function (next) {
+exports.down = function () {
   db.pets.forEach(function (pet) {
     delete pet.email
   })
-  next()
+  return Promise.resolve()
 }

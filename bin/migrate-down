@@ -34,28 +34,32 @@ if (program.compiler) {
 const Store = require(program.store)
 const store = new Store(program.stateFile)
 
-// Load in migrations
-migrate.load({
-  stateStore: store,
-  migrationsDirectory: program.migrationsDir,
-  filterFunction: minimatch.filter(program.matches)
-}, function (err, set) {
-  if (err) {
+migrate
+  .load({
+    stateStore: store,
+    migrationsDirectory: program.migrationsDir,
+    filterFunction: minimatch.filter(program.matches)
+  })
+  .then((set) => {
+    set.on('warning', function (msg) {
+      log('warning', msg)
+    })
+
+    set.on('migration', function (migration, direction) {
+      log(direction, migration.title)
+    })
+
+    runMigrations(set, 'down', program.args[0])
+      .then(() => {
+        log('migration', 'complete')
+        process.exit(0)
+      })
+      .catch((err) => {
+        log('error', err)
+        process.exit(1)
+      })
+  })
+  .catch((err) => {
     log.error('error', err)
     process.exit(1)
-  }
-
-  set.on('migration', function (migration, direction) {
-    log(direction, migration.title)
   })
-
-  runMigrations(set, 'down', program.args[0], function (err) {
-    if (err) {
-      log('error', err)
-      process.exit(1)
-    }
-
-    log('migration', 'complete')
-    process.exit(0)
-  })
-})

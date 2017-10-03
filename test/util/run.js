@@ -4,7 +4,7 @@ const path = require('path')
 const spawn = require('child_process').spawn
 
 const run = module.exports = function run (cmd, dir, args, done) {
-  const p = spawn(cmd, ['-c', dir, ...args])
+  const p = spawn(cmd, ['-c', dir, ...args], {shell: true})
   let out = ''
   p.stdout.on('data', function (d) {
     out += d.toString('utf8')
@@ -14,6 +14,10 @@ const run = module.exports = function run (cmd, dir, args, done) {
   })
   p.on('error', done)
   p.on('close', function (code) {
+    if (code !== 0) {
+      return done(out, out, code)
+    }
+
     done(null, out, code)
   })
 }

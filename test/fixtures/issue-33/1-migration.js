@@ -2,12 +2,12 @@
 
 const db = require('../../util/db')
 
-exports.up = function (next) {
+exports.up = function () {
   db.issue33.push('1-up')
-  next()
+  return Promise.resolve()
 }
 
-exports.down = function (next) {
+exports.down = function () {
   db.issue33.push('1-down')
-  next()
+  return Promise.resolve()
 }

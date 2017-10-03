@@ -8,6 +8,8 @@ const log = require('../lib/log')
 const registerCompiler = require('../lib/register-compiler')
 const pkg = require('../package.json')
 
+let _name
+
 program
   .version(pkg.version)
   .option('-c, --chdir [dir]', 'Change the working directory', process.cwd())
@@ -21,11 +23,9 @@ program
   .action(create)
   .parse(process.argv)
 
-let _name
 function create (name) {
   // Name provided?
   _name = name
-
   // Change the working dir
   process.chdir(program.chdir)
 
@@ -42,12 +42,11 @@ function create (name) {
     templateFile: program.templateFile,
     migrationsDirectory: program.migrationsDir,
     extention: program.extention
-  }, function (err, p) {
-    if (err) {
-      log.error('Template generation error', err.message)
-      process.exit(1)
-    }
-    log('create', p)
+  })
+  .then(p => log('create', p))
+  .catch((err) => {
+    log.error('Template generation error', err.message)
+    process.exit(1)
   })
 }
 

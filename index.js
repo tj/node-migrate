@@ -6,42 +6,16 @@
  * MIT Licensed
  */
 
-/**
- * Module dependencies.
- */
-
 const MigrationSet = require('./lib/set')
 const FileStore = require('./lib/file-store')
 const loadMigrationsIntoSet = require('./lib/load-migrations')
 
-/**
- * Expose the migrate function.
- */
-
-exports = module.exports = migrate
-
-function migrate (title, up, down) {
-  // migration
-  if (typeof title === 'string' && up && down) {
-    migrate.set.addMigration(title, up, down)
-  // specify migration file
-  } else if (typeof title === 'string') {
-    migrate.set = exports.load(title)
-  // no migration path
-  } else if (!migrate.set) {
-    throw new Error('must invoke migrate(path) before running migrations')
-  // run migrations
-  } else {
-    return migrate.set
-  }
+module.exports = {
+  MigrationSet,
+  load
 }
 
-/**
- * Expose MigrationSet
- */
-exports.MigrationSet = MigrationSet
-
-exports.load = function (options, fn) {
+async function load (options) {
   const opts = options || {}
 
   // Create default store
@@ -50,13 +24,11 @@ exports.load = function (options, fn) {
   // Create migration set
   const set = new MigrationSet(store)
 
-  loadMigrationsIntoSet({
+  return loadMigrationsIntoSet({
     set: set,
     store: store,
     migrationsDirectory: opts.migrationsDirectory,
     filterFunction: opts.filterFunction,
     sortFunction: opts.sortFunction
-  }, function (err) {
-    fn(err, set)
   })
 }
