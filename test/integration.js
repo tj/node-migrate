@@ -54,4 +54,44 @@ describe('integration tests', function () {
       })
     })
   })
+
+  it('should error when migrations are present in the state file, but not loadable', function (done) {
+    run.init(TMP_DIR, [], function (err, out, code) {
+      assert(!err)
+      assert.equal(code, 0)
+
+      run.create(TMP_DIR, ['1-one', '-d', 'W'], function (err, out, code) {
+        assert(!err)
+        assert.equal(code, 0)
+
+        run.create(TMP_DIR, ['3-three', '-d', 'W'], function (err, out, code) {
+          assert(!err)
+          assert.equal(code, 0)
+
+          // Keep migration filename to remove
+          var filename = out.split(' : ')[1].trim()
+
+          run.up(TMP_DIR, [], function (err, out, code) {
+            assert(!err)
+            assert.equal(code, 0)
+
+            // Remove the three migration
+            rimraf.sync(filename)
+
+            run.create(TMP_DIR, ['2-two', '-d', 'W'], function (err, out, code) {
+              assert(!err)
+              assert.equal(code, 0)
+
+              run.up(TMP_DIR, [], function (err, out, code) {
+                assert(!err)
+                assert.equal(code, 1)
+                assert(out.indexOf('error') !== -1)
+                done()
+              })
+            })
+          })
+        })
+      })
+    })
+  })
 })
