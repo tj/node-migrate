@@ -121,7 +121,7 @@ describe('$ migrate', function () {
 
   describe('up', function () {
     it('should run up on multiple migrations', function (done) {
-      up([], FIX_DIR, function (err, out, code) {
+      up(['--migrations-dir _migrations'], FIX_DIR, function (err, out, code) {
         if (err) {
           return done(err)
         }
@@ -136,7 +136,7 @@ describe('$ migrate', function () {
     })
 
     it('should run up to a specified migration', function (done) {
-      up(['1-one.js'], FIX_DIR, function (err, out, code) {
+      up(['1-one.js', '--migrations-dir _migrations'], FIX_DIR, function (err, out, code) {
         if (err) {
           return done(err)
         }
@@ -151,7 +151,7 @@ describe('$ migrate', function () {
     })
 
     it('should run up multiple times', function (done) {
-      up([], FIX_DIR, function (err, out, code) {
+      up(['--migrations-dir _migrations'], FIX_DIR, function (err, out, code) {
         if (err) {
           return done(err)
         }
@@ -159,7 +159,7 @@ describe('$ migrate', function () {
         db.load()
         assert(out.indexOf('up') !== -1)
 
-        up([], FIX_DIR, function (err, out) {
+        up(['--migrations-dir _migrations'], FIX_DIR, function (err, out) {
           if (err) {
             return done(err)
           }
@@ -173,13 +173,13 @@ describe('$ migrate', function () {
     })
 
     it('should run down when passed --clean', function (done) {
-      up([], FIX_DIR, function (err, out, code) {
+      up(['--migrations-dir _migrations'], FIX_DIR, function (err, out, code) {
         if (err) {
           return done(err)
         }
 
         assert.equal(code, 0)
-        up(['--clean'], FIX_DIR, function (err, out) {
+        up(['--clean', '--migrations-dir _migrations'], FIX_DIR, function (err, out) {
           if (err) {
             return done(err)
           }
@@ -195,11 +195,11 @@ describe('$ migrate', function () {
 
   describe('down', function () {
     beforeEach(function (done) {
-      up([], FIX_DIR, done)
+      up(['--migrations-dir _migrations'], FIX_DIR, done)
     })
 
     it('should run down on multiple migrations', function (done) {
-      down([], FIX_DIR, function (err, out, code) {
+      down(['--migrations-dir _migrations'], FIX_DIR, function (err, out, code) {
         if (err) {
           return done(err)
         }
@@ -216,7 +216,7 @@ describe('$ migrate', function () {
     it('should run down to a specified migration', function (done) {
       db.load()
 
-      down(['2-two.js'], FIX_DIR, function (err, out, code) {
+      down(['2-two.js', '--migrations-dir _migrations'], FIX_DIR, function (err, out, code) {
         if (err) {
           return done(err)
         }
@@ -232,14 +232,14 @@ describe('$ migrate', function () {
     })
 
     it('should run down multiple times', function (done) {
-      down([], FIX_DIR, function (err, out, code) {
+      down(['--migrations-dir _migrations'], FIX_DIR, function (err, out, code) {
         if (err) {
           return done(err)
         }
         assert.equal(code, 0)
         assert(out.indexOf('down') !== -1)
         db.load()
-        down([], FIX_DIR, function (err, out) {
+        down(['--migrations-dir _migrations'], FIX_DIR, function (err, out) {
           if (err) {
             return done(err)
           }
@@ -253,7 +253,7 @@ describe('$ migrate', function () {
 
   describe('list', function () {
     it('should list available migrations', function (done) {
-      list([], FIX_DIR, function (err, out, code) {
+      list(['--migrations-dir _migrations'], FIX_DIR, function (err, out, code) {
         if (err) {
           return done(err)
         }
