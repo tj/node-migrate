@@ -76,14 +76,12 @@ describe('migration set', function () {
   })
 
   it('should add a new migration', async function () {
-    set.addMigration('add dogs', function () {
+    set.addMigration('add dogs', async function () {
       db.pets.push({ name: 'simon' })
       db.pets.push({ name: 'suki' })
-      return Promise.resolve()
-    }, function () {
+    }, async function () {
       db.pets.pop()
       db.pets.pop()
-      return Promise.resolve()
     })
 
     await set.up()
@@ -97,16 +95,14 @@ describe('migration set', function () {
   })
 
   it('should emit events', async function () {
-    set.addMigration('4-adjust-emails.js', function () {
+    set.addMigration('4-adjust-emails.js', async function () {
       db.pets.forEach(function (pet) {
         if (pet.email) { pet.email = pet.email.replace('learnboost.com', 'lb.com') }
       })
-      return Promise.resolve()
-    }, function () {
+    }, async function () {
       db.pets.forEach(function (pet) {
         if (pet.email) { pet.email = pet.email.replace('lb.com', 'learnboost.com') }
       })
-      return Promise.resolve()
     })
 
     let saved = 0
