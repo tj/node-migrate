@@ -1,13 +1,15 @@
 'use strict'
 
-const db = require('./db')
+const db = require('../db')
 
-exports.up = function (next) {
-  db.rpush('pets', 'tobi')
-  db.rpush('pets', 'loki', next)
+exports.up = async function () {
+	let pets = db('pets');
+
+	await pets.push({ name: 'tobi' })
+	await pets.push({ name: 'loki' })
 }
 
-exports.down = function (next) {
-  db.rpop('pets')
-  db.rpop('pets', next)
+exports.down = async function () {
+	delete db.object['pets']
+	await db.write()
 }

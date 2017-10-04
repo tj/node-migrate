@@ -1,11 +1,25 @@
 'use strict'
 
-const db = require('./db')
+const db = require('../db')
 
-exports.up = function (next) {
-  db.set('pets:coolest', 'tobi', next)
+exports.up = async function () {
+	let pets = db('pets');
+
+	let taylor = await pets
+		.chain()
+		.find({name: 'tobi'})
+		.assign({coolest: true})
+		.value()
+
+	console.log('taylor', taylor);
 }
 
-exports.down = function (next) {
-  db.del('pets:coolest', next)
+exports.down = async  function () {
+	let pets = db('pets');
+
+	await pets
+		.chain()
+		.find({name: 'tobi'})
+		.unset('coolest')
+		.value()
 }

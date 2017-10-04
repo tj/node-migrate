@@ -18,6 +18,7 @@
   },
   "devDependencies": {
     "mocha": "^3.2.0",
+    "node-flat-db": "^0.2.1",
     "rimraf": "^2.6.1",
     "standard": "^10.0.1"
   },
