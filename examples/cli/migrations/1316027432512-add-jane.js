@@ -1,11 +1,13 @@
 'use strict'
 
-const db = require('./db')
+const db = require('../db')
 
-exports.up = function (next) {
-  db.rpush('pets', 'jane', next)
+exports.up = async function () {
+	let pets = db('pets');
+	await pets.push({ name: 'jane' })
 }
 
-exports.down = function (next) {
-  db.rpop('pets', next)
+exports.down = async  function () {
+	let pets = db('pets');
+	await pets.pop()
 }
