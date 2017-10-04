@@ -1,17 +1,19 @@
+'use strict'
+
 /* global describe, it, beforeEach, afterEach */
 
-var rimraf = require('rimraf')
-var path = require('path')
-var assert = require('assert')
+const rimraf = require('rimraf')
+const path = require('path')
+const assert = require('assert')
 
-var migrate = require('../')
-var db = require('./util/db')
+const migrate = require('../')
+const db = require('./util/db')
 
-var BASE = path.join(__dirname, 'fixtures', 'basic')
-var STATE = path.join(BASE, '.migrate')
+const BASE = path.join(__dirname, 'fixtures', 'basic')
+const STATE = path.join(BASE, '.migrate')
 
 describe('migration set', function () {
-  var set
+  let set
 
   function assertNoPets () {
     assert.equal(db.pets.length, 0)
@@ -44,81 +46,68 @@ describe('migration set', function () {
   }
 
   beforeEach(function (done) {
-    migrate.load({
-      stateStore: STATE,
-      migrationsDirectory: BASE
-    }, function (err, s) {
-      set = s
-      done(err)
-    })
-  })
-
-  it('should handle basic migration', function (done) {
-    set.up(function (err) {
-      assert.ifError(err)
-      assertPets()
-      set.up(function (err) {
-        assert.ifError(err)
-        assertPets()
-        set.down(function (err) {
-          assert.ifError(err)
-          assertNoPets()
-          set.down(function (err) {
-            assert.ifError(err)
-            assertNoPets()
-            set.up(function (err) {
-              assert.ifError(err)
-              assertPets()
-              done()
-            })
-          })
-        })
+    migrate
+      .load({
+        stateStore: STATE,
+        migrationsDirectory: BASE,
+        filterFunction: function (each) {
+          return each !== '.migrate'
+        }
       })
-    })
+      .then(s => {
+        set = s
+        done()
+      })
+      .catch(err => done(err))
   })
 
-  it('should add a new migration', function (done) {
-    set.addMigration('add dogs', function (next) {
+  it('should handle basic promise migration', async function () {
+    await set.up()
+    assertPets()
+
+    await set.up()
+    assertPets()
+
+    await set.down()
+    assertNoPets()
+
+    await set.down()
+    assertNoPets()
+  })
+
+  it('should add a new migration', async function () {
+    set.addMigration('add dogs', async function () {
       db.pets.push({ name: 'simon' })
       db.pets.push({ name: 'suki' })
-      next()
-    }, function (next) {
+    }, async function () {
       db.pets.pop()
       db.pets.pop()
-      next()
     })
 
-    set.up(function (err) {
-      assert.ifError(err)
-      assertPetsWithDogs()
-      set.up(function (err) {
-        assert.ifError(err)
-        assertPetsWithDogs()
-        set.down(function (err) {
-          assert.ifError(err)
-          assertNoPets()
-          done()
-        })
-      })
-    })
+    await set.up()
+    assertPetsWithDogs()
+
+    await set.up()
+    assertPetsWithDogs()
+
+    await set.down()
+    assertNoPets()
   })
 
-  it('should emit events', function (done) {
-    set.addMigration('4-adjust-emails.js', function (next) {
+  it('should emit events', async function () {
+    set.addMigration('4-adjust-emails.js', async function () {
       db.pets.forEach(function (pet) {
         if (pet.email) { pet.email = pet.email.replace('learnboost.com', 'lb.com') }
       })
-      next()
-    }, function (next) {
+    }, async function () {
       db.pets.forEach(function (pet) {
         if (pet.email) { pet.email = pet.email.replace('lb.com', 'learnboost.com') }
       })
-      next()
     })
 
-    var saved = 0
-    var migrations = []
-    var expectedMigrations = [
+    let saved = 0
+    let migrations = []
+    let expectedMigrations = [
       '1-add-guy-ferrets.js',
       '2-add-girl-ferrets.js',
       '3-add-emails.js',
@@ -134,52 +123,42 @@ describe('migration set', function () {
       assert.equal(typeof direction, 'string')
     })
 
-    set.up(function (err) {
-      assert.ifError(err)
-      assert.equal(saved, 4)
-      assert.equal(db.pets[0].email, 'tobi@lb.com')
-      assert.deepEqual(migrations, expectedMigrations)
+    await set.up()
 
-      migrations = []
-      expectedMigrations = expectedMigrations.reverse()
+    assert.equal(saved, 4)
+    assert.equal(db.pets[0].email, 'tobi@lb.com')
+    assert.deepEqual(migrations, expectedMigrations)
 
-      set.down(function (err) {
-        assert.ifError(err)
-        assert.equal(saved, 8)
-        assert.deepEqual(migrations, expectedMigrations)
-        assertNoPets()
-        done()
-      })
-    })
-  })
+    migrations = []
+    expectedMigrations = expectedMigrations.reverse()
 
-  it('should migrate to named migration', function (done) {
+    await set.down()
+    assert.equal(saved, 8)
+    assert.deepEqual(migrations, expectedMigrations)
     assertNoPets()
-    set.up('1-add-guy-ferrets.js', function (err) {
-      assert.ifError(err)
-      assertFirstMigration()
-      set.up('2-add-girl-ferrets.js', function (err) {
-        assert.ifError(err)
-        assertSecondMigration()
-        set.down('2-add-girl-ferrets.js', function (err) {
-          assert.ifError(err)
-          assertFirstMigration()
-          set.up('2-add-girl-ferrets.js', function (err) {
-            assert.ifError(err)
-            assertSecondMigration()
-            assert.equal(set.lastRun, '2-add-girl-ferrets.js')
-            set.down('2-add-girl-ferrets.js', function (err) {
-              assert.ifError(err)
-              assert.equal(set.lastRun, '1-add-guy-ferrets.js')
-              done()
-            })
-          })
-        })
-      })
-    })
   })
 
-  it('should load migration descriptions', function () {
+  it('should migrate to named migration', async function () {
+    assertNoPets()
+    await set.up('1-add-guy-ferrets.js')
+
+    assertFirstMigration()
+    await set.up('2-add-girl-ferrets.js')
+
+    assertSecondMigration()
+    await set.down('2-add-girl-ferrets.js')
+
+    assertFirstMigration()
+    await set.up('2-add-girl-ferrets.js')
+
+    assertSecondMigration()
+    assert.equal(set.lastRun, '2-add-girl-ferrets.js')
+    await set.down('2-add-girl-ferrets.js')
+
+    assert.equal(set.lastRun, '1-add-guy-ferrets.js')
+  })
+
+  it('should load migration descriptions', async function () {
     assert.equal(set.migrations[0].description, 'Adds two pets')
   })
 

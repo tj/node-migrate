@@ -2,14 +2,14 @@
 // vim: set ft=javascript:
 'use strict'
 
-var program = require('commander')
-var path = require('path')
-var minimatch = require('minimatch')
-var migrate = require('../')
-var runMigrations = require('../lib/migrate')
-var log = require('../lib/log')
-var registerCompiler = require('../lib/register-compiler')
-var pkg = require('../package.json')
+const program = require('commander')
+const path = require('path')
+const minimatch = require('minimatch')
+const migrate = require('../')
+const runMigrations = require('../lib/migrate')
+const log = require('../lib/log')
+const registerCompiler = require('../lib/register-compiler')
+const pkg = require('../package.json')
 
 program
   .version(pkg.version)
@@ -36,7 +36,6 @@ if (program.init && process.env.NODE_ENV === 'production' && !program.force) {
   log.error('error', 'Cowardly refusing to init while node environment set to production, use --force to continue.')
   process.exit(1)
 }
-
 // Change the working dir
 process.chdir(program.chdir)
 
@@ -46,8 +45,8 @@ if (program.compiler) {
 }
 
 // Setup store
-var Store = require(program.store)
-var store = new Store(program.stateFile)
+const Store = require(program.store)
+const store = new Store(program.stateFile)
 
 // Call store init
 if (program.init && typeof store.init === 'function') {
@@ -61,50 +60,47 @@ if (program.init && typeof store.init === 'function') {
 
 // Load in migrations
 function loadAndGo () {
-  migrate.load({
-    stateStore: store,
-    migrationsDirectory: program.migrationsDir,
-    filterFunction: minimatch.filter(program.matches)
-  }, function (err, set) {
-    if (err) {
+  migrate
+    .load({
+      stateStore: store,
+      migrationsDirectory: program.migrationsDir,
+      filterFunction: minimatch.filter(program.matches)
+    })
+    .then((set) => {
+      set.on('warning', function (msg) {
+        log('warn', msg)
+      })
+
+      set.on('migration', function (migration, direction) {
+        log(direction, migration.title)
+      })
+
+      // Run
+      let run = (program.clean ? cleanUp : up)
+
+      run(set)
+        .then(() => {
+          log('migration', 'complete')
+          process.exit(0)
+        })
+        .catch((err) => {
+          log.error('error', err)
+          process.exit(1)
+        })
+    })
+    .catch((err) => {
       log.error('error', err)
       process.exit(1)
-    }
-
-    set.on('warning', function (msg) {
-      log('warning', msg)
     })
-
-    set.on('migration', function (migration, direction) {
-      log(direction, migration.title)
-    })
-
-    // Run
-    ;(program.clean ? cleanUp : up)(set, function (err) {
-      if (err) {
-        log('error', err)
-        process.exit(1)
-      }
-      log('migration', 'complete')
-      process.exit(0)
-    })
-  })
 }
 
-function cleanUp (set, fn) {
-  runMigrations(set, 'down', null, function (err) {
-    if (err) {
-      return fn(err)
-    }
-    up(set, fn)
-  })
+function cleanUp (set) {
+  return runMigrations(set, 'down')
+    .then(() => {
+      return up(set)
+    })
 }
 
-function up (set, fn) {
-  runMigrations(set, 'up', program.args[0], function (err) {
-    if (err) {
-      return fn(err)
-    }
-    fn()
-  })
+function up (set) {
+  return runMigrations(set, 'up', program.args[0])
 }

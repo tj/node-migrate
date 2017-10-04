@@ -4,4 +4,7 @@ node_modules
 .migrate
 *.db
 migrations/
+!/examples/*/migrations/
 test/fixtures/tmp
+db.json
+state-db.json

@@ -16,82 +16,49 @@ function reset () {
 describe('integration tests', function () {
   beforeEach(reset)
 
-  it('should warn when the migrations are run out of order', function (done) {
-    run.init(TMP_DIR, [], function (err, out, code) {
-      assert(!err)
-      assert.equal(code, 0)
+  it('should warn when the migrations are run out of order', async function () {
+    await run.init(TMP_DIR, [])
 
-      run.create(TMP_DIR, ['1-one', '-d', 'W'], function (err, out, code) {
-        assert(!err)
-        assert.equal(code, 0)
+    await run.create(TMP_DIR, ['1-one', '-d', 'W'])
 
-        run.create(TMP_DIR, ['3-three', '-d', 'W'], function (err, out, code) {
-          assert(!err)
-          assert.equal(code, 0)
+    await run.create(TMP_DIR, ['3-three', '-d', 'W'])
 
-          run.up(TMP_DIR, [], function (err, out, code) {
-            assert(!err)
-            assert.equal(code, 0)
+    await run.up(TMP_DIR, [])
 
-            run.create(TMP_DIR, ['2-two', '-d', 'W'], function (err, out, code) {
-              assert(!err)
-              assert.equal(code, 0)
+    await run.create(TMP_DIR, ['2-two', '-d', 'W'])
 
-              run.up(TMP_DIR, [], function (err, out, code) {
-                assert(!err)
-                assert.equal(code, 0)
+    let output = await run.up(TMP_DIR, [])
 
-                // A warning should log, and the process not exit with 0
-                // because migration 2 should come before migration 3,
-                // but migration 3 was already run from the previous
-                // state
-                assert(out.indexOf('warn') !== -1)
-                done()
-              })
-            })
-          })
-        })
-      })
-    })
+    // A warning should log,
+    // because migration 2 should come before migration 3,
+    // but migration 3 was already run from the previous
+    // state
+    assert(output.indexOf('warn') !== -1)
   })
 
-  it('should error when migrations are present in the state file, but not loadable', function (done) {
-    run.init(TMP_DIR, [], function (err, out, code) {
-      assert(!err)
-      assert.equal(code, 0)
+  it('should error when migrations are present in the state file, but not loadable', async function () {
+    await run.init(TMP_DIR, [])
 
-      run.create(TMP_DIR, ['1-one', '-d', 'W'], function (err, out, code) {
-        assert(!err)
-        assert.equal(code, 0)
+    await run.create(TMP_DIR, ['1-one', '-d', 'W'])
 
-        run.create(TMP_DIR, ['3-three', '-d', 'W'], function (err, out, code) {
-          assert(!err)
-          assert.equal(code, 0)
+    let firstOut = await run.create(TMP_DIR, ['3-three', '-d', 'W'])
+    // Keep migration filename to remove
+    var filename = firstOut.split(' : ')[1].trim()
 
-          // Keep migration filename to remove
-          var filename = out.split(' : ')[1].trim()
+    await run.up(TMP_DIR, [])
 
-          run.up(TMP_DIR, [], function (err, out, code) {
-            assert(!err)
-            assert.equal(code, 0)
+    // Remove the three migration
+    rimraf.sync(filename)
 
-            // Remove the three migration
-            rimraf.sync(filename)
+    await run.create(TMP_DIR, ['2-two', '-d', 'W'])
 
-            run.create(TMP_DIR, ['2-two', '-d', 'W'], function (err, out, code) {
-              assert(!err)
-              assert.equal(code, 0)
+    try {
+      await run.up(TMP_DIR, [])
+    } catch (error) {
+      assert(error.message.indexOf('error') !== -1)
+      return
+    }
 
-              run.up(TMP_DIR, [], function (err, out, code) {
-                assert(!err)
-                assert.equal(code, 1)
-                assert(out.indexOf('error') !== -1)
-                done()
-              })
-            })
-          })
-        })
-      })
-    })
+    assert.fail('Should throw error')
   })
 })

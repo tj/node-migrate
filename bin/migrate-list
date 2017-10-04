@@ -2,14 +2,14 @@
 // vim: set ft=javascript:
 'use strict'
 
-var program = require('commander')
-var path = require('path')
-var dateFormat = require('dateformat')
-var minimatch = require('minimatch')
-var migrate = require('../')
-var log = require('../lib/log')
-var registerCompiler = require('../lib/register-compiler')
-var pkg = require('../package.json')
+const program = require('commander')
+const path = require('path')
+const dateFormat = require('dateformat')
+const minimatch = require('minimatch')
+const migrate = require('../')
+const log = require('../lib/log')
+const registerCompiler = require('../lib/register-compiler')
+const pkg = require('../package.json')
 
 program
   .version(pkg.version)
@@ -38,25 +38,26 @@ if (program.compiler) {
 }
 
 // Setup store
-var Store = require(program.store)
-var store = new Store(program.stateFile)
+const Store = require(program.store)
+const store = new Store(program.stateFile)
 
 // Load in migrations
-migrate.load({
-  stateStore: store,
-  migrationsDirectory: program.migrationsDir,
-  filterFunction: minimatch.filter(program.matches)
-}, function (err, set) {
-  if (err) {
+migrate
+  .load({
+    stateStore: store,
+    migrationsDirectory: program.migrationsDir,
+    filterFunction: minimatch.filter(program.matches)
+  })
+  .then(function (set) {
+    if (set.migrations.length === 0) {
+      return log('list', 'No Migrations')
+    }
+
+    set.migrations.forEach(function (migration) {
+      log(migration.title + (migration.timestamp ? ' [' + dateFormat(migration.timestamp, program.dateFormat) + ']' : ' [not run]'), migration.description || '<No Description>')
+    })
+  })
+  .catch((err) => {
     log.error('error', err)
     process.exit(1)
-  }
-
-  if (set.migrations.length === 0) {
-    return log('list', 'No Migrations')
-  }
-
-  set.migrations.forEach(function (migration) {
-    log(migration.title + (migration.timestamp ? ' [' + dateFormat(migration.timestamp, program.dateFormat) + ']' : ' [not run]'), migration.description || '<No Description>')
   })
-})

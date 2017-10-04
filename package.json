@@ -18,12 +18,14 @@
   },
   "devDependencies": {
     "mocha": "^3.2.0",
+    "node-flat-db": "^0.2.1",
     "rimraf": "^2.6.1",
     "standard": "^10.0.1"
   },
   "main": "index",
   "engines": {
-    "node": ">= 0.4.x"
+    "node": ">= 8.0.0",
+    "npm": ">= 5.4.0"
   },
   "scripts": {
     "test": "standard && standard ./bin/* && mocha"

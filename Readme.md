@@ -36,21 +36,16 @@ for customising the behavior of the tool.
 ## Programmatic usage
 
 ```javascript
-var migrate = require('migrate')
+const migrate = require('migrate')
 
-migrate.load({
-  stateStore: '.migrate'
-}, function (err, set) {
-  if (err) {
-    throw err
-  }
-  set.up(function (err) {
-    if (err) {
-      throw err
-    }
+migrate
+  .load({
+    stateStore: '.migrate'
+  })
+  .then(async function (set) {
+    await set.up()
     console.log('migrations successfully ran')
   })
-})
 ```
 
 ## Creating Migrations
@@ -60,72 +55,24 @@ To create a migration, execute `migrate create <title>` with a title. By default
 ```javascript
 'use strict'
 
-module.exports.up = function (next) {
-  next()
+module.exports.up = async function () {
+
 }
 
-module.exports.down = function (next) {
-  next()
-}
-```
+module.exports.down = async function () {
 
-All you have to do is populate these, invoking `next()` when complete, and you are ready to migrate!
-
-For example:
-
-```
-$ migrate create add-pets
-$ migrate create add-owners
-```
-
-The first call creates `./migrations/{timestamp in milliseconds}-add-pets.js`, which we can populate:
-
-```javascript
-// db is just an object shared between the migrations
-var db = require('./db');
-
-exports.up = function (next) {
-  db.pets = [];
-  db.pets.push('tobi')
-  db.pets.push('loki')
-  db.pets.push('jane')
-  next()
-}
-
-exports.down = function (next) {
-  db.pets.pop('pets')
-  db.pets.pop('pets')
-  db.pets.pop('pets')
-  delete db.pets
-  next()
 }
 ```
 
-The second creates `./migrations/{timestamp in milliseconds}-add-owners.js`, which we can populate:
+All you have to do is populate these, and you are ready to migrate!
 
-```javascript
-var db = require('./db');
-
-exports.up = function (next) {
-  db.owners = [];
-  db.owners.push('taylor')
-  db.owners.push('tj', next)
-}
-
-exports.down = function (next) {
-  db.owners.pop()
-  db.owners.pop()
-  delete db.owners
-  next()
-}
-```
+See examples in [./examples](./examples)
 
 ### Advanced migration creation
 
-When creating migrations you have a bunch of other options to help you control how the migrations
-are created.  You can fully configure the way the migration is made with a `generator`, which is just a 
-function exported as a node module.  A good example of a generator is the  default one [shipped with
-this package](https://github.com/tj/node-migrate/blob/b282cacbb4c0e73631d651394da52396131dd5de/lib/template-generator.js).
+When creating migrations you have a bunch of other options to help you control how the migrations are created. You can fully configure the way the migration is made with a `generator`, which is just a function exported as a node module. 
+
+A good example of a generator is the  default one [shipped with this package](./lib/template-generator.js).
 
 The `create` command accepts a flag for pointing the tool at a generator, for example:
 
@@ -140,8 +87,7 @@ can simply pass the `template-file` flag:
 $ migrate create --template-file ./my-migration-template.js
 ```
 
-Lastly, if you want to use newer ECMAscript features, or language addons like TypeScript, for your migrations, you can
-use the `comipler` flag.  For example, to use babel with your migrations, you can do the following:
+Lastly, if you want to use newer ECMAscript features, or language addons like TypeScript, for your migrations, you can use the `comipler` flag.  For example, to use babel with your migrations, you can do the following:
 
 ```
 $ npm install --save babel-register
@@ -188,8 +134,7 @@ $ migrate up 1316027433425-coolest-pet.js
   migration : complete
 ```
 
-This will run up-migrations up to (and including) `1316027433425-coolest-pet.js`. Similarly you can run down-migrations up to (and including) a
-specific migration, instead of migrating all the way down.
+This will run up-migrations up to (and including) `1316027433425-coolest-pet.js`. Similarly you can run down-migrations up to (and including) a specific migration, instead of migrating all the way down.
 
 ```
 $ migrate down 1316027432512-add-jane.js
@@ -210,12 +155,11 @@ The description can be added by exporting a `description` field from the migrati
 
 ## Custom State Storage
 
-By default, `migrate` stores the state of the migrations which have been run in a file (`.migrate`).  But you
-can provide a custom storage engine if you would like to do something different, like storing them in your database of choice.
-A storage engine has a simple interface of `load(fn)` and `save(set, fn)`.  As long as what goes in as `set` comes out
-the same on `load`, then you are good to go!
+By default, `migrate` stores the state of the migrations which have been run in a file (`.migrate`).  But you can provide a custom storage engine if you would like to do something different, like storing them in your database of choice.
 
-If you are using the provided cli, you can specify the store implementation with the `--store` flag, which is be a `require`-able node module.  For example:
+A storage engine has a simple interface of `load()` and `save(set)`, both should return promises. See the [default interface](./lib/set.js) for an example. As long as what goes in as `set` comes out the same on `load`, then you are good to go!
+
+If you are using the provided cli, you can specify the store implementation with the `--store` flag, which can recieve a path to a `require`-able node module. For example:
 
 ```
 $ migrate up --store="my-migration-store"
@@ -223,9 +167,9 @@ $ migrate up --store="my-migration-store"
 
 ## API
 
-### `migrate.load(opts, cb)`
+### `migrate.load(opts)`
 
-Calls the callback with a `Set` based on the options passed.  Options:
+Return a promise, which resolves to a `Set` based on the options passed.  Options:
 
 - `set`: A set instance if you created your own
 - `stateStore`: A store instance to load and store migration state, or a string which is a path to the migration state file
@@ -233,12 +177,12 @@ Calls the callback with a `Set` based on the options passed.  Options:
 - `filterFunction`: A filter function which will be called for each file found in the migrations directory
 - `sortFunction`: A sort function to ensure migration order
 
-### `Set.up([migration, ]cb)`
+### `Set.up(migration)`
 
 Migrates up to the specified `migration` or, if none is specified, to the latest
-migration. Calls the callback `cb`, possibly with an error `err`, when done.
+migration. Returns a promise.
 
-### `Set.down([migration, ]cb)`
+### `Set.down(migration)`
 
 Migrates down to the specified `migration` or, if none is specified, to the
 first migration. Calls the callback `cb`, possibly with an error `err`, when
