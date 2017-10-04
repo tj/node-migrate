@@ -40,16 +40,12 @@ describe('$ migrate', function () {
   describe('init', function () {
     beforeEach(mkdirp.bind(mkdirp, TMP_DIR))
 
-    it('should create a migrations directory', function (done) {
-      init([], TMP_DIR, function (err, out, code) {
-        if (err) {
-          return done(err)
-        }
-        assert.equal(code, 0)
-        assert.doesNotThrow(() => {
-          fs.accessSync(path.join(TMP_DIR, 'migrations'))
-        })
-        done()
+    it('should create a migrations directory', async function () {
+      const output = await init([], TMP_DIR)
+
+      assert.equal(output.code, 0)
+      assert.doesNotThrow(() => {
+        fs.accessSync(path.join(TMP_DIR, 'migrations'))
       })
     })
   }) // end init
@@ -57,212 +53,150 @@ describe('$ migrate', function () {
   describe('create', function () {
     beforeEach(mkdirp.bind(mkdirp, TMP_DIR))
 
-    it('should create a fixture file', function (done) {
-      create(['test'], TMP_DIR, function (err, out, code) {
-        if (err) {
-          done(err)
-        }
-        assert.equal(code, 0)
-        const file = out.split('create :')[1].trim()
-        const content = fs.readFileSync(file, {
-          encoding: 'utf8'
-        })
-        assert(content)
-        assert(content.indexOf('module.exports.up') !== -1)
-        assert(content.indexOf('module.exports.down') !== -1)
-        done()
+    it('should create a fixture file', async function () {
+      const output = await create(['test'], TMP_DIR)
+
+      assert.equal(output.code, 0)
+      const file = output.stdout.split('create :')[1].trim()
+      const content = fs.readFileSync(file, {
+        encoding: 'utf8'
       })
+      assert(content)
+      assert(content.indexOf('module.exports.up') !== -1)
+      assert(content.indexOf('module.exports.down') !== -1)
     })
 
-    it('should respect the --date-format', function (done) {
+    it('should respect the --date-format', async function () {
       const name = 'test'
       const fmt = 'yyyy-mm-dd'
       const now = formatDate(new Date(), fmt)
 
-      create([name, '-d', fmt], TMP_DIR, function (err, out, code) {
-        if (err) {
-          done(err)
-        }
-        assert.equal(code, 0)
-        assert.doesNotThrow(() => {
-          fs.accessSync(path.join(TMP_DIR, 'migrations', now + '-' + name + '.js'))
-        })
-        done()
+      const output = await create([name, '-d', fmt], TMP_DIR)
+
+      assert.equal(output.code, 0)
+      assert.doesNotThrow(() => {
+        fs.accessSync(path.join(TMP_DIR, 'migrations', now + '-' + name + '.js'))
       })
     })
 
-    it('should respect the --extention', function (done) {
+    it('should respect the --extention', async function () {
       const name = 'test'
       const fmt = 'yyyy-mm-dd'
       const ext = '.mjs'
       const now = formatDate(new Date(), fmt)
 
-      create([name, '-d', fmt, '-e', ext], TMP_DIR, function (err, out, code) {
-        if (err) {
-          done(err)
-        }
-        assert.equal(code, 0)
-        assert.doesNotThrow(() => {
-          fs.accessSync(path.join(TMP_DIR, 'migrations', now + '-' + name + ext))
-        })
-        done()
+      const output = await create([name, '-d', fmt, '-e', ext], TMP_DIR)
+      assert.equal(output.code, 0)
+      assert.doesNotThrow(() => {
+        fs.accessSync(path.join(TMP_DIR, 'migrations', now + '-' + name + ext))
       })
     })
 
-    it('should fail with non-zero and a helpful message when template is unreadable', function (done) {
-      create(['test', '-t', 'fake'], TMP_DIR, function (err, out, code) {
-        assert.ok(err)
-        assert.equal(code, 1)
-        assert(out.indexOf('fake') !== -1)
-        done()
-      })
+    it('should fail with non-zero and a helpful message when template is unreadable', async function () {
+      try {
+        await create(['test', '-t', 'fake'], TMP_DIR)
+      } catch (error) {
+        assert(error.message.indexOf('fake') !== -1)
+        return
+      }
+
+      assert.fail('Did not produce expected error')
     })
   }) // end create
 
   describe('up', function () {
-    it('should run up on multiple migrations', function (done) {
-      up(['--migrations-dir _migrations'], FIX_DIR, function (err, out, code) {
-        if (err) {
-          return done(err)
-        }
-        assert.equal(code, 0)
-        db.load()
-        assert(out.indexOf('up') !== -1)
-        assert.equal(db.numbers.length, 2)
-        assert(db.numbers.indexOf('1-up') !== -1)
-        assert(db.numbers.indexOf('2-up') !== -1)
-        done()
-      })
+    it('should run up on multiple migrations', async function () {
+      const output = await up(['--migrations-dir _migrations'], FIX_DIR)
+      assert.equal(output.code, 0)
+      db.load()
+      assert(output.stdout.indexOf('up') !== -1)
+      assert.equal(db.numbers.length, 2)
+      assert(db.numbers.indexOf('1-up') !== -1)
+      assert(db.numbers.indexOf('2-up') !== -1)
     })
 
-    it('should run up to a specified migration', function (done) {
-      up(['1-one.js', '--migrations-dir _migrations'], FIX_DIR, function (err, out, code) {
-        if (err) {
-          return done(err)
-        }
-        assert.equal(code, 0)
-        db.load()
-        assert(out.indexOf('up') !== -1)
-        assert.equal(db.numbers.length, 1)
-        assert(db.numbers.indexOf('1-up') !== -1)
-        assert(db.numbers.indexOf('2-up') === -1)
-        done()
-      })
+    it('should run up to a specified migration', async function () {
+      const output = await up(['1-one.js', '--migrations-dir _migrations'], FIX_DIR)
+      assert.equal(output.code, 0)
+      db.load()
+      assert(output.stdout.indexOf('up') !== -1)
+      assert.equal(db.numbers.length, 1)
+      assert(db.numbers.indexOf('1-up') !== -1)
+      assert(db.numbers.indexOf('2-up') === -1)
     })
 
-    it('should run up multiple times', function (done) {
-      up(['--migrations-dir _migrations'], FIX_DIR, function (err, out, code) {
-        if (err) {
-          return done(err)
-        }
-        assert.equal(code, 0)
-        db.load()
-        assert(out.indexOf('up') !== -1)
+    it('should run up multiple times', async function () {
+      const firstOuput = await up(['--migrations-dir _migrations'], FIX_DIR)
+      assert.equal(firstOuput.code, 0)
+      db.load()
+      assert(firstOuput.stdout.indexOf('up') !== -1)
 
-        up(['--migrations-dir _migrations'], FIX_DIR, function (err, out) {
-          if (err) {
-            return done(err)
-          }
+      const secondOutput = await up(['--migrations-dir _migrations'], FIX_DIR)
 
-          db.load()
-          assert(out.indexOf('up') === -1)
-          assert.equal(db.numbers.length, 2)
-          done()
-        })
-      })
+      db.load()
+      assert(secondOutput.stdout.indexOf('up') === -1)
+      assert.equal(db.numbers.length, 2)
     })
 
-    it('should run down when passed --clean', function (done) {
-      up(['--migrations-dir _migrations'], FIX_DIR, function (err, out, code) {
-        if (err) {
-          return done(err)
-        }
+    it('should run down when passed --clean', async function () {
+      const firstOuput = await up(['--migrations-dir _migrations'], FIX_DIR)
 
-        assert.equal(code, 0)
-        up(['--clean', '--migrations-dir _migrations'], FIX_DIR, function (err, out) {
-          if (err) {
-            return done(err)
-          }
-          db.load()
-          assert(out.indexOf('down') !== -1)
-          assert(out.indexOf('up') !== -1)
-          assert.equal(db.numbers.length, 2)
-          done()
-        })
-      })
+      assert.equal(firstOuput.code, 0)
+      const secondOutput = await up(['--clean', '--migrations-dir _migrations'], FIX_DIR)
+      db.load()
+      assert(secondOutput.stdout.indexOf('down') !== -1)
+      assert(secondOutput.stdout.indexOf('up') !== -1)
+      assert.equal(db.numbers.length, 2)
     })
   }) // end up
 
   describe('down', function () {
-    beforeEach(function (done) {
-      up(['--migrations-dir _migrations'], FIX_DIR, done)
+    beforeEach(async function () {
+      return up(['--migrations-dir _migrations'], FIX_DIR)
     })
 
-    it('should run down on multiple migrations', function (done) {
-      down(['--migrations-dir _migrations'], FIX_DIR, function (err, out, code) {
-        if (err) {
-          return done(err)
-        }
-        assert.equal(code, 0)
-        db.load()
-        assert(out.indexOf('down') !== -1)
-        assert.equal(db.numbers.length, 0)
-        assert(db.numbers.indexOf('1-up') === -1)
-        assert(db.numbers.indexOf('2-up') === -1)
-        done()
-      })
+    it('should run down on multiple migrations', async function () {
+      const output = await down(['--migrations-dir _migrations'], FIX_DIR)
+      assert.equal(output.code, 0)
+      db.load()
+      assert(output.stdout.indexOf('down') !== -1)
+      assert.equal(db.numbers.length, 0)
+      assert(db.numbers.indexOf('1-up') === -1)
+      assert(db.numbers.indexOf('2-up') === -1)
     })
 
-    it('should run down to a specified migration', function (done) {
+    it('should run down to a specified migration', async function () {
       db.load()
 
-      down(['2-two.js', '--migrations-dir _migrations'], FIX_DIR, function (err, out, code) {
-        if (err) {
-          return done(err)
-        }
+      const output = await down(['2-two.js', '--migrations-dir _migrations'], FIX_DIR)
 
-        db.load()
-        assert.equal(code, 0)
-        assert(out.indexOf('down') !== -1)
-        assert.equal(db.numbers.length, 1)
-        assert(db.numbers.indexOf('1-up') !== -1)
-        assert(db.numbers.indexOf('2-up') === -1)
-        done()
-      })
+      db.load()
+      assert.equal(output.code, 0)
+      assert(output.stdout.indexOf('down') !== -1)
+      assert.equal(db.numbers.length, 1)
+      assert(db.numbers.indexOf('1-up') !== -1)
+      assert(db.numbers.indexOf('2-up') === -1)
     })
 
-    it('should run down multiple times', function (done) {
-      down(['--migrations-dir _migrations'], FIX_DIR, function (err, out, code) {
-        if (err) {
-          return done(err)
-        }
-        assert.equal(code, 0)
-        assert(out.indexOf('down') !== -1)
-        db.load()
-        down(['--migrations-dir _migrations'], FIX_DIR, function (err, out) {
-          if (err) {
-            return done(err)
-          }
-          assert(out.indexOf('down') === -1)
-          assert.equal(db.numbers.length, 0)
-          done()
-        })
-      })
+    it('should run down multiple times', async function () {
+      const firstOuput = await down(['--migrations-dir _migrations'], FIX_DIR)
+      assert.equal(firstOuput.code, 0)
+      assert(firstOuput.stdout.indexOf('down') !== -1)
+      db.load()
+
+      const secondOutput = await down(['--migrations-dir _migrations'], FIX_DIR)
+      assert(secondOutput.stdout.indexOf('down') === -1)
+      assert.equal(db.numbers.length, 0)
     })
   }) // end down
 
   describe('list', function () {
-    it('should list available migrations', function (done) {
-      list(['--migrations-dir _migrations'], FIX_DIR, function (err, out, code) {
-        if (err) {
-          return done(err)
-        }
+    it('should list available migrations', async function () {
+      const output = await list(['--migrations-dir _migrations'], FIX_DIR)
 
-        assert.equal(code, 0)
-        assert(out.indexOf('1-one.js') !== -1)
-        assert(out.indexOf('2-two.js') !== -1)
-        done()
-      })
+      assert.equal(output.code, 0)
+      assert(output.stdout.indexOf('1-one.js') !== -1)
+      assert(output.stdout.indexOf('2-two.js') !== -1)
     })
   }) // end init
 })

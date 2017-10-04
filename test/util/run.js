@@ -4,21 +4,24 @@ const path = require('path')
 const spawn = require('child_process').spawn
 
 const run = module.exports = function run (cmd, dir, args, done) {
-  const p = spawn('node', [cmd, '-c', dir, ...args], {shell: true})
-  let out = ''
-  p.stdout.on('data', function (d) {
-    out += d.toString('utf8')
-  })
-  p.stderr.on('data', function (d) {
-    out += d.toString('utf8')
-  })
-  p.on('error', done)
-  p.on('close', function (code) {
-    if (code !== 0) {
-      return done(out, out, code)
-    }
+  return new Promise(function (resolve, reject) {
+    const p = spawn('node', [cmd, '-c', dir, ...args], {shell: true})
+    let stdout = ''
+    let stderr = ''
+    p.stdout.on('data', function (d) {
+      stdout += d.toString('utf8')
+    })
+    p.stderr.on('data', function (d) {
+      stderr += d.toString('utf8')
+    })
+    p.on('error', reject)
+    p.on('close', function (code) {
+      if (code !== 0) {
+        return reject(new Error(stderr))
+      }
 
-    done(null, out, code)
+      return resolve({stdout, code})
+    })
   })
 }
 
