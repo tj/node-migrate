@@ -6,7 +6,7 @@ The module returns promises on operations, and will therefore work nicely with t
 First, start out by making sure we are in the correct directory:
 
 ```sh
-cd ./examples/programmatic/
+cd ./examples/custom-state-store/
 ```
 
 Then, run the example script:
