@@ -68,7 +68,7 @@ function loadAndGo () {
     })
     .then((set) => {
       set.on('warning', function (msg) {
-        log('warning', msg)
+        log('warn', msg)
       })
 
       set.on('migration', function (migration, direction) {
@@ -84,7 +84,7 @@ function loadAndGo () {
           process.exit(0)
         })
         .catch((err) => {
-          log('error', err)
+          log.error('error', err)
           process.exit(1)
         })
     })
