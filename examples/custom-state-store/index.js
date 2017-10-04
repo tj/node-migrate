@@ -1,12 +1,10 @@
 'use strict'
 
 const path = require('path')
-const util = require('util')
 const migrate = require('../../index')
-const db = require('./db')
 const StateStore = require('./state-store')
 
-async function run() {
+async function run () {
   const store = new StateStore(path.join(__dirname, 'state-db.json'))
 
   const options = {
@@ -16,11 +14,11 @@ async function run() {
 
   const set = await migrate.load(options)
 
-  set.on('save', function() {
+  set.on('save', function () {
     console.log()
   })
 
-  set.on('migration', function(migration, direction) {
+  set.on('migration', function (migration, direction) {
     console.log(direction, migration.title)
   })
 
