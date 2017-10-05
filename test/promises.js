@@ -22,6 +22,10 @@ describe('Promise migrations', function () {
     })
   })
 
+  afterEach(function (done) {
+    rimraf(STATE, done)
+  })
+
   it('should handle callback migration', function (done) {
     set.up('1-callback-test.js', function (err) {
       assert.ifError(err)
@@ -48,9 +52,5 @@ describe('Promise migrations', function () {
       errorThrown = true
       done()
     })
-  })
-
-  afterEach(function (done) {
-    rimraf(STATE, done)
   })
 })
