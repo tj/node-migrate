@@ -1,7 +1,8 @@
 'use strict'
+const path = require('path')
 const spawn = require('child_process').spawn
 
-module.exports = function run (cmd, dir, args, done) {
+var run = module.exports = function run (cmd, dir, args, done) {
   var p = spawn(cmd, ['-c', dir, ...args])
   var out = ''
   p.stdout.on('data', function (d) {
@@ -12,9 +13,13 @@ module.exports = function run (cmd, dir, args, done) {
   })
   p.on('error', done)
   p.on('close', function (code) {
-    if (code !== 0) {
-      console.error(out)
-    }
     done(null, out, code)
   })
 }
+
+// Run specific commands
+module.exports.up = run.bind(null, path.join(__dirname, '..', '..', 'bin', 'migrate-up'))
+module.exports.down = run.bind(null, path.join(__dirname, '..', '..', 'bin', 'migrate-down'))
+module.exports.create = run.bind(null, path.join(__dirname, '..', '..', 'bin', 'migrate-create'))
+module.exports.init = run.bind(null, path.join(__dirname, '..', '..', 'bin', 'migrate-init'))
+module.exports.list = run.bind(null, path.join(__dirname, '..', '..', 'bin', 'migrate-list'))
