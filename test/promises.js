@@ -52,8 +52,22 @@ describe('Promise migrations', function () {
     })
   })
 
+  it('should warn with no promise or callback', function (done) {
+    set.up('3-callback-promise-test.js', function () {
+      var warned = false
+      set.on('warning', function (msg) {
+        assert(msg)
+        warned = true
+      })
+      set.up('4-neither-test.js', function () {
+        assert(warned)
+        done()
+      })
+    })
+  })
+
   it('should error with rejected promises', function (done) {
-    set.up('4-failure-test.js', function (err) {
+    set.up('99-failure-test.js', function (err) {
       assert(err)
       assert.equal(err.message, 'foo')
       done()
