@@ -4,6 +4,7 @@
 
 var program = require('commander')
 var mkdirp = require('mkdirp')
+var dotenv = require('dotenv')
 var path = require('path')
 var log = require('../lib/log')
 var pkg = require('../package.json')
@@ -14,10 +15,21 @@ program
   .option('-s, --store <store>', 'Set the migrations store', path.join(__dirname, '..', 'lib', 'file-store'))
   .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
   .option('-c, --chdir [dir]', 'Change the working directory', process.cwd())
+  .option('--env [name]', 'Use dotenv to load an environment file')
   .parse(process.argv)
 
 // Change the working dir
 process.chdir(program.chdir)
+
+// Setup environment
+if (program.env) {
+  var e = dotenv.config({
+    path: typeof program.env === 'string' ? program.env : '.env'
+  })
+  if (e && e.error instanceof Error) {
+    throw e.error
+  }
+}
 
 // Setup store
 var Store = require(program.store)
