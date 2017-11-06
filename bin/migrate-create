@@ -4,6 +4,7 @@
 
 var program = require('commander')
 var path = require('path')
+var dotenv = require('dotenv')
 var log = require('../lib/log')
 var registerCompiler = require('../lib/register-compiler')
 var pkg = require('../package.json')
@@ -17,9 +18,20 @@ program
   .option('-t, --template-file [filePath]', 'Set path to template file to use for new migrations', path.join(__dirname, '..', 'lib', 'template.js'))
   .option('-e, --extention [extention]', 'Use the given extention to create the file', '.js')
   .option('-g, --generator <name>', 'A template generator function', path.join(__dirname, '..', 'lib', 'template-generator'))
+  .option('--env [name]', 'Use dotenv to load an environment file')
   .arguments('<name>')
   .action(create)
   .parse(process.argv)
+
+// Setup environment
+if (program.env) {
+  var e = dotenv.config({
+    path: typeof program.env === 'string' ? program.env : '.env'
+  })
+  if (e && e.error instanceof Error) {
+    throw e.error
+  }
+}
 
 var _name
 function create (name) {

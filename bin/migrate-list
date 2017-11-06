@@ -6,6 +6,7 @@ var program = require('commander')
 var path = require('path')
 var dateFormat = require('dateformat')
 var minimatch = require('minimatch')
+var dotenv = require('dotenv')
 var migrate = require('../')
 var log = require('../lib/log')
 var registerCompiler = require('../lib/register-compiler')
@@ -21,6 +22,7 @@ program
   .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
   .option('--matches <glob>', 'A glob pattern to filter migration files', '*')
   .option('--compiler <ext:module>', 'Use the given module to compile files')
+  .option('--env [name]', 'Use dotenv to load an environment file')
   .parse(process.argv)
 
 // Check clean flag, exit if NODE_ENV === 'production' and force not specified
@@ -31,6 +33,16 @@ if (program.clean && process.env.NODE_ENV === 'production' && !program.force) {
 
 // Change the working dir
 process.chdir(program.chdir)
+
+// Setup environment
+if (program.env) {
+  var e = dotenv.config({
+    path: typeof program.env === 'string' ? program.env : '.env'
+  })
+  if (e && e.error instanceof Error) {
+    throw e.error
+  }
+}
 
 // Load compiler
 if (program.compiler) {

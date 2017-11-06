@@ -1,20 +1,25 @@
-/* global describe, it, beforeEach */
+/* global describe, it, beforeEach, afterEach */
 const path = require('path')
 const assert = require('assert')
 const rimraf = require('rimraf')
 const mkdirp = require('mkdirp')
 const run = require('./util/run')
+const db = require('./util/db')
 
 // Paths
 const TMP_DIR = path.join(__dirname, 'fixtures', 'tmp')
+const ENV_DIR = path.join(__dirname, 'fixtures', 'env')
 
 function reset () {
+  rimraf.sync(path.join(ENV_DIR, '.migrate'))
   rimraf.sync(TMP_DIR)
   mkdirp.sync(TMP_DIR)
+  db.nuke()
 }
 
 describe('integration tests', function () {
   beforeEach(reset)
+  afterEach(reset)
 
   it('should warn when the migrations are run out of order', function (done) {
     run.init(TMP_DIR, [], function (err, out, code) {
@@ -91,6 +96,20 @@ describe('integration tests', function () {
             })
           })
         })
+      })
+    })
+  })
+
+  it('should load the enviroment file when passed --env', function (done) {
+    run.up(ENV_DIR, ['--env', 'env'], function (err, out, code) {
+      assert(!err)
+      assert.equal(code, 0)
+      assert(out.indexOf('error') === -1)
+      run.down(ENV_DIR, ['--env', 'env'], function (err, out, code) {
+        assert(!err)
+        assert.equal(code, 0)
+        assert(out.indexOf('error') === -1)
+        done()
       })
     })
   })
