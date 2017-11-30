@@ -6,8 +6,6 @@
 
 Abstract migration framework for node.
 
-*NOTE:* A large refactor is underway for the next major version of this package.  Check out the `1.x` pull request tracking this work, or to explicitly opt in, install the `next` tag (`npm install migrate@next`).
-
 ## Installation
 
     $ npm install migrate
