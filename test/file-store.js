@@ -35,6 +35,11 @@ describe('FileStore tests', () => {
       assert.equal(store.lastRun, '1480449051248-farnsworth.js')
       assert.equal(store.migrations.length, 2)
 
+      store.migrations.forEach((migration) => {
+        assert.equal(typeof migration.title, 'string')
+        assert.equal(typeof migration.timestamp, 'number')
+      })
+
       return done()
     })
   })
