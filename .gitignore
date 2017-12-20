@@ -1,7 +1,4 @@
 .DS_Store
 node_modules
-*.sock
 .migrate
-*.db
-migrations/
 test/fixtures/tmp

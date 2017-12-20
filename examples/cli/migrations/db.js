@@ -5,6 +5,6 @@
 // $ redis-server
 
 var redis = require('redis')
-  , db = redis.createClient();
+var db = redis.createClient()
 
-module.exports = db;
+module.exports = db
