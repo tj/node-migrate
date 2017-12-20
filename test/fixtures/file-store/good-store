@@ -1,0 +1,13 @@
+{
+  "lastRun": "1480449051248-farnsworth.js",
+  "migrations": [
+    {
+      "title": "1480357772278-fozrick.js",
+      "timestamp": 1513724986512
+    },
+    {
+      "title": "1480449051248-farnsworth.js",
+      "timestamp": 1513724986524
+    }
+  ]
+}

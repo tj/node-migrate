@@ -2,3 +2,4 @@
 node_modules
 .migrate
 test/fixtures/tmp
+*.swp
