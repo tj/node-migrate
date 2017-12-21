@@ -1,0 +1,12 @@
+{
+  "migrations": [
+    {
+      "title": "1480357772278-fozrick.js"
+    },
+    {
+      "title": "1480449051248-farnsworth.js"
+    }
+  ],
+  "path": "test/fixtures/file-store/old-store",
+  "pos": 2
+}
