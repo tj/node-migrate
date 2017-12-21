@@ -1,14 +1,13 @@
-/* global describe, it, beforeEach, afterEach */
+/* eslint-env mocha */
+'use strict'
+const fs = require('fs')
+const path = require('path')
+const assert = require('assert')
+const migrate = require('../')
+const db = require('./util/db')
 
-var fs = require('fs')
-var path = require('path')
-var assert = require('assert')
-
-var migrate = require('../')
-var db = require('./util/db')
-
-var BASE = path.join(__dirname, 'fixtures', 'issue-33')
-var STATE = path.join(BASE, '.migrate')
+const BASE = path.join(__dirname, 'fixtures', 'issue-33')
+const STATE = path.join(BASE, '.migrate')
 
 var A1 = ['1-up', '2-up', '3-up']
 var A2 = A1.concat(['3-down', '2-down', '1-down'])

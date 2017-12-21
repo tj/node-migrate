@@ -1,13 +1,12 @@
-/* global describe, it, beforeEach, afterEach */
+/* eslint-env mocha */
+'use strict'
+const rimraf = require('rimraf')
+const path = require('path')
+const assert = require('assert')
+const migrate = require('../')
 
-var rimraf = require('rimraf')
-var path = require('path')
-var assert = require('assert')
-
-var migrate = require('../')
-
-var BASE = path.join(__dirname, 'fixtures', 'promises')
-var STATE = path.join(__dirname, 'fixtures', '.migrate')
+const BASE = path.join(__dirname, 'fixtures', 'promises')
+const STATE = path.join(__dirname, 'fixtures', '.migrate')
 
 describe('Promise migrations', function () {
   var set

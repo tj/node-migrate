@@ -1,4 +1,5 @@
-/* global describe, it, beforeEach, afterEach */
+/* eslint-env mocha */
+'use strict'
 const path = require('path')
 const fs = require('fs')
 const assert = require('assert')

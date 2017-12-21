@@ -1,9 +1,7 @@
 /* eslint-env mocha */
 'use strict'
-
 const path = require('path')
 const assert = require('assert')
-
 const FileStore = require('../lib/file-store')
 
 const BASE = path.join(__dirname, 'fixtures', 'file-store')
