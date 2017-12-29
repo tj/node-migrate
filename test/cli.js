@@ -99,6 +99,20 @@ describe('$ migrate', function () {
       })
     })
 
+    it('should use the --template-file flag', function (done) {
+      create(['test', '-t', path.join(__dirname, 'util', 'tmpl.js')], function (err, out, code) {
+        assert(!err)
+        assert.equal(code, 0, out)
+        assert(out.indexOf('create') !== -1)
+        var file = out.split(':')[1].trim()
+        var content = fs.readFileSync(file, {
+          encoding: 'utf8'
+        })
+        assert(content.indexOf('test') !== -1)
+        done()
+      })
+    })
+
     it('should fail with non-zero and a helpful message when template is unreadable', function (done) {
       create(['test', '-t', 'fake'], function (err, out, code) {
         assert(!err)
