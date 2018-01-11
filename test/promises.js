@@ -72,4 +72,11 @@ describe('Promise migrations', function () {
       done()
     })
   })
+
+  it.only('should correctly handle an array of results from Promise.all', function (done) {
+    set.up('5-promise-all-test.js', function (err) {
+      assert(err)
+      done()
+    })
+  })
 })
