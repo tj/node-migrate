@@ -145,8 +145,8 @@ use the `comipler` flag.  For example, to use babel with your migrations, you ca
 
 ```
 $ npm install --save babel-register
-$ migrate create --compiler=".js:babel-register" foo
-$ migrate up --compiler=".js:babel-register"
+$ migrate create --compiler="js:babel-register" foo
+$ migrate up --compiler="js:babel-register"
 ```
 
 ## Running Migrations
