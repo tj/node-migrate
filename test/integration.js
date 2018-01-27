@@ -101,6 +101,45 @@ describe('integration tests', function () {
     })
   })
 
+  it('should not error when migrations are present in the state file, not loadable but not run', function (done) {
+    run.init(TMP_DIR, [], function (err, out, code) {
+      assert(!err)
+      assert.equal(code, 0)
+
+      run.create(TMP_DIR, ['1-one', '-d', 'W'], function (err, out, code) {
+        assert(!err)
+        assert.equal(code, 0)
+
+        run.create(TMP_DIR, ['2-two', '-d', 'W'], function (err, out, code) {
+          assert(!err)
+          assert.equal(code, 0)
+
+          // Keep migration filename to remove
+          var filename = out.split(' : ')[1].trim()
+
+          run.up(TMP_DIR, [], function (err, out, code) {
+            assert(!err)
+            assert.equal(code, 0)
+
+            run.down(TMP_DIR, [], function (err, out, code) {
+              assert(!err)
+              assert.equal(code, 0)
+
+              // Remove the three migration
+              rimraf.sync(filename)
+
+              run.up(TMP_DIR, [], function (err, out, code) {
+                assert(!err)
+                assert.equal(code, 0, out)
+                done()
+              })
+            })
+          })
+        })
+      })
+    })
+  })
+
   it('should load the enviroment file when passed --env', function (done) {
     run.up(ENV_DIR, ['--env', 'env'], function (err, out, code) {
       assert(!err)
