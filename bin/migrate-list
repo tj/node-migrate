@@ -50,6 +50,8 @@ if (program.compiler) {
 }
 
 // Setup store
+if (program.store[0] === '.') program.store = path.join(process.cwd(), program.store)
+
 var Store = require(program.store)
 var store = new Store(program.stateFile)
 
