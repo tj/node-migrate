@@ -14,6 +14,7 @@ var registerCompiler = require('../lib/register-compiler')
 var pkg = require('../package.json')
 
 var config = rc('migrate', {
+  'chdir': process.cwd(),
   'state-file': '.migrate',
   'store': path.join(__dirname, '..', 'lib', 'file-store'),
   'migrations-dir': 'migrations',
@@ -23,7 +24,7 @@ var config = rc('migrate', {
 program
   .version(pkg.version)
   .usage('[options] <name>')
-  .option('-c, --chdir <dir>', 'Change the working directory', process.cwd())
+  .option('-c, --chdir <dir>', 'Change the working directory', config['chdir'])
   .option('-f, --state-file <path>', 'Set path to state file', config['state-file'])
   .option('-s, --store <store>', 'Set the migrations store', config['store'])
   .option('--clean', 'Tears down the migration state before running up')
