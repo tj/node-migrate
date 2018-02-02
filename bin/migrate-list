@@ -71,4 +71,6 @@ migrate.load({
   set.migrations.forEach(function (migration) {
     log(migration.title + (migration.timestamp ? ' [' + dateFormat(migration.timestamp, program.dateFormat) + ']' : ' [not run]'), migration.description || '<No Description>')
   })
+
+  process.exit(0)
 })
