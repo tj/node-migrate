@@ -4,6 +4,7 @@
 
 var program = require('commander')
 var path = require('path')
+var rc = require( 'rc' )
 var dateFormat = require('dateformat')
 var minimatch = require('minimatch')
 var dotenv = require('dotenv')
@@ -12,17 +13,25 @@ var log = require('../lib/log')
 var registerCompiler = require('../lib/register-compiler')
 var pkg = require('../package.json')
 
+var config = rc('migrate', {
+  'state-file': '.migrate',
+  'store': path.join(__dirname, '..', 'lib', 'file-store'),
+  'date-format': 'yyyy-mm-dd',
+  'migrations-dir': 'migrations',
+  'matches': '*'
+});
+
 program
   .version(pkg.version)
   .usage('[options] <name>')
   .option('-c, --chdir <dir>', 'Change the working directory', process.cwd())
-  .option('-f, --state-file <path>', 'Set path to state file', '.migrate')
-  .option('-s, --store <store>', 'Set the migrations store', path.join(__dirname, '..', 'lib', 'file-store'))
-  .option('-d, --date-format [format]', 'Set a date format to use', 'yyyy-mm-dd')
-  .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
-  .option('--matches <glob>', 'A glob pattern to filter migration files', '*')
-  .option('--compiler <ext:module>', 'Use the given module to compile files')
-  .option('--env [name]', 'Use dotenv to load an environment file')
+  .option('-f, --state-file <path>', 'Set path to state file', config['state-file'])
+  .option('-s, --store <store>', 'Set the migrations store', config['store'])
+  .option('-d, --date-format [format]', 'Set a date format to use', config['date-format'])
+  .option('--migrations-dir <dir>', 'Change the migrations directory name', config['migrations-dir'])
+  .option('--matches <glob>', 'A glob pattern to filter migration files', config['matches'])
+  .option('--compiler <ext:module>', 'Use the given module to compile files', config['compiler'])
+  .option('--env [name]', 'Use dotenv to load an environment file', config['env'])
   .parse(process.argv)
 
 // Check clean flag, exit if NODE_ENV === 'production' and force not specified

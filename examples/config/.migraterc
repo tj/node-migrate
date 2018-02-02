@@ -1,0 +1,4 @@
+{
+  "store": "migrate-store-mysql",
+  "migrations-dir": "db/migrations"
+}

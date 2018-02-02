@@ -6,16 +6,24 @@ var program = require('commander')
 var mkdirp = require('mkdirp')
 var dotenv = require('dotenv')
 var path = require('path')
+var rc = require( 'rc' )
 var log = require('../lib/log')
 var pkg = require('../package.json')
 
+var config = rc('migrate', {
+  'state-file': '.migrate',
+  'store': path.join(__dirname, '..', 'lib', 'file-store'),
+  'migrations-dir': 'migrations',
+  'matches': '*'
+});
+
 program
   .version(pkg.version)
-  .option('-f, --state-file <path>', 'Set path to state file', '.migrate')
-  .option('-s, --store <store>', 'Set the migrations store', path.join(__dirname, '..', 'lib', 'file-store'))
-  .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
+  .option('-f, --state-file <path>', 'Set path to state file', config['state-file'])
+  .option('-s, --store <store>', 'Set the migrations store', config['store'])
+  .option('--migrations-dir <dir>', 'Change the migrations directory name', config['migrations-dir'])
   .option('-c, --chdir [dir]', 'Change the working directory', process.cwd())
-  .option('--env [name]', 'Use dotenv to load an environment file')
+  .option('--env [name]', 'Use dotenv to load an environment file', config['env'])
   .parse(process.argv)
 
 // Change the working dir

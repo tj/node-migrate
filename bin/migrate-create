@@ -4,21 +4,29 @@
 
 var program = require('commander')
 var path = require('path')
+var rc = require( 'rc' )
 var dotenv = require('dotenv')
 var log = require('../lib/log')
 var registerCompiler = require('../lib/register-compiler')
 var pkg = require('../package.json')
 
+var config = rc('migrate', {
+  'migrations-dir': 'migrations',
+  'template-file': path.join(__dirname, '..', 'lib', 'template.js'),
+  'extention': '.js',
+  'generator': path.join(__dirname, '..', 'lib', 'template-generator')
+});
+
 program
   .version(pkg.version)
   .option('-c, --chdir [dir]', 'Change the working directory', process.cwd())
-  .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
-  .option('--compiler <ext:module>', 'Use the given module to compile files')
-  .option('-d, --date-format [format]', 'Set a date format to use')
-  .option('-t, --template-file [filePath]', 'Set path to template file to use for new migrations', path.join(__dirname, '..', 'lib', 'template.js'))
-  .option('-e, --extention [extention]', 'Use the given extention to create the file', '.js')
-  .option('-g, --generator <name>', 'A template generator function', path.join(__dirname, '..', 'lib', 'template-generator'))
-  .option('--env [name]', 'Use dotenv to load an environment file')
+  .option('--migrations-dir <dir>', 'Change the migrations directory name', config['migrations-dir'])
+  .option('--compiler <ext:module>', 'Use the given module to compile files', config['compiler'])
+  .option('-d, --date-format [format]', 'Set a date format to use', config['date-format'])
+  .option('-t, --template-file [filePath]', 'Set path to template file to use for new migrations', config['template-file'])
+  .option('-e, --extention [extention]', 'Use the given extention to create the file', config['extension'])
+  .option('-g, --generator <name>', 'A template generator function', config['generator'])
+  .option('--env [name]', 'Use dotenv to load an environment file', config['env'])
   .arguments('<name>')
   .action(create)
   .parse(process.argv)
