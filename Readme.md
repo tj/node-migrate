@@ -141,7 +141,7 @@ $ migrate create --template-file ./my-migration-template.js
 ```
 
 Lastly, if you want to use newer ECMAscript features, or language addons like TypeScript, for your migrations, you can
-use the `comipler` flag.  For example, to use babel with your migrations, you can do the following:
+use the `compiler` flag.  For example, to use babel with your migrations, you can do the following:
 
 ```
 $ npm install --save babel-register
