@@ -1,3 +1,9 @@
+2.0.0 / 2018-03-05
+==================
+
+  * Moved everything to async/await
+  * Added config for migrations
+
 0.2.3 / 2016-07-05
 ==================
 

@@ -1,10 +1,10 @@
 
 var db = require('./db')
 
-exports.up = function (next) {
-  db.set('pets:coolest', 'tobi', next)
+exports.up = async function () {
+  await db.set('pets:coolest', 'tobi')
 }
 
-exports.down = function (next) {
-  db.del('pets:coolest', next)
+exports.down = async function () {
+  await db.del('pets:coolest')
 }

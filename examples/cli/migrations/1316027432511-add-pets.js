@@ -1,12 +1,16 @@
 
 var db = require('./db')
 
-exports.up = function (next) {
-  db.rpush('pets', 'tobi')
-  db.rpush('pets', 'loki', next)
+exports.up = async function () {
+  return Promise.all([
+    db.rpushAsync('pets', 'tobi'),
+    db.rpushAsync('pets', 'loki')
+  ])
 }
 
-exports.down = function (next) {
-  db.rpop('pets')
-  db.rpop('pets', next)
+exports.down = async function () {
+  return Promise.all([
+    db.rpop('pets'),
+    db.rpop('pets')
+  ])
 }

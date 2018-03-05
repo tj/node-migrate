@@ -20,26 +20,18 @@ function reset () {
   db.nuke()
 }
 
-describe('issue #92', function () {
+describe('invalid store file', function () {
   beforeEach(reset)
   afterEach(reset)
 
-  it('shouldn\'t throw error after migrate down to initial state', function (done) {
-    up([], function (err, out, code) {
-      assert.ifError(err)
-      assert.equal(code, 0)
+  it('shouldn\'t throw error after migrate down to initial state', async function () {
+    let result = await up([])
+    assert.equal(result.code, 0)
 
-      down([], function (err, out, code) {
-        assert.ifError(err)
-        assert.equal(code, 0)
+    await down([])
+    assert.equal(result.code, 0)
 
-        up([], function (err, out, code) {
-          assert.ifError(err)
-          assert.equal(code, 0)
-
-          done()
-        })
-      })
-    })
+    await up([])
+    assert.equal(result.code, 0)
   })
 })

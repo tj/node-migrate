@@ -37,39 +37,35 @@ if (program.env) {
   }
 }
 
-// Load compiler
-if (program.compiler) {
-  registerCompiler(program.compiler)
-}
-
-// Setup store
-if (program.store[0] === '.') program.store = path.join(process.cwd(), program.store)
-
-var Store = require(program.store)
-var store = new Store(program.stateFile)
-
-// Load in migrations
-migrate.load({
-  stateStore: store,
-  migrationsDirectory: program.migrationsDir,
-  filterFunction: minimatch.filter(program.matches)
-}, function (err, set) {
-  if (err) {
-    log.error('error', err)
-    process.exit(1)
+async function down () {
+  // Load compiler
+  if (program.compiler) {
+    registerCompiler(program.compiler)
   }
 
-  set.on('migration', function (migration, direction) {
-    log(direction, migration.title)
-  })
+  // Setup store
+  if (program.store[0] === '.') program.store = path.join(process.cwd(), program.store)
 
-  runMigrations(set, 'down', program.args[0], function (err) {
-    if (err) {
-      log('error', err)
-      process.exit(1)
-    }
+  var Store = require(program.store)
+  var store = new Store(program.stateFile)
 
+  // Load in migrations
+  try {
+    let set = await migrate.load({
+      stateStore: store,
+      migrationsDirectory: program.migrationsDir,
+      filterFunction: minimatch.filter(program.matches)
+    })
+    set.on('migration', function (migration, direction) {
+      log(direction, migration.title)
+    })
+    await runMigrations(set, 'down', {}, program.args[0])
     log('migration', 'complete')
     process.exit(0)
-  })
-})
+  } catch (error) {
+    log.error('error', error)
+    process.exit(1)
+  }
+}
+
+down()

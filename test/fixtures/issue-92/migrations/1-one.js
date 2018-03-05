@@ -1,7 +1,5 @@
-exports.up = function (next) {
-  next()
+exports.up = function () {
 }
 
-exports.down = function (next) {
-  next()
+exports.down = function () {
 }
