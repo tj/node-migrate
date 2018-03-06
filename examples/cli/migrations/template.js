@@ -4,10 +4,8 @@
 
 var db = require('./db') // eslint-disable-line
 
-exports.up = function (next) {
-  next()
+exports.up = async function () {
 }
 
-exports.down = function (next) {
-  next()
+exports.down = async function () {
 }

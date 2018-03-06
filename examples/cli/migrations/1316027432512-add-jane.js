@@ -1,10 +1,10 @@
 
 var db = require('./db')
 
-exports.up = function (next) {
-  db.rpush('pets', 'jane', next)
+exports.up = async function () {
+  await db.rpushAsync('pets', 'jane')
 }
 
-exports.down = function (next) {
-  db.rpop('pets', next)
+exports.down = async function () {
+  await db.rpopAsync('pets')
 }

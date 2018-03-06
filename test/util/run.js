@@ -2,18 +2,20 @@
 const path = require('path')
 const spawn = require('child_process').spawn
 
-var run = module.exports = function run (cmd, dir, args, done) {
-  var p = spawn(cmd, ['-c', dir, ...args])
-  var out = ''
-  p.stdout.on('data', function (d) {
-    out += d.toString('utf8')
-  })
-  p.stderr.on('data', function (d) {
-    out += d.toString('utf8')
-  })
-  p.on('error', done)
-  p.on('close', function (code) {
-    done(null, out, code)
+var run = module.exports = async function run (cmd, dir, args, done) {
+  return new Promise((resolve, reject) => {
+    var p = spawn(cmd, ['-c', dir, ...args])
+    var out = ''
+    p.stdout.on('data', function (d) {
+      out += d.toString('utf8')
+    })
+    p.stderr.on('data', function (d) {
+      out += d.toString('utf8')
+    })
+    p.on('error', reject)
+    p.on('close', function (code) {
+      resolve({out: out, code: code})
+    })
   })
 }
 

@@ -1,13 +1,11 @@
 var db = require('../../../util/db')
 
-exports.up = function (next) {
+exports.up = function () {
   db[process.env.DB].push({ name: 'jane' })
   db.persist()
-  next()
 }
 
-exports.down = function (next) {
+exports.down = function () {
   db[process.env.DB].pop()
   db.persist()
-  next()
 }

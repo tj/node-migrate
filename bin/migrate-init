@@ -3,7 +3,7 @@
 'use strict'
 
 var program = require('commander')
-var mkdirp = require('mkdirp')
+var mkdirp = require('mkdirp-promise')
 var dotenv = require('dotenv')
 var path = require('path')
 var log = require('../lib/log')
@@ -18,35 +18,38 @@ program
   .option('--env [name]', 'Use dotenv to load an environment file')
   .parse(process.argv)
 
-// Change the working dir
-process.chdir(program.chdir)
+async function init () {
+  // Change the working dir
+  process.chdir(program.chdir)
 
-// Setup environment
-if (program.env) {
-  var e = dotenv.config({
-    path: typeof program.env === 'string' ? program.env : '.env'
-  })
-  if (e && e.error instanceof Error) {
-    throw e.error
+  // Setup environment
+  if (program.env) {
+    var e = dotenv.config({
+      path: typeof program.env === 'string' ? program.env : '.env'
+    })
+    if (e && e.error instanceof Error) {
+      throw e.error
+    }
+  }
+
+  // Setup store
+  if (program.store[0] === '.') {
+    program.store = path.join(process.cwd(), program.store)
+  }
+
+  var Store = require(program.store)
+  var store = new Store(program.stateFile)
+
+// Create migrations dir path
+  var p = path.join(process.cwd(), program.migrationsDir)
+
+  log('migrations dir', p)
+  await mkdirp(p)
+
+// Call store init
+  if (typeof store.init === 'function') {
+    await store.init()
   }
 }
 
-// Setup store
-if (program.store[0] === '.') program.store = path.join(process.cwd(), program.store)
-
-var Store = require(program.store)
-var store = new Store(program.stateFile)
-
-// Create migrations dir path
-var p = path.join(process.cwd(), program.migrationsDir)
-
-log('migrations dir', p)
-mkdirp.sync(p)
-
-// Call store init
-if (typeof store.init === 'function') {
-  store.init(function (err) {
-    if (err) return log.error(err)
-    log('init')
-  })
-}
+init()

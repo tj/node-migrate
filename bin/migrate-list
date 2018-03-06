@@ -13,66 +13,78 @@ var registerCompiler = require('../lib/register-compiler')
 var pkg = require('../package.json')
 
 program
-  .version(pkg.version)
-  .usage('[options] <name>')
-  .option('-c, --chdir <dir>', 'Change the working directory', process.cwd())
-  .option('-f, --state-file <path>', 'Set path to state file', '.migrate')
-  .option('-s, --store <store>', 'Set the migrations store', path.join(__dirname, '..', 'lib', 'file-store'))
-  .option('-d, --date-format [format]', 'Set a date format to use', 'yyyy-mm-dd')
-  .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
-  .option('--matches <glob>', 'A glob pattern to filter migration files', '*')
-  .option('--compiler <ext:module>', 'Use the given module to compile files')
-  .option('--env [name]', 'Use dotenv to load an environment file')
-  .parse(process.argv)
+.version(pkg.version)
+.usage('[options] <name>')
+.option('-c, --chdir <dir>', 'Change the working directory', process.cwd())
+.option('-f, --state-file <path>', 'Set path to state file', '.migrate')
+.option('-s, --store <store>', 'Set the migrations store', path.join(__dirname, '..', 'lib', 'file-store'))
+.option('-d, --date-format [format]', 'Set a date format to use', 'yyyy-mm-dd')
+.option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
+.option('--matches <glob>', 'A glob pattern to filter migration files', '*')
+.option('--compiler <ext:module>', 'Use the given module to compile files')
+.option('--env [name]', 'Use dotenv to load an environment file')
+.parse(process.argv)
 
-// Check clean flag, exit if NODE_ENV === 'production' and force not specified
-if (program.clean && process.env.NODE_ENV === 'production' && !program.force) {
-  log.error('error', 'Cowardly refusing to clean while node environment set to production, use --force to continue.')
-  process.exit(1)
-}
-
-// Change the working dir
-process.chdir(program.chdir)
-
-// Setup environment
-if (program.env) {
-  var e = dotenv.config({
-    path: typeof program.env === 'string' ? program.env : '.env'
-  })
-  if (e && e.error instanceof Error) {
-    throw e.error
-  }
-}
-
-// Load compiler
-if (program.compiler) {
-  registerCompiler(program.compiler)
-}
-
-// Setup store
-if (program.store[0] === '.') program.store = path.join(process.cwd(), program.store)
-
-var Store = require(program.store)
-var store = new Store(program.stateFile)
-
-// Load in migrations
-migrate.load({
-  stateStore: store,
-  migrationsDirectory: program.migrationsDir,
-  filterFunction: minimatch.filter(program.matches)
-}, function (err, set) {
-  if (err) {
-    log.error('error', err)
+async function list (params) {
+  console.log('calling me', params)
+  // Check clean flag, exit if NODE_ENV === 'production' and force not specified
+  if (program.clean && process.env.NODE_ENV === 'production' &&
+    !program.force) {
+    log.error('error',
+      'Cowardly refusing to clean while node environment set to production, use --force to continue.')
     process.exit(1)
   }
 
-  if (set.migrations.length === 0) {
-    return log('list', 'No Migrations')
+// Change the working dir
+  process.chdir(program.chdir)
+
+// Setup environment
+  if (program.env) {
+    var e = dotenv.config({
+      path: typeof program.env === 'string' ? program.env : '.env'
+    })
+    if (e && e.error instanceof Error) {
+      throw e.error
+    }
   }
 
-  set.migrations.forEach(function (migration) {
-    log(migration.title + (migration.timestamp ? ' [' + dateFormat(migration.timestamp, program.dateFormat) + ']' : ' [not run]'), migration.description || '<No Description>')
-  })
+// Load compiler
+  if (program.compiler) {
+    registerCompiler(program.compiler)
+  }
 
+// Setup store
+  if (program.store[0] === '.') {
+    program.store = path.join(process.cwd(), program.store)
+  }
+
+  var Store = require(program.store)
+  var store = new Store(program.stateFile)
+
+// Load in migrations
+  try {
+    let set = await migrate.load({
+      stateStore: store,
+      migrationsDirectory: program.migrationsDir,
+      filterFunction: minimatch.filter(program.matches)
+    })
+    if (set.migrations.length === 0) {
+      return log('list', 'No Migrations')
+    }
+
+    set.migrations.forEach(function (migration) {
+      let timeString = ' [not run] '
+      if (migration.timestamp) {
+        timeString = ` [${dateFormat(migration.timestamp, program.dateFormat)}]`
+      }
+      log(`${migration.title} ${timeString}`, migration.description || '<No Description>')
+    })
+  } catch (error) {
+    console.log(error)
+    log.error('error', error)
+    process.exit(1)
+  }
   process.exit(0)
-})
+}
+
+list()

@@ -1,12 +1,10 @@
 
 var db = require('../../util/db')
 
-exports.up = function (next) {
+exports.up = async function () {
   db.issue33.push('1-up')
-  next()
 }
 
-exports.down = function (next) {
+exports.down = async function () {
   db.issue33.push('1-down')
-  next()
 }

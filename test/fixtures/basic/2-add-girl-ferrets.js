@@ -1,12 +1,10 @@
 
 var db = require('../../util/db')
 
-exports.up = function (next) {
+exports.up = async function () {
   db.pets.push({ name: 'jane' })
-  next()
 }
 
-exports.down = function (next) {
+exports.down = async function () {
   db.pets.pop()
-  next()
 }

@@ -5,38 +5,48 @@
 // $ redis-server
 
 var path = require('path')
+var Promise = require('bluebird')
 var migrate = require('../')
 var redis = require('redis')
+Promise.promisifyAll(redis.RedisClient.prototype)
 var db = redis.createClient()
 
 migrate(path.join(__dirname, '.migrate'))
 
-migrate('add pets', function (next) {
-  db.rpush('pets', 'tobi')
-  db.rpush('pets', 'loki', next)
-}, function (next) {
-  db.rpop('pets')
-  db.rpop('pets', next)
+migrate('add pets', async function () {
+  return Promise.all([
+    db.rpushAsync('pets', 'tobi'),
+    db.rpushAsync('pets', 'loki')
+  ])
+}, async function () {
+  return Promise.all([
+    db.rpopAsync('pets'),
+    db.rpopAsync('pets')
+  ])
 })
 
-migrate('add jane', function (next) {
-  db.rpush('pets', 'jane', next)
-}, function (next) {
-  db.rpop('pets', next)
+migrate('add jane', async function () {
+  return db.rpushAsync('pets', 'jane')
+}, async function () {
+  return db.rpopAsync('pets')
 })
 
-migrate('add owners', function (next) {
-  db.rpush('owners', 'taylor')
-  db.rpush('owners', 'tj', next)
-}, function (next) {
-  db.rpop('owners')
-  db.rpop('owners', next)
+migrate('add owners', async function () {
+  return Promise.all([
+    db.rpushAsync('owners', 'taylor'),
+    db.rpushAsync('owners', 'tj')
+  ])
+}, async function () {
+  return Promise.all([
+    db.rpopAsync('owners'),
+    db.rpopAsync('owners')
+  ])
 })
 
-migrate('coolest pet', function (next) {
-  db.set('pets:coolest', 'tobi', next)
-}, function (next) {
-  db.del('pets:coolest', next)
+migrate('coolest pet', async function () {
+  return db.setAsync('pets:coolest', 'tobi')
+}, async function () {
+  return db.delAsync('pets:coolest')
 })
 
 var set = migrate()
@@ -50,7 +60,9 @@ set.on('migration', function (migration, direction) {
   console.log(direction, migration.title)
 })
 
-set.up(function (err) {
-  if (err) throw err
+async function main () {
+  await set.up()
   process.exit()
-})
+}
+
+main()

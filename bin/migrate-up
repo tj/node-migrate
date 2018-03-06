@@ -63,62 +63,33 @@ if (program.store[0] === '.') program.store = path.join(process.cwd(), program.s
 var Store = require(program.store)
 var store = new Store(program.stateFile)
 
-// Call store init
-if (program.init && typeof store.init === 'function') {
-  store.init(function (err) {
-    if (err) return log.error(err)
-    loadAndGo()
-  })
-} else {
-  loadAndGo()
-}
+loadAndGo()
 
 // Load in migrations
-function loadAndGo () {
-  migrate.load({
-    stateStore: store,
-    migrationsDirectory: program.migrationsDir,
-    filterFunction: minimatch.filter(program.matches)
-  }, function (err, set) {
-    if (err) {
-      log.error('error', err)
-      process.exit(1)
-    }
-
+async function loadAndGo () {
+  if (program.init && typeof store.init === 'function') {
+    await store.init()
+  }
+  try {
+    let set = await migrate.load({
+      stateStore: store,
+      migrationsDirectory: program.migrationsDir,
+      filterFunction: minimatch.filter(program.matches)
+    })
     set.on('warning', function (msg) {
       log('warning', msg)
     })
-
     set.on('migration', function (migration, direction) {
       log(direction, migration.title)
     })
-
-    // Run
-    ;(program.clean ? cleanUp : up)(set, function (err) {
-      if (err) {
-        log('error', err)
-        process.exit(1)
-      }
-      log('migration', 'complete')
-      process.exit(0)
-    })
-  })
-}
-
-function cleanUp (set, fn) {
-  runMigrations(set, 'down', null, function (err) {
-    if (err) {
-      return fn(err)
+    if (program.clean) {
+      await runMigrations(set, 'down', {}, null)
     }
-    up(set, fn)
-  })
-}
-
-function up (set, fn) {
-  runMigrations(set, 'up', program.args[0], function (err) {
-    if (err) {
-      return fn(err)
-    }
-    fn()
-  })
+    await runMigrations(set, 'up', {}, program.args[0])
+    log('migration', 'complete')
+    process.exit(0)
+  } catch (error) {
+    log.error('error', error)
+    process.exit(1)
+  }
 }

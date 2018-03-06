@@ -1,10 +1,8 @@
 'use strict'
 module.exports.description = 'test'
 
-module.exports.up = function (next) {
-  next()
+module.exports.up = async function () {
 }
 
-module.exports.down = function (next) {
-  next()
+module.exports.down = async function () {
 }

@@ -41,7 +41,7 @@ function migrate (title, up, down) {
  */
 exports.MigrationSet = MigrationSet
 
-exports.load = function (options, fn) {
+exports.load = async function (options) {
   var opts = options || {}
 
   // Create default store
@@ -50,13 +50,12 @@ exports.load = function (options, fn) {
   // Create migration set
   var set = new MigrationSet(store)
 
-  loadMigrationsIntoSet({
+  await loadMigrationsIntoSet({
     set: set,
     store: store,
     migrationsDirectory: opts.migrationsDirectory,
     filterFunction: opts.filterFunction,
     sortFunction: opts.sortFunction
-  }, function (err) {
-    fn(err, set)
   })
+  return set
 }
