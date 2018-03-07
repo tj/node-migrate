@@ -83,7 +83,7 @@ describe('$ migrate', function () {
       })
     })
 
-    it('should respect the --extention', function (done) {
+    it('should respect the --extension', function (done) {
       var name = 'test'
       var fmt = 'yyyy-mm-dd'
       var ext = '.mjs'
