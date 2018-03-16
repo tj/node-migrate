@@ -1,3 +1,41 @@
+1.3.0 / 2018-03-15
+==================
+
+  * Added `--extension`
+  * `--extention` deprecation
+  * Bug fixes
+
+1.2.0 / 2018-01-27
+==================
+
+  * Bug fixes for promise rejections
+
+1.1.1 / 2018-01-02
+==================
+
+  * Bug Fix
+
+1.1.0 / 2017-12-20
+==================
+
+  * Fixes state store functionality issues
+
+1.0.1 / 2017-12-19
+==================
+
+  * Bug fix
+
+1.0.0 / 2017-11-30
+==================
+
+  * This was a major refactor effecting most of the codebase
+  * Track migration status on a per migration basis as opposed to with an array index
+  * Moved to commander for cli interface
+  * Compiler support
+  * State store support
+  * `dotenv` support
+  * See: https://github.com/tj/node-migrate/pull/77
+
 0.2.3 / 2016-07-05
 ==================
 
