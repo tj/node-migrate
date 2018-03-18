@@ -14,6 +14,7 @@ program
   .option('-f, --state-file <path>', 'Set path to state file', '.migrate')
   .option('-s, --store <store>', 'Set the migrations store', path.join(__dirname, '..', 'lib', 'file-store'))
   .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
+  .option('--compiler <ext:module>', 'Use the given module to compile files')
   .option('-c, --chdir [dir]', 'Change the working directory', process.cwd())
   .option('--env [name]', 'Use dotenv to load an environment file')
   .parse(process.argv)
@@ -29,6 +30,11 @@ if (program.env) {
   if (e && e.error instanceof Error) {
     throw e.error
   }
+}
+
+// Load compiler
+if (program.compiler) {
+  registerCompiler(program.compiler)
 }
 
 // Setup store
