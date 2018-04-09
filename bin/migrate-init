@@ -8,6 +8,7 @@ var dotenv = require('dotenv')
 var path = require('path')
 var log = require('../lib/log')
 var pkg = require('../package.json')
+var registerCompiler = require('../lib/register-compiler')
 
 program
   .version(pkg.version)
