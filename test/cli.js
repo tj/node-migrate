@@ -99,7 +99,7 @@ describe('$ migrate', function () {
       })
     })
 
-    it.only('should default the extension to the template file extension', function (done) {
+    it('should default the extension to the template file extension', function (done) {
       var name = 'test'
       var fmt = 'yyyy-mm-dd'
       var ext = '.mjs'
@@ -110,9 +110,14 @@ describe('$ migrate', function () {
         assert.equal(code, 0)
         assert.doesNotThrow(() => {
           fs.readdirSync(path.join(TMP_DIR, 'migrations')).forEach(file => {
-            console.log(file)
+            // noop
           })
-          fs.accessSync(path.join(TMP_DIR, 'migrations', now + '-' + name + ext))
+          var filePath = path.join(TMP_DIR, 'migrations', now + '-' + name + ext)
+          var content = fs.readFileSync(filePath, {
+            encoding: 'utf8'
+          })
+          assert(content.indexOf('test') !== -1)
+          fs.accessSync(filePath)
         })
         done()
       })
