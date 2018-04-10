@@ -57,8 +57,8 @@ describe('$ migrate', function () {
       create(['test'], function (err, out, code) {
         assert(!err)
         assert.equal(code, 0)
-        var file = out.split(':')[1].trim()
-        var content = fs.readFileSync(file, {
+        const file = out.split(':')[1].trim()
+        const content = fs.readFileSync(file, {
           encoding: 'utf8'
         })
         assert(content)
@@ -69,9 +69,9 @@ describe('$ migrate', function () {
     })
 
     it('should respect the --date-format', function (done) {
-      var name = 'test'
-      var fmt = 'yyyy-mm-dd'
-      var now = formatDate(new Date(), fmt)
+      const name = 'test'
+      const fmt = 'yyyy-mm-dd'
+      const now = formatDate(new Date(), fmt)
 
       create([name, '-d', fmt], function (err, out, code) {
         assert(!err)
@@ -84,10 +84,10 @@ describe('$ migrate', function () {
     })
 
     it('should respect the --extension', function (done) {
-      var name = 'test'
-      var fmt = 'yyyy-mm-dd'
-      var ext = '.mjs'
-      var now = formatDate(new Date(), fmt)
+      const name = 'test'
+      const fmt = 'yyyy-mm-dd'
+      const ext = '.mjs'
+      const now = formatDate(new Date(), fmt)
 
       create([name, '-d', fmt, '-e', ext], function (err, out, code) {
         assert(!err)
@@ -99,13 +99,37 @@ describe('$ migrate', function () {
       })
     })
 
+    it('should default the extension to the template file extension', function (done) {
+      const name = 'test'
+      const fmt = 'yyyy-mm-dd'
+      const ext = '.mjs'
+      const now = formatDate(new Date(), fmt)
+
+      create([name, '-d', fmt, '-t', path.join(__dirname, 'util', 'tmpl.mjs')], function (err, out, code) {
+        assert(!err)
+        assert.equal(code, 0)
+        assert.doesNotThrow(() => {
+          fs.readdirSync(path.join(TMP_DIR, 'migrations')).forEach(file => {
+            // noop
+          })
+          const filePath = path.join(TMP_DIR, 'migrations', now + '-' + name + ext)
+          const content = fs.readFileSync(filePath, {
+            encoding: 'utf8'
+          })
+          assert(content.indexOf('test') !== -1)
+          fs.accessSync(filePath)
+        })
+        done()
+      })
+    })
+
     it('should use the --template-file flag', function (done) {
       create(['test', '-t', path.join(__dirname, 'util', 'tmpl.js')], function (err, out, code) {
         assert(!err)
         assert.equal(code, 0, out)
         assert(out.indexOf('create') !== -1)
-        var file = out.split(':')[1].trim()
-        var content = fs.readFileSync(file, {
+        const file = out.split(':')[1].trim()
+        const content = fs.readFileSync(file, {
           encoding: 'utf8'
         })
         assert(content.indexOf('test') !== -1)
