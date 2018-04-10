@@ -99,6 +99,22 @@ describe('$ migrate', function () {
       })
     })
 
+    it('should default the extension to the template file extension', function (done) {
+      const name = 'test'
+      const fmt = 'yyyy-mm-dd'
+      const ext = '.mjs'
+      const now = formatDate(new Date(), fmt)
+
+      create([name, '-d', fmt, '-t', path.join(__dirname, 'util', 'tmpl' + ext)], function (err, out, code) {
+        assert(!err)
+        assert.equal(code, 0)
+        assert.doesNotThrow(() => {
+          fs.accessSync(path.join(TMP_DIR, 'migrations', now + '-' + name + ext))
+        })
+        done()
+      })
+    })
+
     it('should use the --template-file flag', function (done) {
       create(['test', '-t', path.join(__dirname, 'util', 'tmpl.js')], function (err, out, code) {
         assert(!err)
