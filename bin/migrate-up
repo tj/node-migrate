@@ -19,7 +19,7 @@ program
   .option('-f, --state-file <path>', 'Set path to state file', '.migrate')
   .option('-s, --store <store>', 'Set the migrations store', path.join(__dirname, '..', 'lib', 'file-store'))
   .option('--clean', 'Tears down the migration state before running up')
-  .option('--force', 'Force through the command, ignoring warnings')
+  .option('-F, --force', 'Force through the command, ignoring warnings')
   .option('--init', 'Runs init for the store')
   .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
   .option('--matches <glob>', 'A glob pattern to filter migration files', '*')
@@ -78,7 +78,8 @@ function loadAndGo () {
   migrate.load({
     stateStore: store,
     migrationsDirectory: program.migrationsDir,
-    filterFunction: minimatch.filter(program.matches)
+    filterFunction: minimatch.filter(program.matches),
+    ignoreMissing: program.force
   }, function (err, set) {
     if (err) {
       log.error('error', err)

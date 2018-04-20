@@ -22,6 +22,7 @@ program
   .option('--matches <glob>', 'A glob pattern to filter migration files', '*')
   .option('--compiler <ext:module>', 'Use the given module to compile files')
   .option('--env [name]', 'Use dotenv to load an environment file')
+  .option('-F, --force', 'Force through the command, ignoring warnings')
   .parse(process.argv)
 
 // Change the working dir
@@ -52,7 +53,8 @@ var store = new Store(program.stateFile)
 migrate.load({
   stateStore: store,
   migrationsDirectory: program.migrationsDir,
-  filterFunction: minimatch.filter(program.matches)
+  filterFunction: minimatch.filter(program.matches),
+  ignoreMissing: program.force
 }, function (err, set) {
   if (err) {
     log.error('error', err)

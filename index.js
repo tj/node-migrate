@@ -55,7 +55,8 @@ exports.load = function (options, fn) {
     store: store,
     migrationsDirectory: opts.migrationsDirectory,
     filterFunction: opts.filterFunction,
-    sortFunction: opts.sortFunction
+    sortFunction: opts.sortFunction,
+    ignoreMissing: opts.ignoreMissing
   }, function (err) {
     fn(err, set)
   })
