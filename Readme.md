@@ -3,6 +3,7 @@
 [![NPM Version](https://img.shields.io/npm/v/migrate.svg)](https://npmjs.org/package/migrate)
 [![NPM Downloads](https://img.shields.io/npm/dm/migrate.svg)](https://npmjs.org/package/migrate)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![Build Status](https://travis-ci.org/tj/node-migrate.svg?branch=master)](https://travis-ci.org/tj/node-migrate)
 
 Abstract migration framework for node.
 
