@@ -16,7 +16,7 @@ program
   .option('--compiler <ext:module>', 'Use the given module to compile files')
   .option('-d, --date-format [format]', 'Set a date format to use')
   .option('-t, --template-file [filePath]', 'Set path to template file to use for new migrations', path.join(__dirname, '..', 'lib', 'template.js'))
-  .option('-e, --extension [extension]', 'Use the given extension to create the file', '.js')
+  .option('-e, --extension [extension]', 'Use the given extension to create the file')
   .option('--extention [extension]', '. Use the given extension to create the file. Deprecated as of v1.2. Replace with -e or --extension.')
   .option('-g, --generator <name>', 'A template generator function', path.join(__dirname, '..', 'lib', 'template-generator'))
   .option('--env [name]', 'Use dotenv to load an environment file')
@@ -59,7 +59,7 @@ function create (name) {
     dateFormat: program.dateFormat,
     templateFile: program.templateFile,
     migrationsDirectory: program.migrationsDir,
-    extension: program.extension
+    extension: program.extension || path.extname(program.templateFile)
   }, function (err, p) {
     if (err) {
       log.error('Template generation error', err.message)
