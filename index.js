@@ -26,7 +26,15 @@ function migrate (title, up, down) {
     migrate.set.addMigration(title, up, down)
   // specify migration file
   } else if (typeof title === 'string') {
-    migrate.set = exports.load(title)
+    migrate.set = exports.load(
+      { stateStore: title },
+      up || function (err, set) {
+      if (err) throw err;
+      set.up(function (err) {
+        if (err) throw err;
+        console.log('migrations successfully ran');
+      });
+    });
   // no migration path
   } else if (!migrate.set) {
     throw new Error('must invoke migrate(path) before running migrations')
