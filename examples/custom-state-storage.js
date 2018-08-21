@@ -8,28 +8,32 @@ const migrate = require('migrate')
  * migrations have been executed.
  */
 class customStateStorage {
-  static async load (fn) {
-    const {rows} = await pool.query('SELECT data FROM migrations') // Load the single row of migration data from the database
+  static load (fn) {
+    return pool.query('SELECT data FROM schema.migrations').then(({rows}) => {  // Load the single row of migration data from the database
+      let store = {}
+      try {
+        store = JSON.parse(rows[0].data)   // Parse the single row into a migration data object
+      } catch (e) {
+        console.log('Cannot read migrations from database. If this is the first time you run migrations, then this is normal.')
+      }
 
-    let store = {}
-    try {
-      store = JSON.parse(rows[0].data) // Parse the single row into a migration data object
-    } catch (e) {
-      console.log('Cannot read migrations from database. If this is the first time you run migrations, then this is normal.')
-    }
-
-    return fn(null, store) // Call callback with new migration data object
+      fn(null, store)    // Call callback with new migration data object
+    })
   }
 
-  static async save (set, fn) {
-    const migrationData = JSON.stringify({ // Take the data stored in 'set', map it to a simple object and stringify it.
+  static save (set, fn) {
+    const migrationData = JSON.stringify({         // Take the data stored in 'set', map it to a simple object and stringify it.
       lastRun: set.lastRun,
       migrations: set.migrations
     })
 
-    await pool.query('DELETE FROM migrations')   // Clean the table of all data
-    await pool.query('INSERT INTO migrations (data) VALUES ($1)', [migrationData]) // Insert one row with the new migration data.
-    fn() // Call callback
+    return pool.query('CREATE TABLE IF NOT EXISTS schema.migrations (data text NOT NULL)').then(() => {   // Check if table 'migrations' exists and if not, create it.
+      pool.query('DELETE FROM schema.migrations').then(() => {                                            // Clean the table of all data
+        pool.query('INSERT INTO schema.migrations (data) VALUES ($1)', [migrationData]).then(() => {      // Insert one row with the new migration data.
+          fn()                                                                                            // Call callback
+        })
+      })
+    })
   }
 }
 
