@@ -65,6 +65,13 @@ describe('Promise migrations', function () {
     })
   })
 
+  it("shouldn't error with resolved promises", function (done) {
+    set.up('5-resolve-test.js', function (err) {
+      assert(!err)
+      done()
+    })
+  })
+
   it('should error with rejected promises', function (done) {
     set.up('99-failure-test.js', function (err) {
       assert(err)
