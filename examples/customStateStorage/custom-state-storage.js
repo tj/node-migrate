@@ -10,28 +10,24 @@ const migrate = require('migrate')
 class customStateStorage {
   static load (fn) {
     return pool.query('SELECT data FROM schema.migrations').then(({rows}) => {  // Load the single row of migration data from the database
-      let store = {}
-      try {
-        store = JSON.parse(rows[0].data)   // Parse the single row into a migration data object
-      } catch (e) {
+      if (rows.length !== 1) {
         console.log('Cannot read migrations from database. If this is the first time you run migrations, then this is normal.')
+        return fn(null, {})
       }
 
-      fn(null, store)    // Call callback with new migration data object
+      return fn(null, rows[0].data)    // Call callback with new migration data object
     })
   }
 
   static save (set, fn) {
-    const migrationData = JSON.stringify({         // Take the data stored in 'set', map it to a simple object and stringify it.
+    const migrationData = {         // Take the data stored in 'set' and map it to a simple object.
       lastRun: set.lastRun,
       migrations: set.migrations
-    })
+    }
 
-    return pool.query('CREATE TABLE IF NOT EXISTS schema.migrations (data text NOT NULL)').then(() => {   // Check if table 'migrations' exists and if not, create it.
-      pool.query('DELETE FROM schema.migrations').then(() => {                                            // Clean the table of all data
-        pool.query('INSERT INTO schema.migrations (data) VALUES ($1)', [migrationData]).then(() => {      // Insert one row with the new migration data.
-          fn()                                                                                            // Call callback
-        })
+    return pool.query('CREATE TABLE IF NOT EXISTS schema.migrations (data jsonb NOT NULL UNIQUE)').then(() => {   // Check if table 'migrations' exists and if not, create it.
+      pool.query('INSERT INTO schema.migrations (data) VALUES ($1) ON CONFLICT (data) DO UPDATE SET data = $1', [migrationData]).then(() => { // Upsert the migration data
+        fn()                                                                                            // Call callback
       })
     })
   }
