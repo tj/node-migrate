@@ -25,8 +25,8 @@ class customStateStorage {
       migrations: set.migrations
     }
 
-    return pool.query('CREATE TABLE IF NOT EXISTS schema.migrations (data jsonb NOT NULL UNIQUE)').then(() => {   // Check if table 'migrations' exists and if not, create it.
-      pool.query('INSERT INTO schema.migrations (data) VALUES ($1) ON CONFLICT (data) DO UPDATE SET data = $1', [migrationData]).then(() => { // Upsert the migration data
+    return pool.query('CREATE TABLE IF NOT EXISTS schema.migrations (id integer PRIMARY KEY, data jsonb NOT NULL)').then(() => {   // Check if table 'migrations' exists and if not, create it.
+      pool.query('INSERT INTO schema.migrations (id, data) VALUES (1, $1) ON CONFLICT (id) DO UPDATE SET data = $1', [migrationData]).then(() => { // Upsert the migration data
         fn()                                                                                            // Call callback
       })
     })
