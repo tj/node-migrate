@@ -26,7 +26,6 @@ program
 
 if (program.extention) {
   console.log('create', '"--extention" argument is deprecated. Use "--extension" instead')
-  program.extension = program.extension
 }
 
 // Setup environment

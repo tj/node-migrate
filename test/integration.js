@@ -25,27 +25,27 @@ describe('integration tests', function () {
   it('should warn when the migrations are run out of order', function (done) {
     run.init(TMP_DIR, [], function (err, out, code) {
       assert(!err)
-      assert.equal(code, 0)
+      assert.strictEqual(code, 0)
 
       run.create(TMP_DIR, ['1-one', '-d', 'W'], function (err, out, code) {
         assert(!err)
-        assert.equal(code, 0)
+        assert.strictEqual(code, 0)
 
         run.create(TMP_DIR, ['3-three', '-d', 'W'], function (err, out, code) {
           assert(!err)
-          assert.equal(code, 0)
+          assert.strictEqual(code, 0)
 
           run.up(TMP_DIR, [], function (err, out, code) {
             assert(!err)
-            assert.equal(code, 0)
+            assert.strictEqual(code, 0)
 
             run.create(TMP_DIR, ['2-two', '-d', 'W'], function (err, out, code) {
               assert(!err)
-              assert.equal(code, 0)
+              assert.strictEqual(code, 0)
 
               run.up(TMP_DIR, [], function (err, out, code) {
                 assert(!err)
-                assert.equal(code, 0)
+                assert.strictEqual(code, 0)
 
                 // A warning should log, and the process not exit with 0
                 // because migration 2 should come before migration 3,
@@ -64,33 +64,33 @@ describe('integration tests', function () {
   it('should error when migrations are present in the state file, but not loadable', function (done) {
     run.init(TMP_DIR, [], function (err, out, code) {
       assert(!err)
-      assert.equal(code, 0)
+      assert.strictEqual(code, 0)
 
       run.create(TMP_DIR, ['1-one', '-d', 'W'], function (err, out, code) {
         assert(!err)
-        assert.equal(code, 0)
+        assert.strictEqual(code, 0)
 
         run.create(TMP_DIR, ['3-three', '-d', 'W'], function (err, out, code) {
           assert(!err)
-          assert.equal(code, 0)
+          assert.strictEqual(code, 0)
 
           // Keep migration filename to remove
           var filename = out.split(' : ')[1].trim()
 
           run.up(TMP_DIR, [], function (err, out, code) {
             assert(!err)
-            assert.equal(code, 0)
+            assert.strictEqual(code, 0)
 
             // Remove the three migration
             rimraf.sync(filename)
 
             run.create(TMP_DIR, ['2-two', '-d', 'W'], function (err, out, code) {
               assert(!err)
-              assert.equal(code, 0)
+              assert.strictEqual(code, 0)
 
               run.up(TMP_DIR, [], function (err, out, code) {
                 assert(!err)
-                assert.equal(code, 1)
+                assert.strictEqual(code, 1)
                 assert(out.indexOf('error') !== -1)
                 done()
               })
@@ -104,33 +104,33 @@ describe('integration tests', function () {
   it('should not error when migrations are present in the state file, not loadable but not run', function (done) {
     run.init(TMP_DIR, [], function (err, out, code) {
       assert(!err)
-      assert.equal(code, 0)
+      assert.strictEqual(code, 0)
 
       run.create(TMP_DIR, ['1-one', '-d', 'W'], function (err, out, code) {
         assert(!err)
-        assert.equal(code, 0)
+        assert.strictEqual(code, 0)
 
         run.create(TMP_DIR, ['2-two', '-d', 'W'], function (err, out, code) {
           assert(!err)
-          assert.equal(code, 0)
+          assert.strictEqual(code, 0)
 
           // Keep migration filename to remove
           var filename = out.split(' : ')[1].trim()
 
           run.up(TMP_DIR, [], function (err, out, code) {
             assert(!err)
-            assert.equal(code, 0)
+            assert.strictEqual(code, 0)
 
             run.down(TMP_DIR, [], function (err, out, code) {
               assert(!err)
-              assert.equal(code, 0)
+              assert.strictEqual(code, 0)
 
               // Remove the three migration
               rimraf.sync(filename)
 
               run.up(TMP_DIR, [], function (err, out, code) {
                 assert(!err)
-                assert.equal(code, 0, out)
+                assert.strictEqual(code, 0, out)
                 done()
               })
             })
@@ -143,11 +143,11 @@ describe('integration tests', function () {
   it('should load the enviroment file when passed --env', function (done) {
     run.up(ENV_DIR, ['--env', 'env'], function (err, out, code) {
       assert(!err)
-      assert.equal(code, 0)
+      assert.strictEqual(code, 0)
       assert(out.indexOf('error') === -1)
       run.down(ENV_DIR, ['--env', 'env'], function (err, out, code) {
         assert(!err)
-        assert.equal(code, 0)
+        assert.strictEqual(code, 0)
         assert(out.indexOf('error') === -1)
         done()
       })
