@@ -21,22 +21,22 @@ describe('issue #148 - `migrate create --migrations-dir=... foo` should allow an
   it('should allow an absolute path', (done) => {
     init(TMP_DIR, ['--migrations-dir', path.join(TMP_DIR, 'other')], (err, out, code) => {
       assert.ifError(err)
-      assert.equal(code, 0, out)
+      assert.strictEqual(code, 0, out)
       assert.doesNotThrow(() => {
         fs.accessSync(path.join(TMP_DIR, 'other'))
       })
 
       create(TMP_DIR, ['--migrations-dir', path.join(TMP_DIR, 'other'), 'foo'], (err, out, code) => {
         assert.ifError(err)
-        assert.equal(code, 0, out)
+        assert.strictEqual(code, 0, out)
 
         up(TMP_DIR, ['--migrations-dir', path.join(TMP_DIR, 'other')], (err, out, code) => {
           assert.ifError(err)
-          assert.equal(code, 0, out)
+          assert.strictEqual(code, 0, out)
 
           down(TMP_DIR, ['--migrations-dir', path.join(TMP_DIR, 'other')], (err, out, code) => {
             assert.ifError(err)
-            assert.equal(code, 0, out)
+            assert.strictEqual(code, 0, out)
 
             done()
           })
@@ -48,22 +48,22 @@ describe('issue #148 - `migrate create --migrations-dir=... foo` should allow an
   it('should still allow a relative path', (done) => {
     init(TMP_DIR, ['--migrations-dir', 'other'], (err, out, code) => {
       assert.ifError(err)
-      assert.equal(code, 0, out)
+      assert.strictEqual(code, 0, out)
       assert.doesNotThrow(() => {
         fs.accessSync(path.join(TMP_DIR, 'other'))
       })
 
       create(TMP_DIR, ['--migrations-dir', 'other', 'foo'], (err, out, code) => {
         assert.ifError(err)
-        assert.equal(code, 0)
+        assert.strictEqual(code, 0)
 
         up(TMP_DIR, ['--migrations-dir', 'other'], (err, out, code) => {
           assert.ifError(err)
-          assert.equal(code, 0, out)
+          assert.strictEqual(code, 0, out)
 
           down(TMP_DIR, ['--migrations-dir', 'other'], (err, out, code) => {
             assert.ifError(err)
-            assert.equal(code, 0, out)
+            assert.strictEqual(code, 0, out)
 
             done()
           })

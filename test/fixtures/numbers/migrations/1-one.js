@@ -26,6 +26,6 @@ exports.test = function (next) {
 }
 
 exports.verify = function (next) {
-  assert.equal(db.numbers.indexOf(1), 0)
+  assert.strictEqual(db.numbers.indexOf(1), 0)
   next()
 }

@@ -75,7 +75,7 @@ describe('Promise migrations', function () {
   it('should error with rejected promises', function (done) {
     set.up('99-failure-test.js', function (err) {
       assert(err)
-      assert.equal(err.message, 'foo')
+      assert.strictEqual(err.message, 'foo')
       done()
     })
   })

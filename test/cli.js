@@ -41,7 +41,7 @@ describe('$ migrate', function () {
     it('should create a migrations directory', function (done) {
       init([], function (err, out, code) {
         assert(!err)
-        assert.equal(code, 0)
+        assert.strictEqual(code, 0)
         assert.doesNotThrow(() => {
           fs.accessSync(path.join(TMP_DIR, 'migrations'))
         })
@@ -56,7 +56,7 @@ describe('$ migrate', function () {
     it('should create a fixture file', function (done) {
       create(['test'], function (err, out, code) {
         assert(!err)
-        assert.equal(code, 0)
+        assert.strictEqual(code, 0)
         var file = out.split(':')[1].trim()
         var content = fs.readFileSync(file, {
           encoding: 'utf8'
@@ -75,7 +75,7 @@ describe('$ migrate', function () {
 
       create([name, '-d', fmt], function (err, out, code) {
         assert(!err)
-        assert.equal(code, 0)
+        assert.strictEqual(code, 0)
         assert.doesNotThrow(() => {
           fs.accessSync(path.join(TMP_DIR, 'migrations', now + '-' + name + '.js'))
         })
@@ -91,7 +91,7 @@ describe('$ migrate', function () {
 
       create([name, '-d', fmt, '-e', ext], function (err, out, code) {
         assert(!err)
-        assert.equal(code, 0)
+        assert.strictEqual(code, 0)
         assert.doesNotThrow(() => {
           fs.accessSync(path.join(TMP_DIR, 'migrations', now + '-' + name + ext))
         })
@@ -107,7 +107,7 @@ describe('$ migrate', function () {
 
       create([name, '-d', fmt, '-t', path.join(__dirname, 'util', 'tmpl' + ext)], function (err, out, code) {
         assert(!err)
-        assert.equal(code, 0)
+        assert.strictEqual(code, 0)
         assert.doesNotThrow(() => {
           fs.accessSync(path.join(TMP_DIR, 'migrations', now + '-' + name + ext))
         })
@@ -118,7 +118,7 @@ describe('$ migrate', function () {
     it('should use the --template-file flag', function (done) {
       create(['test', '-t', path.join(__dirname, 'util', 'tmpl.js')], function (err, out, code) {
         assert(!err)
-        assert.equal(code, 0, out)
+        assert.strictEqual(code, 0, out)
         assert(out.indexOf('create') !== -1)
         var file = out.split(':')[1].trim()
         var content = fs.readFileSync(file, {
@@ -132,7 +132,7 @@ describe('$ migrate', function () {
     it('should fail with non-zero and a helpful message when template is unreadable', function (done) {
       create(['test', '-t', 'fake'], function (err, out, code) {
         assert(!err)
-        assert.equal(code, 1)
+        assert.strictEqual(code, 1)
         assert(out.indexOf('fake') !== -1)
         done()
       })
@@ -143,10 +143,10 @@ describe('$ migrate', function () {
     it('should run up on multiple migrations', function (done) {
       up([], function (err, out, code) {
         assert(!err)
-        assert.equal(code, 0)
+        assert.strictEqual(code, 0)
         db.load()
         assert(out.indexOf('up') !== -1)
-        assert.equal(db.numbers.length, 2)
+        assert.strictEqual(db.numbers.length, 2)
         assert(db.numbers.indexOf(1) !== -1)
         assert(db.numbers.indexOf(2) !== -1)
         done()
@@ -156,10 +156,10 @@ describe('$ migrate', function () {
     it('should run up to a specified migration', function (done) {
       up(['1-one.js'], function (err, out, code) {
         assert(!err)
-        assert.equal(code, 0)
+        assert.strictEqual(code, 0)
         db.load()
         assert(out.indexOf('up') !== -1)
-        assert.equal(db.numbers.length, 1)
+        assert.strictEqual(db.numbers.length, 1)
         assert(db.numbers.indexOf(1) !== -1)
         assert(db.numbers.indexOf(2) === -1)
         done()
@@ -169,13 +169,13 @@ describe('$ migrate', function () {
     it('should run up multiple times', function (done) {
       up([], function (err, out, code) {
         assert(!err)
-        assert.equal(code, 0)
+        assert.strictEqual(code, 0)
         db.load()
         assert(out.indexOf('up') !== -1)
         up([], function (err, out) {
           assert(!err)
           assert(out.indexOf('up') === -1)
-          assert.equal(db.numbers.length, 2)
+          assert.strictEqual(db.numbers.length, 2)
           done()
         })
       })
@@ -184,13 +184,13 @@ describe('$ migrate', function () {
     it('should run down when passed --clean', function (done) {
       up([], function (err, out, code) {
         assert(!err)
-        assert.equal(code, 0)
+        assert.strictEqual(code, 0)
         up(['--clean'], function (err, out) {
           assert(!err)
           db.load()
           assert(out.indexOf('down') !== -1)
           assert(out.indexOf('up') !== -1)
-          assert.equal(db.numbers.length, 2)
+          assert.strictEqual(db.numbers.length, 2)
           done()
         })
       })
@@ -204,10 +204,10 @@ describe('$ migrate', function () {
     it('should run down on multiple migrations', function (done) {
       down([], function (err, out, code) {
         assert(!err)
-        assert.equal(code, 0)
+        assert.strictEqual(code, 0)
         db.load()
         assert(out.indexOf('down') !== -1)
-        assert.equal(db.numbers.length, 0)
+        assert.strictEqual(db.numbers.length, 0)
         assert(db.numbers.indexOf(1) === -1)
         assert(db.numbers.indexOf(2) === -1)
         done()
@@ -217,10 +217,10 @@ describe('$ migrate', function () {
     it('should run down to a specified migration', function (done) {
       down(['2-two.js'], function (err, out, code) {
         assert(!err)
-        assert.equal(code, 0)
+        assert.strictEqual(code, 0)
         db.load()
         assert(out.indexOf('down') !== -1)
-        assert.equal(db.numbers.length, 1)
+        assert.strictEqual(db.numbers.length, 1)
         assert(db.numbers.indexOf(1) !== -1)
         assert(db.numbers.indexOf(2) === -1)
         done()
@@ -230,13 +230,13 @@ describe('$ migrate', function () {
     it('should run down multiple times', function (done) {
       down([], function (err, out, code) {
         assert(!err)
-        assert.equal(code, 0)
+        assert.strictEqual(code, 0)
         assert(out.indexOf('down') !== -1)
         db.load()
         down([], function (err, out) {
           assert(!err)
           assert(out.indexOf('down') === -1)
-          assert.equal(db.numbers.length, 0)
+          assert.strictEqual(db.numbers.length, 0)
           done()
         })
       })
@@ -247,7 +247,7 @@ describe('$ migrate', function () {
     it('should list available migrations', function (done) {
       list([], function (err, out, code) {
         assert(!err)
-        assert.equal(code, 0, out)
+        assert.strictEqual(code, 0, out)
         assert(out.indexOf('1-one.js') !== -1)
         assert(out.indexOf('2-two.js') !== -1)
         done()

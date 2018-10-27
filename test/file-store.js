@@ -18,8 +18,8 @@ describe('FileStore tests', function () {
         return done(err)
       }
 
-      assert.equal(store.lastRun, '1480449051248-farnsworth.js')
-      assert.equal(store.migrations.length, 2)
+      assert.strictEqual(store.lastRun, '1480449051248-farnsworth.js')
+      assert.strictEqual(store.migrations.length, 2)
 
       return done()
     })
@@ -32,12 +32,12 @@ describe('FileStore tests', function () {
         return done(err)
       }
 
-      assert.equal(store.lastRun, '1480449051248-farnsworth.js')
-      assert.equal(store.migrations.length, 2)
+      assert.strictEqual(store.lastRun, '1480449051248-farnsworth.js')
+      assert.strictEqual(store.migrations.length, 2)
 
       store.migrations.forEach(function (migration) {
-        assert.equal(typeof migration.title, 'string')
-        assert.equal(typeof migration.timestamp, 'number')
+        assert.strictEqual(typeof migration.title, 'string')
+        assert.strictEqual(typeof migration.timestamp, 'number')
       })
 
       return done()
@@ -51,7 +51,7 @@ describe('FileStore tests', function () {
         return done(new Error('Error expected'))
       }
 
-      assert.equal(err.message, 'Invalid store file')
+      assert.strictEqual(err.message, 'Invalid store file')
 
       return done()
     })
@@ -64,7 +64,7 @@ describe('FileStore tests', function () {
         return done(new Error('Error expected'))
       }
 
-      assert.equal(err.message, 'Store file contains invalid pos property')
+      assert.strictEqual(err.message, 'Store file contains invalid pos property')
 
       return done()
     })

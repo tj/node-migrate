@@ -1,6 +1,6 @@
 'use strict'
 const migrate = require('migrate')
-const {Client} = require('pg')
+const { Client } = require('pg')
 const pg = new Client()
 
 /**
@@ -13,7 +13,7 @@ const customStateStorage = {
     await pg.connect()
 
     // Load the single row of migration data from the database
-    const {rows} = await pg.query('SELECT data FROM schema.migrations')
+    const { rows } = await pg.query('SELECT data FROM schema.migrations')
 
     if (rows.length !== 1) {
       console.log('Cannot read migrations from database. If this is the first time you run migrations, then this is normal.')

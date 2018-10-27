@@ -28,19 +28,19 @@ describe('issue #33', function () {
   it('should run migrations in the correct order', function (done) {
     set.up(function (err) {
       assert.ifError(err)
-      assert.deepEqual(db.issue33, A1)
+      assert.deepStrictEqual(db.issue33, A1)
 
       set.up(function (err) {
         assert.ifError(err)
-        assert.deepEqual(db.issue33, A1)
+        assert.deepStrictEqual(db.issue33, A1)
 
         set.down(function (err) {
           assert.ifError(err)
-          assert.deepEqual(db.issue33, A2)
+          assert.deepStrictEqual(db.issue33, A2)
 
           set.down(function (err) {
             assert.ifError(err)
-            assert.deepEqual(db.issue33, A2)
+            assert.deepStrictEqual(db.issue33, A2)
 
             done()
           })

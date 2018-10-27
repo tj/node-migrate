@@ -27,15 +27,15 @@ describe('issue #92', function () {
   it('shouldn\'t throw error after migrate down to initial state', function (done) {
     up([], function (err, out, code) {
       assert.ifError(err)
-      assert.equal(code, 0)
+      assert.strictEqual(code, 0)
 
       down([], function (err, out, code) {
         assert.ifError(err)
-        assert.equal(code, 0)
+        assert.strictEqual(code, 0)
 
         up([], function (err, out, code) {
           assert.ifError(err)
-          assert.equal(code, 0)
+          assert.strictEqual(code, 0)
 
           done()
         })
