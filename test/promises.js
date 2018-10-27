@@ -12,13 +12,16 @@ describe('Promise migrations', function () {
   var set
 
   beforeEach(function (done) {
-    migrate.load({
-      stateStore: STATE,
-      migrationsDirectory: BASE
-    }, function (err, s) {
-      set = s
-      done(err)
-    })
+    migrate.load(
+      {
+        stateStore: STATE,
+        migrationsDirectory: BASE
+      },
+      function (err, s) {
+        set = s
+        done(err)
+      }
+    )
   })
 
   afterEach(function (done) {
@@ -75,7 +78,7 @@ describe('Promise migrations', function () {
   it('should error with rejected promises', function (done) {
     set.up('99-failure-test.js', function (err) {
       assert(err)
-      assert.equal(err.message, 'foo')
+      assert.strictEqual(err.message, 'foo')
       done()
     })
   })
