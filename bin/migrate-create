@@ -53,7 +53,12 @@ function create (name) {
   }
 
   // Load the template generator
-  var gen = require(program.generator)
+  var gen
+  try {
+    gen = require(program.generator)
+  } catch (e) {
+    gen = require(path.resolve(program.generator))
+  }
   gen({
     name: name,
     dateFormat: program.dateFormat,
