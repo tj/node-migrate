@@ -9,8 +9,12 @@ var minimatch = require('minimatch')
 var dotenv = require('dotenv')
 var migrate = require('../')
 var log = require('../lib/log')
-var registerCompiler = require('../lib/register-compiler')
 var pkg = require('../package.json')
+
+function collect (val, memo) {
+  memo.push(val)
+  return memo
+}
 
 program
   .version(pkg.version)
@@ -21,7 +25,7 @@ program
   .option('-d, --date-format [format]', 'Set a date format to use', 'yyyy-mm-dd')
   .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
   .option('--matches <glob>', 'A glob pattern to filter migration files', '*')
-  .option('--compiler <ext:module>', 'Use the given module to compile files')
+  .option('--require <module>', 'Require the given module', collect, [])
   .option('--env [name]', 'Use dotenv to load an environment file')
   .parse(process.argv)
 
@@ -44,10 +48,8 @@ if (program.env) {
   }
 }
 
-// Load compiler
-if (program.compiler) {
-  registerCompiler(program.compiler)
-}
+// Require modules
+program.require.forEach(require)
 
 // Setup store
 if (program.store[0] === '.') program.store = path.join(process.cwd(), program.store)
