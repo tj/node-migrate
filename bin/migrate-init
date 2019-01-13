@@ -8,14 +8,18 @@ var dotenv = require('dotenv')
 var path = require('path')
 var log = require('../lib/log')
 var pkg = require('../package.json')
-var registerCompiler = require('../lib/register-compiler')
+
+function collect (val, memo) {
+  memo.push(val)
+  return memo
+}
 
 program
   .version(pkg.version)
   .option('-f, --state-file <path>', 'Set path to state file', '.migrate')
   .option('-s, --store <store>', 'Set the migrations store', path.join(__dirname, '..', 'lib', 'file-store'))
   .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
-  .option('--compiler <ext:module>', 'Use the given module to compile files')
+  .option('--require <module>', 'Require the given module', collect, [])
   .option('-c, --chdir [dir]', 'Change the working directory', process.cwd())
   .option('--env [name]', 'Use dotenv to load an environment file')
   .parse(process.argv)
@@ -33,10 +37,8 @@ if (program.env) {
   }
 }
 
-// Load compiler
-if (program.compiler) {
-  registerCompiler(program.compiler)
-}
+// Require modules
+program.require.forEach(require)
 
 // Setup store
 if (program.store[0] === '.') program.store = path.join(process.cwd(), program.store)
