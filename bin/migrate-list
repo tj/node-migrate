@@ -9,12 +9,10 @@ var minimatch = require('minimatch')
 var dotenv = require('dotenv')
 var migrate = require('../')
 var log = require('../lib/log')
+var registerCompiler = require('../lib/register-compiler')
 var pkg = require('../package.json')
-
-function collect (val, memo) {
-  memo.push(val)
-  return memo
-}
+var collect = require('../lib/collect')
+var deprecate = require('depd')('migrate')
 
 program
   .version(pkg.version)
@@ -26,6 +24,7 @@ program
   .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
   .option('--matches <glob>', 'A glob pattern to filter migration files', '*')
   .option('--require <module>', 'Require the given module', collect, [])
+  .option('--compiler <ext:module>', 'DEPRECATED Use the given module to compile files')
   .option('--env [name]', 'Use dotenv to load an environment file')
   .parse(process.argv)
 
@@ -46,6 +45,12 @@ if (program.env) {
   if (e && e.error instanceof Error) {
     throw e.error
   }
+}
+
+// Load compiler
+if (program.compiler) {
+  deprecate('--compiler is deprecated consider using --require instead')
+  registerCompiler(program.compiler)
 }
 
 // Require modules
