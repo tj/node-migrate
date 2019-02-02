@@ -67,7 +67,7 @@ migrate.load({
 
   runMigrations(set, 'down', program.args[0], function (err) {
     if (err) {
-      log('error', err)
+      log.error('error', err)
       process.exit(1)
     }
 

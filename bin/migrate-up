@@ -97,7 +97,7 @@ function loadAndGo () {
     // Run
     ;(program.clean ? cleanUp : up)(set, function (err) {
       if (err) {
-        log('error', err)
+        log.error('error', err)
         process.exit(1)
       }
       log('migration', 'complete')
