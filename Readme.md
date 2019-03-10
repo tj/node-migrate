@@ -216,7 +216,7 @@ can provide a custom storage engine if you would like to do something different,
 A storage engine has a simple interface of `load(fn)` and `save(set, fn)`.  As long as what goes in as `set` comes out
 the same on `load`, then you are good to go!
 
-If you are using the provided cli, you can specify the store implementation with the `--store` flag, which is be a `require`-able node module.  For example:
+If you are using the provided cli, you can specify the store implementation with the `--store` flag, which should be a `require`-able node module.  For example:
 
 ```
 $ migrate up --store="my-migration-store"
