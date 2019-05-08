@@ -5,6 +5,7 @@
 var program = require('commander')
 var path = require('path')
 var dotenv = require('dotenv')
+var customRequire = require('../lib/custom-require')
 var log = require('../lib/log')
 var registerCompiler = require('../lib/register-compiler')
 var pkg = require('../package.json')
@@ -53,12 +54,7 @@ function create (name) {
   }
 
   // Load the template generator
-  var gen
-  try {
-    gen = require(program.generator)
-  } catch (e) {
-    gen = require(path.resolve(program.generator))
-  }
+  var gen = customRequire(program.generator)
   gen({
     name: name,
     dateFormat: program.dateFormat,

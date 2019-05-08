@@ -7,6 +7,7 @@ var path = require('path')
 var dateFormat = require('dateformat')
 var minimatch = require('minimatch')
 var dotenv = require('dotenv')
+var customRequire = require('../lib/custom-require')
 var migrate = require('../')
 var log = require('../lib/log')
 var registerCompiler = require('../lib/register-compiler')
@@ -50,9 +51,7 @@ if (program.compiler) {
 }
 
 // Setup store
-if (program.store[0] === '.') program.store = path.join(process.cwd(), program.store)
-
-var Store = require(program.store)
+var Store = customRequire(program.store)
 var store = new Store(program.stateFile)
 
 // Load in migrations
