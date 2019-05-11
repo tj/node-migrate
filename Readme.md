@@ -70,7 +70,7 @@ module.exports.down = function (next) {
 }
 ```
 
-All you have to do is populate these, invoking `next()` when complete, and you are ready to migrate!
+All you have to do is populate these, invoking `next()` when complete (no need to call `next()` if up/down functions are `async`), and you are ready to migrate!
 
 For example:
 
