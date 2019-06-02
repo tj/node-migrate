@@ -5,3 +5,4 @@ test/fixtures/tmp
 *.swp
 yarn-error.log
 yarn.lock
+package-lock.json
