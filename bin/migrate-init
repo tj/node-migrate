@@ -45,7 +45,7 @@ var Store = require(program.store)
 var store = new Store(program.stateFile)
 
 // Create migrations dir path
-var p = path.join(process.cwd(), program.migrationsDir)
+var p = path.resolve(process.cwd(), program.migrationsDir)
 
 log('migrations dir', p)
 mkdirp.sync(p)
