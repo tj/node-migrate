@@ -1,13 +1,11 @@
 {
-  "name": "migrate",
-  "version": "1.6.2",
+  "name": "omdc.migrate",
+  "version": "1.0.0",
   "description": "Abstract migration framework for node",
   "keywords": [
-    "migrate",
-    "migrations"
+    "omdc.migrate",
+    "omdc.migrations"
   ],
-  "author": "TJ Holowaychuk <tj@vision-media.ca>",
-  "repository": "git://github.com/visionmedia/node-migrate",
   "bin": {
     "migrate": "./bin/migrate",
     "migrate-init": "./bin/migrate-init",
