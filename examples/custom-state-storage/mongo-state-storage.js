@@ -1,62 +1,70 @@
 const mongodb = require('mongodb');
+const migrate = require('migrate');
 const MongoClient = mongodb.MongoClient;
-const Bluebird = require('bluebird');
-
-Bluebird.promisifyAll(MongoClient);
+const url = 'mongodb://localhost/test';
 
 class MongoDbStore {
-    constructor() {
-        this.url = 'mongodb://localhost/test';
-    }
 
-    connect() {
-        return MongoClient.connect(this.url)
-            .then(client => {
-                return client.db()
-            })
-    }
+    load = async function (fn) {
+        let client = null;
+        let data = null;
+        try {
+            client = await MongoClient.connect(url);
+            const db = client.db();
+            data = await db.collection('db_migrations').find().toArray();
+            if (data.length !== 1) {
+                console.log('Cannot read migrations from database. If this is the first time you run migrations, then this is normal.');
+                return fn(null, {});
+            }
+        } catch (err) {
+            throw err
+        } finally {
+            client.close();
+        }
+        return fn(null, data[0])
+    };
 
-    load(fn) {
-        return this.connect()
-            .then(db => db.collection('db_migrations').find().toArray())
-            .then(data => {
-                if (!data.length) return fn(null, {});
-                const store = data[0];
-                if (!MongoDbStore.hasProperty(store, 'lastRun') ||
-                    !MongoDbStore.hasProperty(store, 'migrations')) {
-                    return fn(new Error('I`nvalid store file'))
-                }
-                return fn(null, store)
-            }).catch(fn)
-    }
-
-    static hasProperty(store, property) {
-        return Object
-            .prototype
-            .hasOwnProperty
-            .call(store, property);
-    }
-
-    save(set, fn) {
-        return this.connect()
-            .then(db => db.collection('db_migrations')
-                .update({},
-                    {
-                        $set: {
-                            lastRun: set.lastRun,
-                        },
-                        $push: {
-                            migrations: {$each: set.migrations},
-                        },
+    save = async function (set, fn) {
+        let client = null;
+        let result = null;
+        try {
+            client = await MongoClient.connect(url);
+            const db = client.db();
+            result = await db.collection('db_migrations')
+                .update({}, {
+                    $set: {
+                        lastRun: set.lastRun,
                     },
-                    {
-                        upsert: true,
-                        multi: true,
+                    $push: {
+                        migrations: {$each: set.migrations},
                     }
-                ))
-            .then(result => fn(null, result))
-            .catch(fn)
+                }, {upsert: true})
+        } catch (err) {
+            throw err;
+        } finally {
+            client.close();
+        }
+
+        return fn(null, result)
     }
 }
 
-module.exports = MongoDbStore;
+/**
+ * Main application code
+ */
+migrate.load(
+    {
+        // Set class as custom stateStore
+        stateStore: new MongoDbStore()
+    }, function (err, set) {
+        if (err) {
+            throw err
+        }
+
+        set.up((err2) => {
+            if (err2) {
+                throw err2
+            }
+            console.log('Migrations successfully ran')
+        })
+    });
