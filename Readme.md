@@ -141,14 +141,21 @@ can simply pass the `template-file` flag:
 $ migrate create --template-file ./my-migration-template.js
 ```
 
-Lastly, if you want to use newer ECMAscript features, or language addons like TypeScript, for your migrations, you can
-use the `compiler` flag.  For example, to use babel with your migrations, you can do the following:
+Lastly, if you want to use newer ECMAscript features, or language addons like TypeScript, for your migrations, you can use the `require` flag.
 
-```
+```sh
+# babel
 $ npm install --save babel-register
-$ migrate create --compiler="js:babel-register" foo
-$ migrate up --compiler="js:babel-register"
+$ migrate create --require="babel-register" foo
+$ migrate up --require="babel-register"
+
+# typescript
+$ npm install --save ts-node
+$ migrate create --require="ts-node/register" foo
+$ migrate up --require="ts-node/register"
 ```
+
+The `compiler` flag, which was previously used for this purpose, has been **deprecated**. Because of backward compatibility, it is still possible to use this flag, but a warning message will be displayed as a reminder to move to `require`.
 
 ## Running Migrations
 

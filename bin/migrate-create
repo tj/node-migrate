@@ -49,10 +49,14 @@ function create (name) {
   // Change the working dir
   process.chdir(program.chdir)
 
-  // Load compiler
+  // Register compiler only if --compiler was specified. Also, issue deprecation warning
   if (program.compiler) {
     deprecate('--compiler is deprecated consider using --require instead')
-    registerCompiler(program.compiler)
+    if (!program.require.length) {
+      registerCompiler(program.compiler)
+    } else {
+      log('warning', 'Both --require and --compiler options specified. Using --require')
+    }
   }
 
   // Require modules
