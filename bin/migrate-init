@@ -10,7 +10,6 @@ var log = require('../lib/log')
 var pkg = require('../package.json')
 var registerCompiler = require('../lib/register-compiler')
 var collect = require('../lib/collect')
-var deprecate = require('depd')('migrate')
 
 program
   .version(pkg.version)
@@ -36,15 +35,8 @@ if (program.env) {
   }
 }
 
-// Register compiler only if --compiler was specified. Also, issue deprecation warning
-if (program.compiler) {
-  deprecate('--compiler is deprecated consider using --require instead')
-  if (!program.require.length) {
-    registerCompiler(program.compiler)
-  } else {
-    log('warning', 'Both --require and --compiler options specified. Using --require')
-  }
-}
+// Register compiler only if --compiler was specified on its own. Also, issue deprecation warning
+registerCompiler(program.compiler, program.require.length)
 
 // Require modules
 program.require.forEach(require)
