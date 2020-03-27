@@ -26,7 +26,7 @@ Commands:
   init           Initalize the migrations tool in a project
   list           List migrations and their status
   create <name>  Create a new migration
-  up [name]      Migrate up to a give migration
+  up [name]      Migrate up to a given migration
   down [name]    Migrate down to a given migration
   help [cmd]     display help for [cmd]
 ```
