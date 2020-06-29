@@ -1,3 +1,9 @@
+1.7.0 / 2020-06-29
+==================
+
+* Docs, deps and maintence
+* Resolve absolute and `node_module` specifiers for path options
+
 1.3.0 / 2018-03-15
 ==================
 
