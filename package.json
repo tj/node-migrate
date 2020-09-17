@@ -33,7 +33,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "chalk": "^2.4.1",
+    "chalk": "^4.1.0",
     "commander": "^2.19.0",
     "dateformat": "^3.0.3",
     "dotenv": "^6.1.0",
