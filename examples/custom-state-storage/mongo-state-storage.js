@@ -15,8 +15,6 @@ class MongoDbStore {
         console.log('Cannot read migrations from database. If this is the first time you run migrations, then this is normal.')
         return fn(null, {})
       }
-    } catch (err) {
-      throw err
     } finally {
       client.close()
     }
@@ -38,8 +36,6 @@ class MongoDbStore {
             migrations: { $each: set.migrations }
           }
         }, { upsert: true })
-    } catch (err) {
-      throw err
     } finally {
       client.close()
     }

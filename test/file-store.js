@@ -12,7 +12,7 @@ const INVALID_STORE_FILE = path.join(BASE, 'invalid-store')
 
 describe('FileStore tests', function () {
   it('should load store file', function (done) {
-    let store = new FileStore(MODERN_STORE_FILE)
+    const store = new FileStore(MODERN_STORE_FILE)
     store.load(function (err, store) {
       if (err) {
         return done(err)
@@ -26,7 +26,7 @@ describe('FileStore tests', function () {
   })
 
   it('should convert pre-v1 store file format', function (done) {
-    let store = new FileStore(OLD_STORE_FILE)
+    const store = new FileStore(OLD_STORE_FILE)
     store.load(function (err, store) {
       if (err) {
         return done(err)
@@ -45,7 +45,7 @@ describe('FileStore tests', function () {
   })
 
   it('should error with invalid store file format', function (done) {
-    let store = new FileStore(BAD_STORE_FILE)
+    const store = new FileStore(BAD_STORE_FILE)
     store.load(function (err, store) {
       if (!err) {
         return done(new Error('Error expected'))
@@ -58,7 +58,7 @@ describe('FileStore tests', function () {
   })
 
   it('should error with invalid pos', function (done) {
-    let store = new FileStore(INVALID_STORE_FILE)
+    const store = new FileStore(INVALID_STORE_FILE)
     store.load(function (err, store) {
       if (!err) {
         return done(new Error('Error expected'))
