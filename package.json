@@ -17,7 +17,7 @@
     "migrate-down": "./bin/migrate-down"
   },
   "devDependencies": {
-    "mocha": "^5.2.0",
+    "mocha": "^8.1.3",
     "rimraf": "^3.0.2",
     "standard": "^12.0.1"
   },
