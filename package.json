@@ -34,7 +34,7 @@
   "license": "MIT",
   "dependencies": {
     "chalk": "^4.1.0",
-    "commander": "^2.19.0",
+    "commander": "^6.1.0",
     "dateformat": "^3.0.3",
     "dotenv": "^8.2.0",
     "inherits": "^2.0.3",
