@@ -10,7 +10,7 @@ const BASE = path.join(__dirname, 'fixtures', 'basic')
 const STATE = path.join(BASE, '.migrate')
 
 describe('migration set', function () {
-  var set
+  let set
 
   function assertNoPets () {
     assert.strictEqual(db.pets.length, 0)
@@ -130,9 +130,9 @@ describe('migration set', function () {
       }
     )
 
-    var saved = 0
-    var migrations = []
-    var expectedMigrations = [
+    let saved = 0
+    let migrations = []
+    let expectedMigrations = [
       '1-add-guy-ferrets.js',
       '2-add-girl-ferrets.js',
       '3-add-emails.js',

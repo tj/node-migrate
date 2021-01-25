@@ -36,7 +36,7 @@ describe('$ migrate', function () {
   afterEach(reset)
 
   describe('init', function () {
-    beforeEach(mkdirp.bind(mkdirp, TMP_DIR))
+    beforeEach(() => mkdirp(TMP_DIR))
 
     it('should create a migrations directory', function (done) {
       init([], function (err, out, code) {
@@ -51,14 +51,14 @@ describe('$ migrate', function () {
   }) // end init
 
   describe('create', function () {
-    beforeEach(mkdirp.bind(mkdirp, TMP_DIR))
+    beforeEach(() => mkdirp(TMP_DIR))
 
     it('should create a fixture file', function (done) {
       create(['test'], function (err, out, code) {
         assert(!err)
-        assert.strictEqual(code, 0)
-        var file = out.split(':')[1].trim()
-        var content = fs.readFileSync(file, {
+        assert.strictEqual(code, 0, out)
+        const file = out.split(':')[1].trim()
+        const content = fs.readFileSync(file, {
           encoding: 'utf8'
         })
         assert(content)
@@ -69,9 +69,9 @@ describe('$ migrate', function () {
     })
 
     it('should respect the --date-format', function (done) {
-      var name = 'test'
-      var fmt = 'yyyy-mm-dd'
-      var now = formatDate(new Date(), fmt)
+      const name = 'test'
+      const fmt = 'yyyy-mm-dd'
+      const now = formatDate(new Date(), fmt)
 
       create([name, '-d', fmt], function (err, out, code) {
         assert(!err)
@@ -84,10 +84,10 @@ describe('$ migrate', function () {
     })
 
     it('should respect the --extension', function (done) {
-      var name = 'test'
-      var fmt = 'yyyy-mm-dd'
-      var ext = '.mjs'
-      var now = formatDate(new Date(), fmt)
+      const name = 'test'
+      const fmt = 'yyyy-mm-dd'
+      const ext = '.mjs'
+      const now = formatDate(new Date(), fmt)
 
       create([name, '-d', fmt, '-e', ext], function (err, out, code) {
         assert(!err)
@@ -120,8 +120,8 @@ describe('$ migrate', function () {
         assert(!err)
         assert.strictEqual(code, 0, out)
         assert(out.indexOf('create') !== -1)
-        var file = out.split(':')[1].trim()
-        var content = fs.readFileSync(file, {
+        const file = out.split(':')[1].trim()
+        const content = fs.readFileSync(file, {
           encoding: 'utf8'
         })
         assert(content.indexOf('test') !== -1)
@@ -143,7 +143,7 @@ describe('$ migrate', function () {
     it('should run up on multiple migrations', function (done) {
       up([], function (err, out, code) {
         assert(!err)
-        assert.strictEqual(code, 0)
+        assert.strictEqual(code, 0, out)
         db.load()
         assert(out.indexOf('up') !== -1)
         assert.strictEqual(db.numbers.length, 2)

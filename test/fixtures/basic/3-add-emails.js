@@ -1,5 +1,5 @@
 
-var db = require('../../util/db')
+const db = require('../../util/db')
 
 exports.up = function (next) {
   db.pets.forEach(function (pet) {

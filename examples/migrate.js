@@ -4,10 +4,10 @@
 // $ npm install redis
 // $ redis-server
 
-var path = require('path')
-var migrate = require('../')
-var redis = require('redis')
-var db = redis.createClient()
+const path = require('path')
+const migrate = require('../')
+const redis = require('redis')
+const db = redis.createClient()
 
 migrate(path.join(__dirname, '.migrate'))
 
@@ -39,7 +39,7 @@ migrate('coolest pet', function (next) {
   db.del('pets:coolest', next)
 })
 
-var set = migrate()
+const set = migrate()
 
 console.log()
 set.on('save', function () {

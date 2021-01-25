@@ -9,7 +9,7 @@ const BASE = path.join(__dirname, 'fixtures', 'promises')
 const STATE = path.join(__dirname, 'fixtures', '.migrate')
 
 describe('Promise migrations', function () {
-  var set
+  let set
 
   beforeEach(function (done) {
     migrate.load({
@@ -40,7 +40,7 @@ describe('Promise migrations', function () {
   })
 
   it('should warn when using promise but still calling callback', function (done) {
-    var warned = false
+    let warned = false
     set.on('warning', function (msg) {
       assert(msg)
       warned = true
@@ -53,7 +53,7 @@ describe('Promise migrations', function () {
 
   it('should warn with no promise or callback', function (done) {
     set.up('3-callback-promise-test.js', function () {
-      var warned = false
+      let warned = false
       set.on('warning', function (msg) {
         assert(msg)
         warned = true
