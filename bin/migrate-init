@@ -2,13 +2,13 @@
 // vim: set ft=javascript:
 'use strict'
 
-var program = require('commander')
-var mkdirp = require('mkdirp')
-var dotenv = require('dotenv')
-var path = require('path')
-var log = require('../lib/log')
-var pkg = require('../package.json')
-var registerCompiler = require('../lib/register-compiler')
+const program = require('commander')
+const mkdirp = require('mkdirp')
+const dotenv = require('dotenv')
+const path = require('path')
+const log = require('../lib/log')
+const pkg = require('../package.json')
+const registerCompiler = require('../lib/register-compiler')
 
 program
   .version(pkg.version)
@@ -20,13 +20,15 @@ program
   .option('--env [name]', 'Use dotenv to load an environment file')
   .parse(process.argv)
 
+const options = program.opts()
+
 // Change the working dir
-process.chdir(program.chdir)
+process.chdir(options.chdir)
 
 // Setup environment
-if (program.env) {
-  var e = dotenv.config({
-    path: typeof program.env === 'string' ? program.env : '.env'
+if (options.env) {
+  const e = dotenv.config({
+    path: typeof options.env === 'string' ? options.env : '.env'
   })
   if (e && e.error instanceof Error) {
     throw e.error
@@ -34,18 +36,18 @@ if (program.env) {
 }
 
 // Load compiler
-if (program.compiler) {
-  registerCompiler(program.compiler)
+if (options.compiler) {
+  registerCompiler(options.compiler)
 }
 
 // Setup store
-if (program.store[0] === '.') program.store = path.join(process.cwd(), program.store)
+if (options.store[0] === '.') options.store = path.join(process.cwd(), options.store)
 
-var Store = require(program.store)
-var store = new Store(program.stateFile)
+const Store = require(options.store)
+const store = new Store(options.stateFile)
 
 // Create migrations dir path
-var p = path.resolve(process.cwd(), program.migrationsDir)
+const p = path.resolve(process.cwd(), options.migrationsDir)
 
 log('migrations dir', p)
 mkdirp.sync(p)

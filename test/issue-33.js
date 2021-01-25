@@ -9,11 +9,11 @@ const db = require('./util/db')
 const BASE = path.join(__dirname, 'fixtures', 'issue-33')
 const STATE = path.join(BASE, '.migrate')
 
-var A1 = ['1-up', '2-up', '3-up']
-var A2 = A1.concat(['3-down', '2-down', '1-down'])
+const A1 = ['1-up', '2-up', '3-up']
+const A2 = A1.concat(['3-down', '2-down', '1-down'])
 
 describe('issue #33', function () {
-  var set
+  let set
 
   beforeEach(function (done) {
     migrate.load({

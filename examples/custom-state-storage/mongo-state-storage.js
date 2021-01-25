@@ -16,7 +16,7 @@ class MongoDbStore {
         return fn(null, {})
       }
     } catch (err) {
-      throw err
+      return fn(err)
     } finally {
       client.close()
     }
@@ -39,7 +39,7 @@ class MongoDbStore {
           }
         }, { upsert: true })
     } catch (err) {
-      throw err
+      return fn(err)
     } finally {
       client.close()
     }

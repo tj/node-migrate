@@ -2,12 +2,14 @@
 // vim: set ft=javascript:
 'use strict'
 
-var program = require('commander')
-var path = require('path')
-var dotenv = require('dotenv')
-var log = require('../lib/log')
-var registerCompiler = require('../lib/register-compiler')
-var pkg = require('../package.json')
+const program = require('commander')
+const path = require('path')
+const dotenv = require('dotenv')
+const log = require('../lib/log')
+const registerCompiler = require('../lib/register-compiler')
+const pkg = require('../package.json')
+
+let _name
 
 program
   .version(pkg.version)
@@ -24,49 +26,50 @@ program
   .action(create)
   .parse(process.argv)
 
-if (program.extention) {
+const options = program.opts()
+
+if (options.extention) {
   console.log('create', '"--extention" argument is deprecated. Use "--extension" instead')
 }
 
 // Setup environment
-if (program.env) {
-  var e = dotenv.config({
-    path: typeof program.env === 'string' ? program.env : '.env'
+if (options.env) {
+  const e = dotenv.config({
+    path: typeof options.env === 'string' ? options.env : '.env'
   })
   if (e && e.error instanceof Error) {
     throw e.error
   }
 }
 
-var _name
-function create (name) {
+function create (name, options) {
   // Name provided?
   _name = name
 
   // Change the working dir
-  process.chdir(program.chdir)
+  process.chdir(options.chdir)
 
   // Load compiler
-  if (program.compiler) {
-    registerCompiler(program.compiler)
+  if (options.compiler) {
+    registerCompiler(options.compiler)
   }
 
   // Load the template generator
-  var gen
+  let gen
   try {
-    gen = require(program.generator)
+    gen = require(options.generator)
   } catch (e) {
-    gen = require(path.resolve(program.generator))
+    gen = require(path.resolve(options.generator))
   }
   gen({
     name: name,
-    dateFormat: program.dateFormat,
-    templateFile: program.templateFile,
-    migrationsDirectory: program.migrationsDir,
-    extension: program.extension || path.extname(program.templateFile)
+    dateFormat: options.dateFormat,
+    templateFile: options.templateFile,
+    migrationsDirectory: options.migrationsDir,
+    extension: options.extension || path.extname(options.templateFile)
   }, function (err, p) {
     if (err) {
-      log.error('Template generation error', err.message)
+      log.error('Template generation error', err.message || err)
       process.exit(1)
     }
     log('create', p)

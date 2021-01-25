@@ -1,5 +1,5 @@
-var assert = require('assert')
-var db = require('../../../util/db')
+const assert = require('assert')
+const db = require('../../../util/db')
 
 exports.up = function (next) {
   db.load()

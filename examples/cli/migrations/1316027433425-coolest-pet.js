@@ -1,5 +1,5 @@
 
-var db = require('./db')
+const db = require('./db')
 
 exports.up = function (next) {
   db.set('pets:coolest', 'tobi', next)

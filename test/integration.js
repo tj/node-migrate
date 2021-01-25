@@ -75,7 +75,7 @@ describe('integration tests', function () {
           assert.strictEqual(code, 0)
 
           // Keep migration filename to remove
-          var filename = out.split(' : ')[1].trim()
+          const filename = out.split(' : ')[1].trim()
 
           run.up(TMP_DIR, [], function (err, out, code) {
             assert(!err)
@@ -115,7 +115,7 @@ describe('integration tests', function () {
           assert.strictEqual(code, 0)
 
           // Keep migration filename to remove
-          var filename = out.split(' : ')[1].trim()
+          const filename = out.split(' : ')[1].trim()
 
           run.up(TMP_DIR, [], function (err, out, code) {
             assert(!err)

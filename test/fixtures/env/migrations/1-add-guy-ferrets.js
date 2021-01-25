@@ -1,4 +1,4 @@
-var db = require('../../../util/db')
+const db = require('../../../util/db')
 
 exports.up = function (next) {
   db[process.env.DB].push({ name: 'tobi' })

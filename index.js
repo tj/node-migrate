@@ -10,9 +10,9 @@
  * Module dependencies.
  */
 
-var MigrationSet = require('./lib/set')
-var FileStore = require('./lib/file-store')
-var loadMigrationsIntoSet = require('./lib/load-migrations')
+const MigrationSet = require('./lib/set')
+const FileStore = require('./lib/file-store')
+const loadMigrationsIntoSet = require('./lib/load-migrations')
 
 /**
  * Expose the migrate function.
@@ -42,13 +42,13 @@ function migrate (title, up, down) {
 exports.MigrationSet = MigrationSet
 
 exports.load = function (options, fn) {
-  var opts = options || {}
+  const opts = options || {}
 
   // Create default store
-  var store = (typeof opts.stateStore === 'string') ? new FileStore(opts.stateStore) : opts.stateStore
+  const store = (typeof opts.stateStore === 'string') ? new FileStore(opts.stateStore) : opts.stateStore
 
   // Create migration set
-  var set = new MigrationSet(store)
+  const set = new MigrationSet(store)
 
   loadMigrationsIntoSet({
     set: set,
