@@ -1,8 +1,16 @@
+1.8.0 / 2022-03-22
+==================
+
+  * fix(devDeps): updated standard & mocha
+  * fix: updated deps which don't break
+  * feat(docs): added custom state store example for mongodb closes #162
+  * feat: add TypeScript types closes #178
+
 1.7.0 / 2020-06-29
 ==================
 
-* Docs, deps and maintence
-* Resolve absolute and `node_module` specifiers for path options
+  * Docs, deps and maintence
+  * Resolve absolute and `node_module` specifiers for path options
 
 1.3.0 / 2018-03-15
 ==================
