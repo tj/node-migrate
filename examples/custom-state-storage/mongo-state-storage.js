@@ -16,6 +16,7 @@ class MongoDbStore {
         return fn(null, {})
       }
     } catch (err) {
+      console.log(err)
       throw err
     } finally {
       client.close()
@@ -39,6 +40,7 @@ class MongoDbStore {
           }
         }, { upsert: true })
     } catch (err) {
+      console.log(err)
       throw err
     } finally {
       client.close()

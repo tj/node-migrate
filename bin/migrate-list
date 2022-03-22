@@ -2,15 +2,15 @@
 // vim: set ft=javascript:
 'use strict'
 
-var program = require('commander')
-var path = require('path')
-var dateFormat = require('dateformat')
-var minimatch = require('minimatch')
-var dotenv = require('dotenv')
-var migrate = require('../')
-var log = require('../lib/log')
-var registerCompiler = require('../lib/register-compiler')
-var pkg = require('../package.json')
+const program = require('commander')
+const path = require('path')
+const dateFormat = require('dateformat')
+const minimatch = require('minimatch')
+const dotenv = require('dotenv')
+const migrate = require('../')
+const log = require('../lib/log')
+const registerCompiler = require('../lib/register-compiler')
+const pkg = require('../package.json')
 
 program
   .version(pkg.version)
@@ -36,7 +36,7 @@ process.chdir(program.chdir)
 
 // Setup environment
 if (program.env) {
-  var e = dotenv.config({
+  const e = dotenv.config({
     path: typeof program.env === 'string' ? program.env : '.env'
   })
   if (e && e.error instanceof Error) {
@@ -52,8 +52,8 @@ if (program.compiler) {
 // Setup store
 if (program.store[0] === '.') program.store = path.join(process.cwd(), program.store)
 
-var Store = require(program.store)
-var store = new Store(program.stateFile)
+const Store = require(program.store)
+const store = new Store(program.stateFile)
 
 // Load in migrations
 migrate.load({

@@ -2,12 +2,12 @@
 // vim: set ft=javascript:
 'use strict'
 
-var program = require('commander')
-var path = require('path')
-var dotenv = require('dotenv')
-var log = require('../lib/log')
-var registerCompiler = require('../lib/register-compiler')
-var pkg = require('../package.json')
+const program = require('commander')
+const path = require('path')
+const dotenv = require('dotenv')
+const log = require('../lib/log')
+const registerCompiler = require('../lib/register-compiler')
+const pkg = require('../package.json')
 
 program
   .version(pkg.version)
@@ -30,7 +30,7 @@ if (program.extention) {
 
 // Setup environment
 if (program.env) {
-  var e = dotenv.config({
+  const e = dotenv.config({
     path: typeof program.env === 'string' ? program.env : '.env'
   })
   if (e && e.error instanceof Error) {
@@ -38,6 +38,7 @@ if (program.env) {
   }
 }
 
+// eslint-disable-next-line no-var
 var _name
 function create (name) {
   // Name provided?
@@ -52,7 +53,7 @@ function create (name) {
   }
 
   // Load the template generator
-  var gen
+  let gen
   try {
     gen = require(program.generator)
   } catch (e) {

@@ -1,5 +1,5 @@
 'use strict'
-var fs = require('fs')
+const fs = require('fs')
 
 module.exports = {
   loaded: false,
@@ -25,7 +25,7 @@ module.exports = {
   },
   load: function () {
     if (this.loaded) return this
-    var json
+    let json
     try {
       json = JSON.parse(fs.readFileSync('.db', 'utf8'))
     } catch (e) {
