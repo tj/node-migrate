@@ -52,7 +52,8 @@ if (program.compiler) {
 // Setup store
 if (program.store[0] === '.') program.store = path.join(process.cwd(), program.store)
 
-const Store = require(program.store)
+const StoreImport = require(program.store)
+const Store = StoreImport.default || StoreImport
 const store = new Store(program.stateFile)
 
 // Load in migrations
