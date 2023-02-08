@@ -9,7 +9,12 @@ type MigrationOptions = {
 };
 
 type NextFunction = () => void;
-type CallbackError = (err: any) => void;
+/**
+ * Callback to continue migration.
+ * Result should be an `Error` if the method failed
+ * Result should be `null` if the method was successful
+ */
+type Callback = (result: Error | null) => void;
 
 export default function migrate(
   title: string,
@@ -44,32 +49,34 @@ export class MigrationSet extends EventEmitter {
     down: (next: NextFunction) => void
   ): void;
   addMigration(migration: Migration): void;
-  save(cb: CallbackError): void;
-  down(migrationName: string, cb: CallbackError): void;
-  down(cb: CallbackError): void;
-  up(migrationName: string, cb: CallbackError): void;
-  up(cb: CallbackError): void;
+  save(cb: Callback): void;
+  down(migrationName: string, cb: Callback): void;
+  down(cb: Callback): void;
+  up(migrationName: string, cb: Callback): void;
+  up(cb: Callback): void;
   migrate(
     direction: "up" | "down",
     migrationName: string,
-    cb: CallbackError
+    cb: Callback
   ): void;
-  migrate(direction: "up" | "down", cb: CallbackError): void;
+  migrate(direction: "up" | "down", cb: Callback): void;
   migrations: Migration[];
   map: { [title: string]: Migration };
   lastRun: string | null;
 }
 
-declare class FileStore {
-  constructor(path: string);
-  save(set: MigrationSet, cb: CallbackError): void;
-  load(
-    cb: (
-      err: any,
-      store: {
+/**
+ * Callback to invoke after loading migration state from filestore
+ * If loading failed, just the error should be passed as `err`
+ * If loading succeeded, `err` should be null and `store` should be the migration state that was loaded
+ */
+type FileStoreLoadCallback = ((err: Error) => void) & ((err: null, store: {
         lastRun?: string;
         migrations: Pick<Migration, "title" | "description" | "timestamp">[];
-      }
-    ) => void
-  ): void;
+      }) => void);
+
+declare class FileStore {
+  constructor(path: string);
+  save(set: MigrationSet, cb: Callback): void;
+  load(cb: FileStoreLoadCallback): void;
 }
