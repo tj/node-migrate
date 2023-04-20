@@ -4,6 +4,7 @@ type MigrationOptions = {
   set?: MigrationSet;
   stateStore?: string | FileStore;
   migrationsDirectory?: string;
+  ignoreMissing?: boolean;
   filterFunction?: (migration: string) => boolean;
   sortFunction?: (migration1: Migration, migration2: Migration) => boolean;
 };
