@@ -35,7 +35,7 @@
   "dependencies": {
     "chalk": "^4.1.2",
     "commander": "^2.20.3",
-    "dateformat": "^3.0.3",
+    "dateformat": "^4.6.3",
     "dotenv": "^16.0.0",
     "inherits": "^2.0.3",
     "minimatch": "^5.0.1",
