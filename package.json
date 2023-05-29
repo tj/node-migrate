@@ -23,7 +23,7 @@
   },
   "main": "index",
   "engines": {
-    "node": ">= 0.4.x"
+    "node": ">= 14.0.0"
   },
   "types": "index.d.ts",
   "scripts": {
