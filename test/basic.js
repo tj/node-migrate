@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 'use strict'
-const rimraf = require('rimraf')
+const { rimraf } = require('rimraf')
 const path = require('path')
 const assert = require('assert')
 const migrate = require('../')
@@ -197,8 +197,8 @@ describe('migration set', function () {
     assert.strictEqual(set.migrations[0].description, 'Adds two pets')
   })
 
-  afterEach(function (done) {
+  afterEach(function () {
     db.nuke()
-    rimraf(STATE, done)
+    return rimraf(STATE)
   })
 })
