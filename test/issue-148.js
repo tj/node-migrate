@@ -3,7 +3,7 @@
 const path = require('path')
 const assert = require('assert')
 const rimraf = require('rimraf')
-const mkdirp = require('mkdirp')
+const { mkdirp } = require('mkdirp')
 const fs = require('fs')
 const { create, up, down, init } = require('./util/run')
 
@@ -12,7 +12,7 @@ const TMP_DIR = path.join(__dirname, 'fixtures', 'tmp')
 describe('issue #148 - `migrate create --migrations-dir=... foo` should allow an absolute path', () => {
   function reset () {
     rimraf.sync(TMP_DIR)
-    mkdirp(TMP_DIR)
+    return mkdirp(TMP_DIR)
   }
 
   beforeEach(reset)

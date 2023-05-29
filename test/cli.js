@@ -4,7 +4,7 @@ const path = require('path')
 const fs = require('fs')
 const assert = require('assert')
 const rimraf = require('rimraf')
-const mkdirp = require('mkdirp')
+const { mkdirp } = require('mkdirp')
 const formatDate = require('dateformat')
 const db = require('./util/db')
 const run = require('./util/run')
@@ -36,7 +36,9 @@ describe('$ migrate', function () {
   afterEach(reset)
 
   describe('init', function () {
-    beforeEach(mkdirp.bind(mkdirp, TMP_DIR))
+    beforeEach(() => {
+      return mkdirp(TMP_DIR)
+    })
 
     it('should create a migrations directory', function (done) {
       init([], function (err, out, code) {
@@ -51,7 +53,9 @@ describe('$ migrate', function () {
   }) // end init
 
   describe('create', function () {
-    beforeEach(mkdirp.bind(mkdirp, TMP_DIR))
+    beforeEach(() => {
+      return mkdirp(TMP_DIR)
+    })
 
     it('should create a fixture file', function (done) {
       create(['test'], function (err, out, code) {
