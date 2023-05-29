@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 'use strict'
-const rimraf = require('rimraf')
+const { rimraf } = require('rimraf')
 const path = require('path')
 const assert = require('assert')
 const migrate = require('../')
@@ -21,8 +21,8 @@ describe('Promise migrations', function () {
     })
   })
 
-  afterEach(function (done) {
-    rimraf(STATE, done)
+  afterEach(function () {
+    return rimraf(STATE)
   })
 
   it('should handle callback migration', function (done) {
