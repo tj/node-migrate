@@ -60,7 +60,7 @@ function create (name) {
     gen = require(path.resolve(program.generator))
   }
   gen({
-    name: name,
+    name,
     dateFormat: program.dateFormat,
     templateFile: program.templateFile,
     migrationsDirectory: program.migrationsDir,

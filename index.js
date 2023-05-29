@@ -51,8 +51,8 @@ exports.load = function (options, fn) {
   const set = new MigrationSet(store)
 
   loadMigrationsIntoSet({
-    set: set,
-    store: store,
+    set,
+    store,
     migrationsDirectory: opts.migrationsDirectory,
     filterFunction: opts.filterFunction,
     sortFunction: opts.sortFunction,
