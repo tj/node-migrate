@@ -19,7 +19,7 @@
   "devDependencies": {
     "mocha": "^9.2.2",
     "rimraf": "^5.0.1",
-    "standard": "^16.0.4"
+    "standard": "^17.0.0"
   },
   "main": "index",
   "engines": {
