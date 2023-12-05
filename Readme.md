@@ -230,6 +230,7 @@ Calls the callback with a `Set` based on the options passed.  Options:
 
 - `set`: A set instance if you created your own
 - `stateStore`: A store instance to load and store migration state, or a string which is a path to the migration state file
+- `migrations`: An object where keys are migration names and values are migration objects
 - `migrationsDirectory`: The path to the migrations directory
 - `filterFunction`: A filter function which will be called for each file found in the migrations directory
 - `sortFunction`: A sort function to ensure migration order
