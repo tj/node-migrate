@@ -3,6 +3,7 @@ import type { EventEmitter } from "events";
 type MigrationOptions = {
   set?: MigrationSet;
   stateStore?: string | FileStore;
+  migrationsMap?: { [key: string]: { up: Function, down: Function } };
   migrationsDirectory?: string;
   ignoreMissing?: boolean;
   filterFunction?: (migration: string) => boolean;

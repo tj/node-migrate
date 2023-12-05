@@ -53,6 +53,7 @@ exports.load = function (options, fn) {
   loadMigrationsIntoSet({
     set,
     store,
+    migrationsMap: opts.migrationsMap,
     migrationsDirectory: opts.migrationsDirectory,
     filterFunction: opts.filterFunction,
     sortFunction: opts.sortFunction,
