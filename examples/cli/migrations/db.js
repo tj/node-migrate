@@ -1,4 +1,3 @@
-
 // bad example, but you get the point ;)
 
 // $ npm install redis
