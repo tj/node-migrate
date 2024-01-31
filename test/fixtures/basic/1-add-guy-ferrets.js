@@ -1,4 +1,3 @@
-
 const db = require('../../util/db')
 
 exports.description = 'Adds two pets'

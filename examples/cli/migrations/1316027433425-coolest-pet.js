@@ -1,4 +1,3 @@
-
 const db = require('./db')
 
 exports.up = function (next) {
