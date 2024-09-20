@@ -2,9 +2,10 @@
 // vim: set ft=javascript:
 'use strict'
 
-const program = require('commander')
+const { Command } = require('commander')
 const pkg = require('../package.json')
 
+const program = new Command()
 program
   .version(pkg.version)
   .command('init', 'Initalize the migrations tool in a project')

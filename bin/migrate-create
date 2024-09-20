@@ -2,13 +2,14 @@
 // vim: set ft=javascript:
 'use strict'
 
-const program = require('commander')
+const { Command } = require('commander')
 const path = require('path')
 const dotenv = require('dotenv')
 const log = require('../lib/log')
 const registerCompiler = require('../lib/register-compiler')
 const pkg = require('../package.json')
 
+const program = new Command()
 program
   .version(pkg.version)
   .option('-c, --chdir [dir]', 'Change the working directory', process.cwd())
@@ -19,52 +20,53 @@ program
   .option('-e, --extension [extension]', 'Use the given extension to create the file')
   .option('--extention [extension]', '. Use the given extension to create the file. Deprecated as of v1.2. Replace with -e or --extension.')
   .option('-g, --generator <name>', 'A template generator function', path.join(__dirname, '..', 'lib', 'template-generator'))
-  .option('--env [name]', 'Use dotenv to load an environment file')
+  .option('--env [name...]', 'Use dotenv to load an environment file')
   .arguments('<name>')
   .action(create)
   .parse(process.argv)
 
-if (program.extention) {
-  console.log('create', '"--extention" argument is deprecated. Use "--extension" instead')
-}
-
-// Setup environment
-if (program.env) {
-  const e = dotenv.config({
-    path: typeof program.env === 'string' ? program.env : '.env'
-  })
-  if (e && e.error instanceof Error) {
-    throw e.error
-  }
-}
-
 // eslint-disable-next-line no-var
 var _name
 function create (name) {
+  const opts = program.opts()
+
+  if (opts.extention) {
+    console.log('create', '"--extention" argument is deprecated. Use "--extension" instead')
+  }
+
+  // Setup environment
+  if (opts.env) {
+    const e = dotenv.config({
+      path: opts.env
+    })
+    if (e && e.error instanceof Error) {
+      throw e.error
+    }
+  }
   // Name provided?
   _name = name
 
   // Change the working dir
-  process.chdir(program.chdir)
+  process.chdir(opts.chdir)
 
   // Load compiler
-  if (program.compiler) {
-    registerCompiler(program.compiler)
+  if (opts.compiler) {
+    registerCompiler(opts.compiler)
   }
 
   // Load the template generator
   let gen
   try {
-    gen = require(program.generator)
+    gen = require(opts.generator)
   } catch (e) {
-    gen = require(path.resolve(program.generator))
+    gen = require(path.resolve(opts.generator))
   }
   gen({
     name,
-    dateFormat: program.dateFormat,
-    templateFile: program.templateFile,
-    migrationsDirectory: program.migrationsDir,
-    extension: program.extension || path.extname(program.templateFile)
+    dateFormat: opts.dateFormat,
+    templateFile: opts.templateFile,
+    migrationsDirectory: opts.migrationsDir,
+    extension: opts.extension || path.extname(opts.templateFile)
   }, function (err, p) {
     if (err) {
       log.error('Template generation error', err.message)

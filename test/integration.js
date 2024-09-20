@@ -153,4 +153,18 @@ describe('integration tests', function () {
       })
     })
   })
+
+  it('should support multiple --env parameters', function (done) {
+    run.up(ENV_DIR, ['--env', 'env', 'env.local'], function (err, out, code) {
+      assert(!err)
+      assert.strictEqual(code, 0)
+      assert(out.indexOf('error') === -1)
+      run.down(ENV_DIR, ['--env', 'env', 'env.local'], function (err, out, code) {
+        assert(!err)
+        assert.strictEqual(code, 0)
+        assert(out.indexOf('error') === -1)
+        done()
+      })
+    })
+  })
 })

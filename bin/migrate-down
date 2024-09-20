@@ -2,7 +2,7 @@
 // vim: set ft=javascript:
 'use strict'
 
-const program = require('commander')
+const { Command } = require('commander')
 const path = require('path')
 const minimatch = require('minimatch')
 const dotenv = require('dotenv')
@@ -12,6 +12,7 @@ const log = require('../lib/log')
 const registerCompiler = require('../lib/register-compiler')
 const pkg = require('../package.json')
 
+const program = new Command()
 program
   .version(pkg.version)
   .usage('[options] <name>')
@@ -21,17 +22,18 @@ program
   .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
   .option('--matches <glob>', 'A glob pattern to filter migration files', '*')
   .option('--compiler <ext:module>', 'Use the given module to compile files')
-  .option('--env [name]', 'Use dotenv to load an environment file')
+  .option('--env [name...]', 'Use dotenv to load an environment file')
   .option('-F, --force', 'Force through the command, ignoring warnings')
   .parse(process.argv)
+const opts = program.opts()
 
 // Change the working dir
-process.chdir(program.chdir)
+process.chdir(opts.chdir)
 
 // Setup environment
-if (program.env) {
+if (opts.env) {
   const e = dotenv.config({
-    path: typeof program.env === 'string' ? program.env : '.env'
+    path: opts.env
   })
   if (e && e.error instanceof Error) {
     throw e.error
@@ -39,23 +41,23 @@ if (program.env) {
 }
 
 // Load compiler
-if (program.compiler) {
-  registerCompiler(program.compiler)
+if (opts.compiler) {
+  registerCompiler(opts.compiler)
 }
 
 // Setup store
-if (program.store[0] === '.') program.store = path.join(process.cwd(), program.store)
+if (opts.store[0] === '.') opts.store = path.join(process.cwd(), opts.store)
 
-const StoreImport = require(program.store)
+const StoreImport = require(opts.store)
 const Store = StoreImport.default || StoreImport
-const store = new Store(program.stateFile)
+const store = new Store(opts.stateFile)
 
 // Load in migrations
 migrate.load({
   stateStore: store,
-  migrationsDirectory: program.migrationsDir,
-  filterFunction: minimatch.filter(program.matches),
-  ignoreMissing: program.force
+  migrationsDirectory: opts.migrationsDir,
+  filterFunction: minimatch.filter(opts.matches),
+  ignoreMissing: opts.force
 }, function (err, set) {
   if (err) {
     log.error('error', err)

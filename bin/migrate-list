@@ -2,7 +2,7 @@
 // vim: set ft=javascript:
 'use strict'
 
-const program = require('commander')
+const { Command } = require('commander')
 const path = require('path')
 const dateFormat = require('dateformat')
 const minimatch = require('minimatch')
@@ -12,6 +12,7 @@ const log = require('../lib/log')
 const registerCompiler = require('../lib/register-compiler')
 const pkg = require('../package.json')
 
+const program = new Command()
 program
   .version(pkg.version)
   .usage('[options] <name>')
@@ -22,22 +23,23 @@ program
   .option('--migrations-dir <dir>', 'Change the migrations directory name', 'migrations')
   .option('--matches <glob>', 'A glob pattern to filter migration files', '*')
   .option('--compiler <ext:module>', 'Use the given module to compile files')
-  .option('--env [name]', 'Use dotenv to load an environment file')
+  .option('--env [name...]', 'Use dotenv to load an environment file')
   .parse(process.argv)
+const opts = program.opts()
 
 // Check clean flag, exit if NODE_ENV === 'production' and force not specified
-if (program.clean && process.env.NODE_ENV === 'production' && !program.force) {
+if (opts.clean && process.env.NODE_ENV === 'production' && !opts.force) {
   log.error('error', 'Cowardly refusing to clean while node environment set to production, use --force to continue.')
   process.exit(1)
 }
 
 // Change the working dir
-process.chdir(program.chdir)
+process.chdir(opts.chdir)
 
 // Setup environment
-if (program.env) {
+if (opts.env) {
   const e = dotenv.config({
-    path: typeof program.env === 'string' ? program.env : '.env'
+    path: opts.env
   })
   if (e && e.error instanceof Error) {
     throw e.error
@@ -45,22 +47,22 @@ if (program.env) {
 }
 
 // Load compiler
-if (program.compiler) {
-  registerCompiler(program.compiler)
+if (opts.compiler) {
+  registerCompiler(opts.compiler)
 }
 
 // Setup store
-if (program.store[0] === '.') program.store = path.join(process.cwd(), program.store)
+if (opts.store[0] === '.') opts.store = path.join(process.cwd(), opts.store)
 
-const StoreImport = require(program.store)
+const StoreImport = require(opts.store)
 const Store = StoreImport.default || StoreImport
-const store = new Store(program.stateFile)
+const store = new Store(opts.stateFile)
 
 // Load in migrations
 migrate.load({
   stateStore: store,
-  migrationsDirectory: program.migrationsDir,
-  filterFunction: minimatch.filter(program.matches)
+  migrationsDirectory: opts.migrationsDir,
+  filterFunction: minimatch.filter(opts.matches)
 }, function (err, set) {
   if (err) {
     log.error('error', err)
@@ -72,7 +74,7 @@ migrate.load({
   }
 
   set.migrations.forEach(function (migration) {
-    log(migration.title + (migration.timestamp ? ' [' + dateFormat(migration.timestamp, program.dateFormat) + ']' : ' [not run]'), migration.description || '<No Description>')
+    log(migration.title + (migration.timestamp ? ' [' + dateFormat(migration.timestamp, opts.dateFormat) + ']' : ' [not run]'), migration.description || '<No Description>')
   })
 
   process.exit(0)
